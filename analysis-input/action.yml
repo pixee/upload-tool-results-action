@@ -21,13 +21,13 @@ runs:
   using: "composite"
   steps:
     - name: Upload file to pixee
-      uses: jesuscotlamee/pixee-actions/upload-file@main
+      uses: pixee/pixee-actions/upload-file@main
       with:
         url: ${{ inputs.URL }}
         file: ${{ inputs.FILE }}
         tool: ${{ inputs.TOOL }}
     - name: Call trigger
-      uses: jesuscotlamee/pixee-actions/trigger@main
+      uses: pixee/pixee-actions/trigger@main
       with:
         url: ${{ inputs.URL }}
         pr-number: ${{ inputs.PR_NUMBER }}

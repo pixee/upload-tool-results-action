@@ -28,7 +28,7 @@ jobs:
       - name: Semgrep cli
         run: semgrep --config auto . --sarif -o semgrep.sarif
       - name: Semgrep upload file
-        uses: JesusCotlamee/pixee-actions/upload-file@main
+        uses: pixee/pixee-actions/upload-file@main
         with:
           FILE: 'semgrep.sarif'
           # Replace with the specific property that identifies the tool related to the uploaded file. Allowed values: 'sonar', 'codeql', 'semgrep'
@@ -50,7 +50,7 @@ jobs:
           curl -v "$URL" -o sonar_issues.json
       - name: Upload file and trigger analysis
         # Replace <latest-commit> with the latest stable commit available in pixee-actions
-        uses: JesusCotlamee/pixee-actions/analysis-input@<latest-commit>
+        uses: pixee/pixee-actions/analysis-input@<latest-commit>
         with:
           FILE: sonar_issues.json
           # Replace with the specific property that identifies the tool related to the uploaded file. Allowed values: 'sonar', 'codeql', 'semgrep'
