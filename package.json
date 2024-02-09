@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "",
   "scripts": {
-    "build": "tsc --build"
+    "build": "ncc build -o dist/upload-file/ src/upload-input-file.ts && ncc build -o dist/trigger/ src/trigger-pr-analysis.ts"
   },
   "keywords": [],
   "author": "Pixee",
@@ -16,6 +16,7 @@
   },
   "devDependencies": {
     "typescript": "^5.3.3",
-    "@types/node": "20.9.0"
+    "@types/node": "20.9.0",
+    "@vercel/ncc": "^0.38.1"
   }
 }

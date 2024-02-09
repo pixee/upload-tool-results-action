@@ -13,4 +13,4 @@ outputs:
     description: Status
 runs:
   using: node20
-  main: ../lib/trigger-pr-analysis.js
+  main: ../dist/trigger/index.js
