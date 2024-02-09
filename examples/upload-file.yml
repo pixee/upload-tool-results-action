@@ -1,0 +1,27 @@
+name: Upload file
+
+on:
+  pull_request:
+    types: [ opened ]
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  upload-file:
+    runs-on: ubuntu-latest
+    name: Upload file
+    timeout-minutes: 2
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - name: Upload file
+        # Replace <latest-commit> with the latest stable commit available in pixee-actions
+        uses: JesusCotlamee/pixee-actions/upload-file@<latest-commit>
+        with:
+          # Replace <file> with the file to be uploaded.
+          FILE: <file>
+          # Replace <tool> with the specific property that identifies the tool related to the uploaded file. Allowed values: 'sonar', 'codeql', 'semgrep'
+          TOOL: <tool>

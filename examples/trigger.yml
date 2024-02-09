@@ -1,0 +1,25 @@
+name: Trigger analysis
+
+on:
+  pull_request:
+    types: [ opened ]
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  trigger-analysis:
+    runs-on: ubuntu-latest
+    name: Trigger analysis
+    timeout-minutes: 2
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - name: Trigger
+        # Replace <latest-commit> with the latest stable commit available in pixee-actions
+        uses: JesusCotlamee/pixee-actions/trigger@<latest-commit>
+        with:
+          # Replace <file> with the file to be uploaded.
+          FILE: <file>
