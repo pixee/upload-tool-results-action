@@ -1,6 +1,6 @@
 # GitHub Actions for Pixee
 
-This repository contains GitHub Actions for interacting with Pixee, providing seamless integration for code analysis in your GitHub workflows.
+GitHub Actions for interacting with [Pixee](https://pixee.ai/), providing seamless integration for code analysis in your GitHub workflows.
 
 ## Actions
 
