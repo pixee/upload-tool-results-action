@@ -2,18 +2,18 @@ name: Analysis input
 description: Upload SonarCloud file and trigger analysis
 
 inputs:
-  FILE:
+  file:
     description: File to be uploaded.
     required: true
-  TOOL:
+  tool:
     description: >
       Specific property that identifies the tool related to the uploaded file.
       Allowed values: 'sonar', 'codeql', 'semgrep'
     required: true
-  URL:
+  url:
     description: Endpoint URL where the analysis will be triggered.
     required: false
-  PR_NUMBER:
+  pr-number:
     description: PR number to trigger analysis for.
     required: false
 
@@ -23,11 +23,11 @@ runs:
     - name: Upload file to pixee
       uses: pixee/pixee-actions/upload-file@main
       with:
-        url: ${{ inputs.URL }}
-        file: ${{ inputs.FILE }}
-        tool: ${{ inputs.TOOL }}
+        url: ${{ inputs.url }}
+        file: ${{ inputs.file }}
+        tool: ${{ inputs.tool }}
     - name: Call trigger
       uses: pixee/pixee-actions/trigger@main
       with:
-        url: ${{ inputs.URL }}
-        pr-number: ${{ inputs.PR_NUMBER }}
+        url: ${{ inputs.url }}
+        pr-number: ${{ inputs.pr-number }}

@@ -22,6 +22,6 @@ jobs:
         uses: pixee/pixee-actions/upload-file@<latest-commit>
         with:
           # Replace <file> with the file to be uploaded.
-          FILE: <file>
+          file: <file>
           # Replace <tool> with the specific property that identifies the tool related to the uploaded file. Allowed values: 'sonar', 'codeql', 'semgrep'
-          TOOL: <tool>
+          tool: <tool>

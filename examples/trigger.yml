@@ -22,4 +22,4 @@ jobs:
         uses: pixee/pixee-actions/trigger@<latest-commit>
         with:
           # Replace <file> with the file to be uploaded.
-          FILE: <file>
+          file: <file>

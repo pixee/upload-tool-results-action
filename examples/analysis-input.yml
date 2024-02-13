@@ -31,9 +31,9 @@ jobs:
         # Replace <latest-commit> with the latest stable commit available in pixee-actions (https://github.com/pixee/pixee-actions)
         uses: pixee/pixee-actions/upload-file@<latest-commit>
         with:
-          FILE: 'semgrep.sarif'
+          file: 'semgrep.sarif'
           # Replace with the specific property that identifies the tool related to the uploaded file. Allowed values: 'sonar', 'codeql', 'semgrep'
-          TOOL: 'semgrep'
+          tool: 'semgrep'
       - name: SonarCloud Scan
         # Replace <latest-commit> with the latest stable commit available in sonarcloud-github-action (https://github.com/SonarSource/sonarcloud-github-action)
         uses: sonarsource/sonarcloud-github-action@<latest-commit>
@@ -54,6 +54,6 @@ jobs:
         # Replace <latest-commit> with the latest stable commit available in pixee-actions (https://github.com/pixee/pixee-actions)
         uses: pixee/pixee-actions/analysis-input@<latest-commit>
         with:
-          FILE: sonar_issues.json
+          file: sonar_issues.json
           # Replace with the specific property that identifies the tool related to the uploaded file. Allowed values: 'sonar', 'codeql', 'semgrep'
-          TOOL: 'sonar'
+          tool: 'sonar'
