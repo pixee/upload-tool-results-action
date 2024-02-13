@@ -23,20 +23,17 @@ jobs:
 
     steps:
       - name: Checkout repository
-        # Replace <latest-commit> with the latest stable commit available in actions-checkout (https://github.com/actions/checkout)
-        uses: actions/checkout@<latest-commit>
+        uses: actions/checkout@v4
       - name: Semgrep cli
         run: semgrep --config auto . --sarif -o semgrep.sarif
       - name: Semgrep upload file
-        # Replace <latest-commit> with the latest stable commit available in pixee-actions (https://github.com/pixee/pixee-actions)
-        uses: pixee/pixee-actions/upload-file@<latest-commit>
+        uses: pixee/pixee-actions/upload-file@main
         with:
           file: 'semgrep.sarif'
           # Replace with the specific property that identifies the tool related to the uploaded file. Allowed values: 'sonar', 'codeql', 'semgrep'
           tool: 'semgrep'
       - name: SonarCloud Scan
-        # Replace <latest-commit> with the latest stable commit available in sonarcloud-github-action (https://github.com/SonarSource/sonarcloud-github-action)
-        uses: sonarsource/sonarcloud-github-action@<latest-commit>
+        uses: sonarsource/sonarcloud-github-action@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # Replace <sonar-token> with the token retrieved from SonarCloud. Strongly recommend against hard coding the token directly into the workflow file. Instead, use GitHub Secrets to securely store and access sensitive information.
@@ -51,8 +48,7 @@ jobs:
           URL="https://sonarcloud.io/api/issues/search?componentKeys=${{ env.SONAR_PROJECT_KEY }}&pullRequest=${{ github.event.number }}"
           curl -v "$URL" -o sonar_issues.json
       - name: Upload file and trigger analysis
-        # Replace <latest-commit> with the latest stable commit available in pixee-actions (https://github.com/pixee/pixee-actions)
-        uses: pixee/pixee-actions/analysis-input@<latest-commit>
+        uses: pixee/pixee-actions/analysis-input@main
         with:
           file: sonar_issues.json
           # Replace with the specific property that identifies the tool related to the uploaded file. Allowed values: 'sonar', 'codeql', 'semgrep'

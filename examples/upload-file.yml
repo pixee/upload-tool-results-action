@@ -15,11 +15,9 @@ jobs:
 
     steps:
       - name: Checkout repository
-        # Replace <latest-commit> with the latest stable commit available in actions-checkout (https://github.com/actions/checkout)
-        uses: actions/checkout@<latest-commit>
+        uses: actions/checkout@v4
       - name: Upload file
-        # Replace <latest-commit> with the latest stable commit available in pixee-actions (https://github.com/pixee/pixee-actions)
-        uses: pixee/pixee-actions/upload-file@<latest-commit>
+        uses: pixee/pixee-actions/upload-file@main
         with:
           # Replace <file> with the file to be uploaded.
           file: <file>
