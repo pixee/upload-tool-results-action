@@ -5,7 +5,6 @@ on:
     types: [ opened ]
 
 permissions:
-  contents: read
   id-token: write
 
 jobs:
@@ -16,9 +15,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        # Replace <latest-commit> with the latest stable commit available in actions-checkout (https://github.com/actions/checkout)
+        uses: actions/checkout@<latest-commit>
       - name: Upload file
-        # Replace <latest-commit> with the latest stable commit available in pixee-actions
+        # Replace <latest-commit> with the latest stable commit available in pixee-actions (https://github.com/pixee/pixee-actions)
         uses: pixee/pixee-actions/upload-file@<latest-commit>
         with:
           # Replace <file> with the file to be uploaded.
