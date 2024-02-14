@@ -33739,9 +33739,9 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.UserError = exports.buildError = exports.wrapError = exports.getGithubContext = exports.buildApiUrl = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const github = __importStar(__nccwpck_require__(5438));
-const PIXEE_SAMBOX_URL = 'https://d22balbl18.execute-api.us-east-1.amazonaws.com/prod';
+const PIXEE_URL = 'https://app.pixee.ai';
 function buildApiUrl(type, url, prNumber, tool) {
-    const customUrl = url ? url : PIXEE_SAMBOX_URL;
+    const customUrl = url ? url : PIXEE_URL;
     const { owner, repo, number, sha } = getGithubContext();
     if (type === 'upload') {
         return `${customUrl}/analysis-input/${owner}/${repo}/${sha}/${tool}`;

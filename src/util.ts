@@ -2,7 +2,7 @@ import * as core from "@actions/core";
 import * as github from '@actions/github';
 
 type EndpointType = 'upload' | 'trigger'
-const PIXEE_SAMBOX_URL = 'https://d22balbl18.execute-api.us-east-1.amazonaws.com/prod'
+const PIXEE_URL = 'https://app.pixee.ai'
 
 interface GitHubContext {
     owner: string;
@@ -12,7 +12,7 @@ interface GitHubContext {
 }
 
 export function buildApiUrl(type: EndpointType, url: string, prNumber: number | null, tool?: string): string {
-    const customUrl = url ? url : PIXEE_SAMBOX_URL
+    const customUrl = url ? url : PIXEE_URL
     const {owner, repo, number, sha} = getGithubContext()
 
     if (type === 'upload') {
