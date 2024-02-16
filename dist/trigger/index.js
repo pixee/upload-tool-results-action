@@ -33681,14 +33681,17 @@ async function run() {
     const startedAt = (new Date()).toTimeString();
     core.setOutput("start-at", startedAt);
     try {
-        const { number } = (0, util_1.getGithubContext)();
-        const prNumber = core.getInput('pr-number');
-        if (number || prNumber) {
-            analysis.triggerPrAnalysis(core.getInput('url'), number ?? prNumber);
-            core.setOutput("status", "success");
-            return;
+        if ((0, util_1.isGithubEventValid)()) {
+            const { number } = (0, util_1.getGithubContext)();
+            const prNumber = core.getInput('pr-number');
+            if (number || prNumber) {
+                analysis.triggerPrAnalysis(core.getInput('url'), number ?? prNumber);
+                core.setOutput('status', 'success');
+                return;
+            }
+            core.setFailed('PR number not found. Please provide a valid PR number.');
         }
-        core.setFailed("PR number not found. Please provide a valid PR number.");
+        core.setFailed('Invalid GitHub event');
     }
     catch (error) {
         (0, util_1.buildError)(error);
@@ -33736,9 +33739,10 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.UserError = exports.buildError = exports.wrapError = exports.getGithubContext = exports.buildApiUrl = void 0;
+exports.UserError = exports.buildError = exports.wrapError = exports.getGithubContext = exports.isGithubEventValid = exports.buildApiUrl = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const github = __importStar(__nccwpck_require__(5438));
+const validEvents = ['check_run', 'pull_request'];
 const PIXEE_URL = 'https://app.pixee.ai';
 function buildApiUrl(type, url, prNumber, tool) {
     const customUrl = url ? url : PIXEE_URL;
@@ -33749,11 +33753,32 @@ function buildApiUrl(type, url, prNumber, tool) {
     return `${customUrl}/analysis-input/${owner}/${repo}/${prNumber ?? number}`;
 }
 exports.buildApiUrl = buildApiUrl;
+function isGithubEventValid() {
+    const eventName = github.context.eventName;
+    return validEvents.includes(eventName);
+}
+exports.isGithubEventValid = isGithubEventValid;
 function getGithubContext() {
-    const { sha, issue: { owner, repo, number } } = github.context;
-    return { owner, repo, number, sha };
+    const { issue: { owner, repo }, eventName } = github.context;
+    const eventHandlers = {
+        'check_run': getCheckRunContext,
+        'pull_request': getPullRequestContext
+    };
+    const handler = eventHandlers[eventName];
+    return { owner, repo, ...handler(github.context) };
 }
 exports.getGithubContext = getGithubContext;
+function getPullRequestContext(context) {
+    const number = context.issue.number;
+    const sha = context.payload.pull_request?.head.sha;
+    return { number, sha };
+}
+function getCheckRunContext(context) {
+    const actionEvent = context.payload.check_run;
+    const number = actionEvent.pull_requests[0].number;
+    const sha = actionEvent.head_sha;
+    return { number, sha };
+}
 function wrapError(error) {
     return error instanceof Error ? error : new Error(String(error));
 }
