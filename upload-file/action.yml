@@ -1,4 +1,4 @@
-name: Upload file
+name: Share Static Analysis with Pixeebot
 description: Upload file to Pixee
 author: Pixee
 inputs:

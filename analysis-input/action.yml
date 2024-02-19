@@ -1,4 +1,4 @@
-name: Analysis input
+name: Pixeebot Fix
 description: Upload SonarCloud file and trigger analysis
 
 inputs:

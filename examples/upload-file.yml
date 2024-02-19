@@ -1,4 +1,4 @@
-name: Upload file
+name: Share Static Analysis with Pixeebot
 
 on:
   pull_request:
@@ -8,7 +8,7 @@ permissions:
   id-token: write
 
 jobs:
-  upload-file:
+  share-analysis-with-pixeebot:
     runs-on: ubuntu-latest
     name: Upload file
     timeout-minutes: 2

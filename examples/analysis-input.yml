@@ -1,51 +1,34 @@
-name: Analysis input
+name: Pixeebot Fix
 
 on:
-  pull_request:
-    types: [ opened ]
+  check_run:
+    types: [ completed ]
 
 permissions:
   id-token: write
 
 env:
-  # Replace <sonar-organization> with the organization retrieved from sonarcloud
-  SONAR_ORGANIZATION: <sonar-organization>
   # Replace <sonar-project-key> with the project key retrieved from sonarcloud
   SONAR_PROJECT_KEY: <sonar-project-key>
 
 jobs:
-  analysis-input:
+  pixeebot-fix:
     name: Upload SonarCloud file and trigger analysis
+    if: ${{ !startsWith(github.actor, 'pixee') && github.event.check_run.name == 'SonarCloud Code Analysis' }}
     runs-on: ubuntu-latest
-    container:
-      image: returntocorp/semgrep:1.51.0
     timeout-minutes: 6
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Semgrep cli
-        run: semgrep --config auto . --sarif -o semgrep.sarif
-      - name: Semgrep upload file
-        uses: pixee/pixee-actions/upload-file@main
-        with:
-          file: 'semgrep.sarif'
-          # Replace with the specific property that identifies the tool related to the uploaded file. Allowed values: 'sonar', 'codeql', 'semgrep'
-          tool: 'semgrep'
-      - name: SonarCloud Scan
-        uses: sonarsource/sonarcloud-github-action@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # Replace <sonar-token> with the token retrieved from SonarCloud. Strongly recommend against hard coding the token directly into the workflow file. Instead, use GitHub Secrets to securely store and access sensitive information.
-          SONAR_TOKEN: <sonar-token>
-        with:
-          args: >
-            -Dsonar.organization=${{ env.SONAR_ORGANIZATION }}
-            -Dsonar.projectKey=${{ env.SONAR_PROJECT_KEY }}
       - name: SonarCloud download
-        shell: bash
         run: |
-          URL="https://sonarcloud.io/api/issues/search?componentKeys=${{ env.SONAR_PROJECT_KEY }}&pullRequest=${{ github.event.number }}"
+          PR_NUMBER=${{ join(github.event.check_run.pull_requests.*.number, '') }}
+          URL="https://sonarcloud.io/api/issues/search?componentKeys=${{ env.SONAR_PROJECT_KEY }}&resolved=false"
+
+          if [ -n "$PR_NUMBER" ]; then
+            URL="${URL}&pullRequest=$PR_NUMBER"
+          fi
           curl -v "$URL" -o sonar_issues.json
       - name: Upload file and trigger analysis
         uses: pixee/pixee-actions/analysis-input@main

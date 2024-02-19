@@ -1,4 +1,4 @@
-name: Trigger
+name: Pixeebot Find and Fix PR
 description: Trigger Pixee analysis
 author: Pixee
 inputs:

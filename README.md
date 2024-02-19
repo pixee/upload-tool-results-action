@@ -4,9 +4,9 @@ GitHub Actions for interacting with [Pixee](https://pixee.ai/), providing seamle
 
 ## Actions
 
-### 1. Composite
+### 1. Analysis Input
 
-The composite action combines the file upload and analysis trigger functionalities into one, streamlining and automating the analysis process within your development workflow.
+This action analysis input combines the file upload and analysis trigger functionalities into one, streamlining and automating the analysis process within your development workflow.
 
 ### 2. Upload File
 

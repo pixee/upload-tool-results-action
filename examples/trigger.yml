@@ -1,4 +1,4 @@
-name: Trigger analysis
+name: Pixeebot Find and Fix PR
 
 on:
   pull_request:
@@ -8,7 +8,7 @@ permissions:
   id-token: write
 
 jobs:
-  trigger-analysis:
+  pixeebot-fix-pr:
     runs-on: ubuntu-latest
     name: Trigger analysis
     timeout-minutes: 2
