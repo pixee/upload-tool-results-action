@@ -33750,12 +33750,7 @@ async function run() {
     }
 }
 async function runWrapper() {
-    try {
-        await run();
-    }
-    catch (error) {
-        core.setFailed(`Action failed: ${(0, util_1.wrapError)(error).message}`);
-    }
+    await run();
 }
 void runWrapper();
 

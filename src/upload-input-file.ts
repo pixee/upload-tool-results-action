@@ -19,11 +19,7 @@ async function run() {
 }
 
 async function runWrapper() {
-    try {
-        await run();
-    } catch (error) {
-        core.setFailed(`Action failed: ${wrapError(error).message}`);
-    }
+    await run();
 }
 
 void runWrapper();
