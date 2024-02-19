@@ -14,18 +14,16 @@ interface GitHubContext {
     sha: string;
 }
 
-export function buildTriggerApiUrl(url: string, prNumber: number): string {
-    const customUrl = url ? url : PIXEE_URL
+export function buildTriggerApiUrl(prNumber: number): string {
     const {owner, repo, sha} = getGithubContext()
 
-    return `${customUrl}/analysis-input/${owner}/${repo}/${prNumber}`
+    return `${PIXEE_URL}/analysis-input/${owner}/${repo}/${prNumber}`
 }
 
-export function buildUploadApiUrl(url: string, tool: string): string {
-    const customUrl = url ? url : PIXEE_URL
+export function buildUploadApiUrl(tool: string): string {
     const {owner, repo, sha} = getGithubContext()
 
-    return `${customUrl}/analysis-input/${owner}/${repo}/${sha}/${tool}`
+    return `${PIXEE_URL}/analysis-input/${owner}/${repo}/${sha}/${tool}`
 }
 
 export function isGithubEventValid(): boolean {

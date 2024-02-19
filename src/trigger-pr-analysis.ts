@@ -11,7 +11,7 @@ async function run() {
             const {prNumber} = getGithubContext();
 
             if (prNumber) {
-                analysis.triggerPrAnalysis(core.getInput('url'), prNumber);
+                analysis.triggerPrAnalysis(prNumber);
                 core.setOutput('status', 'success');
                 return
             }

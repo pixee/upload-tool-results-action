@@ -16,10 +16,6 @@ This composite action combines the update-file and trigger actions into one comp
         - `codeql`
         - `semgrep`
 
-- `url`:
-    - **Description:** The Pixee service to which the file will be uploaded. (Optional).
-    - **Required:** No
-
 ### Outputs
 
 - `status`:

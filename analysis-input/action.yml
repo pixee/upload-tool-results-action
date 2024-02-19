@@ -10,9 +10,6 @@ inputs:
       Specific property that identifies the tool related to the uploaded file.
       Allowed values: 'sonar', 'codeql', 'semgrep'
     required: true
-  url:
-    description: Endpoint URL where the analysis will be triggered.
-    required: false
 
 runs:
   using: "composite"
@@ -20,10 +17,7 @@ runs:
     - name: Upload file to pixee
       uses: pixee/pixee-actions/upload-file@main
       with:
-        url: ${{ inputs.url }}
         file: ${{ inputs.file }}
         tool: ${{ inputs.tool }}
     - name: Call trigger
       uses: pixee/pixee-actions/trigger@main
-      with:
-        url: ${{ inputs.url }}

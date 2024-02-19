@@ -33590,14 +33590,14 @@ const form_data_1 = __importDefault(__nccwpck_require__(4334));
 const UTF = 'utf-8';
 const AUDIENCE = 'https://app.pixee.ai';
 function uploadInputFile(inputs) {
-    const fileContent = fs_1.default.readFileSync(inputs.file, UTF);
+    const { file, tool } = inputs;
+    const fileContent = fs_1.default.readFileSync(file, UTF);
     const form = new form_data_1.default();
     form.append('file', fileContent);
     const tokenPromise = core.getIDToken(AUDIENCE);
     tokenPromise.then(token => {
         try {
-            const { url, tool } = inputs;
-            axios_1.default.put((0, util_1.buildUploadApiUrl)(url, tool), form, {
+            axios_1.default.put((0, util_1.buildUploadApiUrl)(tool), form, {
                 headers: {
                     ...form.getHeaders(),
                     Authorization: `Bearer ${token}`,
@@ -33617,11 +33617,11 @@ function uploadInputFile(inputs) {
     });
 }
 exports.uploadInputFile = uploadInputFile;
-function triggerPrAnalysis(url, prNumber) {
+function triggerPrAnalysis(prNumber) {
     const tokenPromise = core.getIDToken(AUDIENCE);
     tokenPromise.then(token => {
         try {
-            axios_1.default.post((0, util_1.buildTriggerApiUrl)(url, prNumber), null, {
+            axios_1.default.post((0, util_1.buildTriggerApiUrl)(prNumber), null, {
                 headers: {
                     contentType: 'application/json',
                     Authorization: `Bearer ${token}`
@@ -33682,11 +33682,10 @@ const VALID_TOOLS = ['sonar', 'codeql', 'semgrep'];
  * Helper to get all the inputs for the action
  */
 function getInputs() {
-    const url = core.getInput('url');
     const file = getRequiredInput('file');
     const tool = getRequiredInput('tool');
     validateTool(tool);
-    return { file, url, tool };
+    return { file, tool };
 }
 exports.getInputs = getInputs;
 function getRequiredInput(name) {
@@ -33797,16 +33796,14 @@ const core = __importStar(__nccwpck_require__(2186));
 const github = __importStar(__nccwpck_require__(5438));
 const validEvents = ['check_run', 'pull_request'];
 const PIXEE_URL = 'https://app.pixee.ai';
-function buildTriggerApiUrl(url, prNumber) {
-    const customUrl = url ? url : PIXEE_URL;
+function buildTriggerApiUrl(prNumber) {
     const { owner, repo, sha } = getGithubContext();
-    return `${customUrl}/analysis-input/${owner}/${repo}/${prNumber}`;
+    return `${PIXEE_URL}/analysis-input/${owner}/${repo}/${prNumber}`;
 }
 exports.buildTriggerApiUrl = buildTriggerApiUrl;
-function buildUploadApiUrl(url, tool) {
-    const customUrl = url ? url : PIXEE_URL;
+function buildUploadApiUrl(tool) {
     const { owner, repo, sha } = getGithubContext();
-    return `${customUrl}/analysis-input/${owner}/${repo}/${sha}/${tool}`;
+    return `${PIXEE_URL}/analysis-input/${owner}/${repo}/${sha}/${tool}`;
 }
 exports.buildUploadApiUrl = buildUploadApiUrl;
 function isGithubEventValid() {
