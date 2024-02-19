@@ -33742,15 +33742,15 @@ exports.UserError = exports.buildError = exports.wrapError = exports.getGithubCo
 const core = __importStar(__nccwpck_require__(2186));
 const github = __importStar(__nccwpck_require__(5438));
 const validEvents = ['check_run', 'pull_request'];
-const PIXEE_URL = 'https://app.pixee.ai';
+const PIXEE_URL = 'https://app.pixee.ai/analysis-input';
 function buildTriggerApiUrl(prNumber) {
     const { owner, repo, sha } = getGithubContext();
-    return `${PIXEE_URL}/analysis-input/${owner}/${repo}/${prNumber}`;
+    return `${PIXEE_URL}/${owner}/${repo}/${prNumber}`;
 }
 exports.buildTriggerApiUrl = buildTriggerApiUrl;
 function buildUploadApiUrl(tool) {
     const { owner, repo, sha } = getGithubContext();
-    return `${PIXEE_URL}/analysis-input/${owner}/${repo}/${sha}/${tool}`;
+    return `${PIXEE_URL}/${owner}/${repo}/${sha}/${tool}`;
 }
 exports.buildUploadApiUrl = buildUploadApiUrl;
 function isGithubEventValid() {

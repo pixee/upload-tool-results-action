@@ -5,7 +5,7 @@ import {Context} from "node:vm";
 type GithubEvent = 'check_run' | 'pull_request';
 
 const validEvents: GithubEvent[] = ['check_run', 'pull_request'];
-const PIXEE_URL = 'https://app.pixee.ai'
+const PIXEE_URL = 'https://app.pixee.ai/analysis-input'
 
 interface GitHubContext {
     owner: string;
@@ -17,13 +17,13 @@ interface GitHubContext {
 export function buildTriggerApiUrl(prNumber: number): string {
     const {owner, repo, sha} = getGithubContext()
 
-    return `${PIXEE_URL}/analysis-input/${owner}/${repo}/${prNumber}`
+    return `${PIXEE_URL}/${owner}/${repo}/${prNumber}`
 }
 
 export function buildUploadApiUrl(tool: string): string {
     const {owner, repo, sha} = getGithubContext()
 
-    return `${PIXEE_URL}/analysis-input/${owner}/${repo}/${sha}/${tool}`
+    return `${PIXEE_URL}/${owner}/${repo}/${sha}/${tool}`
 }
 
 export function isGithubEventValid(): boolean {
