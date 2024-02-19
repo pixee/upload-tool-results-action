@@ -10,7 +10,7 @@ permissions:
 jobs:
   pixeebot-fix-pr:
     runs-on: ubuntu-latest
-    name: Trigger analysis
+    name: Pixeebot Find and Fix PR
     timeout-minutes: 2
 
     steps:

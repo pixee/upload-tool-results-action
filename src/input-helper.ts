@@ -2,7 +2,7 @@ import * as core from '@actions/core'
 import {UploadInputs} from './upload-inputs'
 import {UserError} from "./util";
 
-export type Inputs = 'file' | 'url' | 'tool'
+export type Inputs = 'file' | 'tool'
 const VALID_TOOLS = ['sonar', 'codeql', 'semgrep'];
 
 /**

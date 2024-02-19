@@ -13,7 +13,7 @@ env:
 
 jobs:
   pixeebot-fix:
-    name: Upload SonarCloud file and trigger analysis
+    name: Pixeebot Fix
     if: ${{ !startsWith(github.actor, 'pixee') && github.event.check_run.name == 'SonarCloud Code Analysis' }}
     runs-on: ubuntu-latest
     timeout-minutes: 6
