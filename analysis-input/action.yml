@@ -13,9 +13,6 @@ inputs:
   url:
     description: Endpoint URL where the analysis will be triggered.
     required: false
-  pr-number:
-    description: PR number to trigger analysis for.
-    required: false
 
 runs:
   using: "composite"
@@ -30,4 +27,3 @@ runs:
       uses: pixee/pixee-actions/trigger@main
       with:
         url: ${{ inputs.url }}
-        pr-number: ${{ inputs.pr-number }}

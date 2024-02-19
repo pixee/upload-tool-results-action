@@ -8,11 +8,10 @@ async function run() {
 
     try {
         if (isGithubEventValid()){
-            const {number} = getGithubContext();
-            const prNumber = core.getInput('pr-number')
+            const {prNumber} = getGithubContext();
 
-            if (number || prNumber) {
-                analysis.triggerPrAnalysis(core.getInput('url'), number ?? prNumber);
+            if (prNumber) {
+                analysis.triggerPrAnalysis(core.getInput('url'), prNumber);
                 core.setOutput('status', 'success');
                 return
             }

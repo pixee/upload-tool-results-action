@@ -2,7 +2,6 @@ import * as core from "@actions/core";
 import * as github from '@actions/github';
 import {Context} from "node:vm";
 
-type EndpointType = 'upload' | 'trigger'
 type GithubEvent = 'check_run' | 'pull_request';
 
 const validEvents: GithubEvent[] = ['check_run', 'pull_request'];
@@ -11,19 +10,22 @@ const PIXEE_URL = 'https://app.pixee.ai'
 interface GitHubContext {
     owner: string;
     repo: string;
-    number: number;
+    prNumber: number;
     sha: string;
 }
 
-export function buildApiUrl(type: EndpointType, url: string, prNumber: number | null, tool?: string): string {
+export function buildTriggerApiUrl(url: string, prNumber: number): string {
     const customUrl = url ? url : PIXEE_URL
-    const {owner, repo, number, sha} = getGithubContext()
+    const {owner, repo, sha} = getGithubContext()
 
-    if (type === 'upload') {
-        return `${customUrl}/analysis-input/${owner}/${repo}/${sha}/${tool}`
-    }
+    return `${customUrl}/analysis-input/${owner}/${repo}/${prNumber}`
+}
 
-    return `${customUrl}/analysis-input/${owner}/${repo}/${prNumber ?? number}`
+export function buildUploadApiUrl(url: string, tool: string): string {
+    const customUrl = url ? url : PIXEE_URL
+    const {owner, repo, sha} = getGithubContext()
+
+    return `${customUrl}/analysis-input/${owner}/${repo}/${sha}/${tool}`
 }
 
 export function isGithubEventValid(): boolean {
@@ -34,7 +36,7 @@ export function isGithubEventValid(): boolean {
 export function getGithubContext(): GitHubContext {
     const { issue: {owner, repo}, eventName } = github.context;
 
-    const eventHandlers: { [eventName: string]: (context: Context) => Pick<GitHubContext, "number" | "sha"> } = {
+    const eventHandlers: { [eventName: string]: (context: Context) => Pick<GitHubContext, "prNumber" | "sha"> } = {
         'check_run': getCheckRunContext,
         'pull_request': getPullRequestContext
     };
@@ -43,18 +45,18 @@ export function getGithubContext(): GitHubContext {
     return { owner, repo, ...handler(github.context) };
 }
 
-function getPullRequestContext(context: Context): Pick<GitHubContext, 'number' | 'sha'> {
+function getPullRequestContext(context: Context): Pick<GitHubContext, 'prNumber' | 'sha'> {
     const number = context.issue.number;
     const sha = context.payload.pull_request?.head.sha;
-    return { number, sha };
+    return { prNumber: number, sha };
 }
 
-function getCheckRunContext(context: Context): Pick<GitHubContext, 'number' | 'sha'> {
+function getCheckRunContext(context: Context): Pick<GitHubContext, 'prNumber' | 'sha'> {
     const actionEvent = context.payload.check_run
 
     const number = actionEvent.pull_requests[0].number;
     const sha = actionEvent.head_sha;
-    return { number, sha };
+    return { prNumber: number, sha };
 }
 
 export function wrapError(error: unknown): Error {

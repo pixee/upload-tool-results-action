@@ -20,10 +20,6 @@ This composite action combines the update-file and trigger actions into one comp
     - **Description:** The Pixee service to which the file will be uploaded. (Optional).
     - **Required:** No
 
-- `pr-number`:
-    - **Description:** The PR number to trigger analysis for. (Optional)
-    - **Required:** No
-
 ### Outputs
 
 - `status`:

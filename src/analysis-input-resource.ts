@@ -1,5 +1,5 @@
 import * as core from "@actions/core";
-import {buildApiUrl, buildError} from "./util";
+import {buildError, buildTriggerApiUrl, buildUploadApiUrl} from "./util";
 import axios from "axios";
 import {UploadInputs} from "./upload-inputs";
 import fs from "fs";
@@ -18,7 +18,7 @@ export function uploadInputFile(inputs: UploadInputs) {
     tokenPromise.then(token => {
             try {
                 const {url, tool} = inputs
-                axios.put(buildApiUrl('upload', url, null, tool), form, {
+                axios.put(buildUploadApiUrl(url, tool), form, {
                     headers: {
                         ...form.getHeaders(),
                         Authorization: `Bearer ${token}`,
@@ -38,12 +38,12 @@ export function uploadInputFile(inputs: UploadInputs) {
     )
 }
 
-export function triggerPrAnalysis(url: string, prNumber: number | null) {
+export function triggerPrAnalysis(url: string, prNumber: number) {
     const tokenPromise = core.getIDToken(AUDIENCE)
 
     tokenPromise.then(token => {
         try {
-            axios.post(buildApiUrl('trigger', url, prNumber), null, {
+            axios.post(buildTriggerApiUrl(url, prNumber), null, {
                 headers: {
                     contentType: 'application/json',
                     Authorization: `Bearer ${token}`
