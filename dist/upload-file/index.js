@@ -33834,6 +33834,7 @@ exports.wrapError = wrapError;
 function buildError(unwrappedError) {
     const error = wrapError(unwrappedError);
     const message = error.message;
+    core.setOutput("status", "error");
     core.setFailed(message);
     return;
 }

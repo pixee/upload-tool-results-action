@@ -19,7 +19,10 @@ This composite action combines the update-file and trigger actions into one comp
 ### Outputs
 
 - `status`:
-    - **Description:** The status of the analysis.
+    - **Description:** Status of the action execution.
+    - **Possible values:**
+        - `error`: Indicates that the action encountered an error.
+        - `success`: Indicates that the action completed successfully.
 
 ### Example Usage
 

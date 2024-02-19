@@ -64,6 +64,7 @@ export function wrapError(error: unknown): Error {
 export function buildError(unwrappedError: unknown) {
     const error = wrapError(unwrappedError);
     const message = error.message;
+    core.setOutput("status", "error");
     core.setFailed(message);
     return;
 }

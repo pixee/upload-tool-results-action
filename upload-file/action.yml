@@ -12,7 +12,12 @@ inputs:
     required: true
 outputs:
   status:
-    description: Status
+    description: |
+      Status of the action execution.
+      Possible values:
+      - 'error': Indicates that the action encountered an error.
+      - 'success': Indicates that the action completed successfully.
+
 runs:
   using: node20
   main: ../dist/upload-file/index.js
