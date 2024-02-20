@@ -1,0 +1,13 @@
+name: Pixeebot Find and Fix PR
+description: Trigger Pixee analysis
+author: Pixee
+outputs:
+  status:
+    description: |
+      Status of the action execution.
+      Possible values:
+      - 'error': Indicates that the action encountered an error.
+      - 'success': Indicates that the action completed successfully.
+runs:
+  using: node20
+  main: ../dist/trigger/index.js

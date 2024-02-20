@@ -1,0 +1,22 @@
+{
+  "name": "pixee-actions",
+  "version": "0.0.1",
+  "description": "",
+  "scripts": {
+    "build": "ncc build -o dist/upload-file/ src/upload-input-file.ts && ncc build -o dist/trigger/ src/trigger-pr-analysis.ts"
+  },
+  "keywords": [],
+  "author": "Pixee",
+  "dependencies": {
+    "@actions/core": "^1.10.1",
+    "@actions/http-client": "^2.2.0",
+    "@actions/github": "^6.0.0",
+    "axios": "^0.24.0",
+    "form-data": "^4.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "@types/node": "20.9.0",
+    "@vercel/ncc": "^0.38.1"
+  }
+}
