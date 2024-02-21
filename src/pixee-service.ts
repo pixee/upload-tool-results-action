@@ -6,9 +6,9 @@ import FormData from "form-data";
 import {AUDIENCE, FILE_NAME, SonarCloudInputs, Tool, UTF} from "./shared";
 
 export function downloadSonarcloudFile(inputs: SonarCloudInputs) {
-    const {urlApi, token} = inputs
+    const {apiUrl, token} = inputs
 
-    axios.get(buildSonarcloudUrl(urlApi), {
+    axios.get(buildSonarcloudUrl(apiUrl), {
         headers: {
             contentType: 'application/json',
             Authorization: `Bearer ${token}`

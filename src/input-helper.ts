@@ -14,9 +14,9 @@ export function getTool(): Tool {
 
 export function getSonarCloudInputs(): SonarCloudInputs {
     const token = core.getInput('sonar-token');
-    const urlApi = core.getInput('sonar-api', {required: true});
+    const apiUrl = core.getInput('sonar-api-url', {required: true});
 
-    return { token, urlApi}
+    return { token, apiUrl}
 }
 
 function validateTool(tool: Tool) {

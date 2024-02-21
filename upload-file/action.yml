@@ -13,7 +13,7 @@ inputs:
   sonar-token:
     description: Access token for authenticating requests to SonarCloud.
     required: false
-  sonar-api:
+  sonar-api-url:
     description: Base URL of the SonarCloud API.
     default: https://sonarcloud.io/api
 
