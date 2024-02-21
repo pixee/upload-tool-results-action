@@ -25,7 +25,7 @@ runs:
       with:
         file: ${{ inputs.file }}
         tool: ${{ inputs.tool }}
-        token: ${{ inputs.token }}
+        sonar-token: ${{ inputs.sonar-token }}
         sonar-api-url: ${{ inputs.sonar-api-url }}
     - name: Call trigger
       uses: pixee/pixee-actions/trigger@main
