@@ -11,6 +11,7 @@ async function run() {
     try {
         const tool = getTool()
 
+        // This is special behavior for SonarCloud that we either don't yet have for other supported tools
         if(tool === 'sonar'){
             const inputs =  getSonarCloudInputs()
             analysis.downloadSonarcloudFile(inputs)

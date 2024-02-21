@@ -33771,6 +33771,7 @@ async function run() {
     core.setOutput("start-at", startedAt);
     try {
         const tool = (0, input_helper_1.getTool)();
+        // This is special behavior for SonarCloud that we either don't yet have for other supported tools
         if (tool === 'sonar') {
             const inputs = (0, input_helper_1.getSonarCloudInputs)();
             analysis.downloadSonarcloudFile(inputs);
