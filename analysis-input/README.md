@@ -18,14 +18,10 @@ This composite action combines the update-file and trigger actions into one comp
     - **Description:** The file to be uploaded.
     - **Required:** No
 
-**Note:** Please be aware that the properties related to SonarCloud (`sonar-token`, `sonar-component-key`, `sonar-api`) are only necessary if you are configuring the Sonar tool. If you are not using SonarCloud for analysis, you can safely omit these properties from your configuration.
+**Note:** Please be aware that the properties related to SonarCloud (`sonar-token`, `sonar-api`) are only necessary if you are configuring the Sonar tool. If you are not using SonarCloud for analysis, you can safely omit these properties from your configuration.
 
 - `sonar-token`:
     - **Description:** Access token for authenticating requests to SonarCloud.
-    - **Required:** No
-
-- `sonar-component-key`:
-    - **Description:** Key identifying the SonarCloud component to be analyzed.
     - **Required:** No
 
 - `sonar-api`:

@@ -13,9 +13,6 @@ inputs:
   sonar-token:
     description: Access token for authenticating requests to SonarCloud.
     required: false
-  sonar-component-key:
-    description: Key identifying the SonarCloud component to be analyzed.
-    required: false
   sonar-api:
     description: Base URL of the SonarCloud API.
     default: https://sonarcloud.io/api

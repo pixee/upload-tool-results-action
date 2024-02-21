@@ -13,9 +13,6 @@ inputs:
   sonar-token:
     description: Access token for authenticating requests to SonarCloud.
     required: false
-  sonar-component-key:
-    description: Key identifying the SonarCloud component to be analyzed.
-    required: false
   sonar-api:
     description: Base URL of the SonarCloud API.
     default: https://sonarcloud.io/api
@@ -29,7 +26,6 @@ runs:
         file: ${{ inputs.file }}
         tool: ${{ inputs.tool }}
         token: ${{ inputs.token }}
-        sonar-component-key: ${{ inputs.sonar-component-key }}
         sonar-api: ${{ inputs.sonar-api }}
     - name: Call trigger
       uses: pixee/pixee-actions/trigger@main
