@@ -33587,6 +33587,7 @@ const util_1 = __nccwpck_require__(2629);
 const axios_1 = __importDefault(__nccwpck_require__(6545));
 const fs_1 = __importDefault(__nccwpck_require__(7147));
 const form_data_1 = __importDefault(__nccwpck_require__(4334));
+const shared_1 = __nccwpck_require__(3826);
 function downloadSonarcloudFile(inputs) {
     axios_1.default.get((0, util_1.buildSonarcloudUrl)(inputs), {
         headers: {
@@ -33596,17 +33597,17 @@ function downloadSonarcloudFile(inputs) {
         responseType: 'json'
     })
         .then(response => {
-        fs_1.default.writeFileSync(FILE_NAME, JSON.stringify(response.data));
-        uploadInputFile('sonar', FILE_NAME);
+        fs_1.default.writeFileSync(shared_1.FILE_NAME, JSON.stringify(response.data));
+        uploadInputFile('sonar', shared_1.FILE_NAME);
     })
         .catch(error => (0, util_1.buildError)(error));
 }
 exports.downloadSonarcloudFile = downloadSonarcloudFile;
 function uploadInputFile(tool, file) {
-    const fileContent = fs_1.default.readFileSync(file, UTF);
+    const fileContent = fs_1.default.readFileSync(file, shared_1.UTF);
     const form = new form_data_1.default();
     form.append('file', fileContent);
-    const tokenPromise = core.getIDToken(AUDIENCE);
+    const tokenPromise = core.getIDToken(shared_1.AUDIENCE);
     tokenPromise.then(token => {
         try {
             axios_1.default.put((0, util_1.buildUploadApiUrl)(tool), form, {
@@ -33630,7 +33631,7 @@ function uploadInputFile(tool, file) {
 }
 exports.uploadInputFile = uploadInputFile;
 function triggerPrAnalysis(prNumber) {
-    const tokenPromise = core.getIDToken(AUDIENCE);
+    const tokenPromise = core.getIDToken(shared_1.AUDIENCE);
     tokenPromise.then(token => {
         try {
             axios_1.default.post((0, util_1.buildTriggerApiUrl)(prNumber), null, {
@@ -33653,6 +33654,23 @@ function triggerPrAnalysis(prNumber) {
     });
 }
 exports.triggerPrAnalysis = triggerPrAnalysis;
+
+
+/***/ }),
+
+/***/ 3826:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.VALID_TOOLS = exports.VALID_EVENTS = exports.UTF = exports.PIXEE_URL = exports.FILE_NAME = exports.AUDIENCE = void 0;
+exports.AUDIENCE = 'https://app.pixee.ai';
+exports.FILE_NAME = 'sonar_issues.json';
+exports.PIXEE_URL = 'https://d22balbl18.execute-api.us-east-1.amazonaws.com/prod/analysis-input';
+exports.UTF = 'utf-8';
+exports.VALID_EVENTS = ['check_run', 'pull_request'];
+exports.VALID_TOOLS = ['sonar', 'codeql', 'semgrep'];
 
 
 /***/ }),
@@ -33748,6 +33766,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.UserError = exports.buildError = exports.wrapError = exports.getGithubContext = exports.isGithubEventValid = exports.buildUploadApiUrl = exports.buildTriggerApiUrl = exports.buildSonarcloudUrl = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const github = __importStar(__nccwpck_require__(5438));
+const shared_1 = __nccwpck_require__(3826);
 const eventHandlers = {
     'check_run': getCheckRunContext,
     'pull_request': getPullRequestContext
@@ -33762,17 +33781,17 @@ function buildSonarcloudUrl(inputs) {
 exports.buildSonarcloudUrl = buildSonarcloudUrl;
 function buildTriggerApiUrl(prNumber) {
     const { owner, repo, sha } = getGithubContext();
-    return `${PIXEE_URL}/${owner}/${repo}/${prNumber}`;
+    return `${shared_1.PIXEE_URL}/${owner}/${repo}/${prNumber}`;
 }
 exports.buildTriggerApiUrl = buildTriggerApiUrl;
 function buildUploadApiUrl(tool) {
     const { owner, repo, sha } = getGithubContext();
-    return `${PIXEE_URL}/${owner}/${repo}/${sha}/${tool}`;
+    return `${shared_1.PIXEE_URL}/${owner}/${repo}/${sha}/${tool}`;
 }
 exports.buildUploadApiUrl = buildUploadApiUrl;
 function isGithubEventValid() {
     const eventName = github.context.eventName;
-    return VALID_EVENTS.includes(eventName);
+    return shared_1.VALID_EVENTS.includes(eventName);
 }
 exports.isGithubEventValid = isGithubEventValid;
 function getGithubContext() {

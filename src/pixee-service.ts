@@ -3,6 +3,7 @@ import {buildError, buildSonarcloudUrl, buildTriggerApiUrl, buildUploadApiUrl} f
 import axios from "axios";
 import fs from "fs";
 import FormData from "form-data";
+import {AUDIENCE, FILE_NAME, SonarcloudInputs, Tool, UTF} from "./shared";
 
 export function downloadSonarcloudFile(inputs: SonarcloudInputs) {
     axios.get(buildSonarcloudUrl(inputs), {

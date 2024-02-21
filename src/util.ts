@@ -1,6 +1,7 @@
 import * as core from "@actions/core";
 import * as github from '@actions/github';
 import {Context} from "node:vm";
+import {GitHubContext, GithubEvent, PIXEE_URL, SonarcloudInputs, VALID_EVENTS} from "./shared";
 
 const eventHandlers: { [eventName: string]: (context: Context) => Pick<GitHubContext, "prNumber" | "sha"> } = {
     'check_run': getCheckRunContext,

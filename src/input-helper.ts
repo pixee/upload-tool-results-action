@@ -1,5 +1,6 @@
 import * as core from '@actions/core'
 import {UserError} from "./util";
+import {SonarcloudInputs, Tool, VALID_TOOLS} from "./shared";
 
 /**
  * Helper to get all the inputs for the action
