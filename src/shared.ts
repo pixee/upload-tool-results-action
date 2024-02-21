@@ -7,7 +7,7 @@ const AUDIENCE = 'https://app.pixee.ai'
 const FILE_NAME = 'sonar_issues.json';
 
 const VALID_EVENTS: GithubEvent[] = ['check_run', 'pull_request'];
-const PIXEE_URL = 'https://d22balbl18.execute-api.us-east-1.amazonaws.com/prod/analysis-input'
+const PIXEE_URL = 'https://app.pixee.ai/analysis-input'
 
 interface SonarcloudInputs {
     token: string

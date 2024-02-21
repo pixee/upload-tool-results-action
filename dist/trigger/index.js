@@ -33549,7 +33549,7 @@ function wrappy (fn, cb) {
 
 /***/ }),
 
-/***/ 9391:
+/***/ 3091:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -33581,16 +33581,28 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.triggerPrAnalysis = exports.uploadInputFile = void 0;
+exports.triggerPrAnalysis = exports.uploadInputFile = exports.downloadSonarcloudFile = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const util_1 = __nccwpck_require__(2629);
 const axios_1 = __importDefault(__nccwpck_require__(6545));
 const fs_1 = __importDefault(__nccwpck_require__(7147));
 const form_data_1 = __importDefault(__nccwpck_require__(4334));
-const UTF = 'utf-8';
-const AUDIENCE = 'https://app.pixee.ai';
-function uploadInputFile(inputs) {
-    const { file, tool } = inputs;
+function downloadSonarcloudFile(inputs) {
+    axios_1.default.get((0, util_1.buildSonarcloudUrl)(inputs), {
+        headers: {
+            contentType: 'application/json',
+            Authorization: `Bearer ${inputs.token}`
+        },
+        responseType: 'json'
+    })
+        .then(response => {
+        fs_1.default.writeFileSync(FILE_NAME, JSON.stringify(response.data));
+        uploadInputFile('sonar', FILE_NAME);
+    })
+        .catch(error => (0, util_1.buildError)(error));
+}
+exports.downloadSonarcloudFile = downloadSonarcloudFile;
+function uploadInputFile(tool, file) {
     const fileContent = fs_1.default.readFileSync(file, UTF);
     const form = new form_data_1.default();
     form.append('file', fileContent);
@@ -33676,7 +33688,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(2186));
 const util_1 = __nccwpck_require__(2629);
-const analysis = __importStar(__nccwpck_require__(9391));
+const analysis = __importStar(__nccwpck_require__(3091));
 async function run() {
     const startedAt = (new Date()).toTimeString();
     core.setOutput("start-at", startedAt);
@@ -33733,11 +33745,21 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.UserError = exports.buildError = exports.wrapError = exports.getGithubContext = exports.isGithubEventValid = exports.buildUploadApiUrl = exports.buildTriggerApiUrl = void 0;
+exports.UserError = exports.buildError = exports.wrapError = exports.getGithubContext = exports.isGithubEventValid = exports.buildUploadApiUrl = exports.buildTriggerApiUrl = exports.buildSonarcloudUrl = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const github = __importStar(__nccwpck_require__(5438));
-const validEvents = ['check_run', 'pull_request'];
-const PIXEE_URL = 'https://app.pixee.ai/analysis-input';
+const eventHandlers = {
+    'check_run': getCheckRunContext,
+    'pull_request': getPullRequestContext
+};
+function buildSonarcloudUrl(inputs) {
+    const { componentKey, urlApi } = inputs;
+    const context = github.context;
+    const handler = eventHandlers[context.eventName];
+    const { prNumber } = handler(context);
+    return `${urlApi}/issues/search?componentKeys=${componentKey}&resolved=false&pullRequest=${prNumber}`;
+}
+exports.buildSonarcloudUrl = buildSonarcloudUrl;
 function buildTriggerApiUrl(prNumber) {
     const { owner, repo, sha } = getGithubContext();
     return `${PIXEE_URL}/${owner}/${repo}/${prNumber}`;
@@ -33750,15 +33772,11 @@ function buildUploadApiUrl(tool) {
 exports.buildUploadApiUrl = buildUploadApiUrl;
 function isGithubEventValid() {
     const eventName = github.context.eventName;
-    return validEvents.includes(eventName);
+    return VALID_EVENTS.includes(eventName);
 }
 exports.isGithubEventValid = isGithubEventValid;
 function getGithubContext() {
     const { issue: { owner, repo }, eventName } = github.context;
-    const eventHandlers = {
-        'check_run': getCheckRunContext,
-        'pull_request': getPullRequestContext
-    };
     const handler = eventHandlers[eventName];
     return { owner, repo, ...handler(github.context) };
 }
