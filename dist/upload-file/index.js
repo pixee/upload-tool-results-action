@@ -33578,7 +33578,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getSonarcloudInputs = exports.getTool = void 0;
+exports.getSonarCloudInputs = exports.getTool = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const util_1 = __nccwpck_require__(2629);
 const shared_1 = __nccwpck_require__(3826);
@@ -33591,13 +33591,12 @@ function getTool() {
     return tool;
 }
 exports.getTool = getTool;
-function getSonarcloudInputs() {
+function getSonarCloudInputs() {
     const token = core.getInput('sonar-token');
-    const componentKey = core.getInput('sonar-component-key', { required: true });
-    const urlApi = core.getInput('sonar-api', { required: true });
-    return { token, componentKey, urlApi };
+    const apiUrl = core.getInput('sonar-api-url', { required: true });
+    return { token, apiUrl };
 }
-exports.getSonarcloudInputs = getSonarcloudInputs;
+exports.getSonarCloudInputs = getSonarCloudInputs;
 function validateTool(tool) {
     if (!shared_1.VALID_TOOLS.includes(tool)) {
         throw new util_1.UserError(`Invalid tool "${tool}". The tool must be one of: ${shared_1.VALID_TOOLS.join(', ')}.`);
@@ -33647,10 +33646,11 @@ const fs_1 = __importDefault(__nccwpck_require__(7147));
 const form_data_1 = __importDefault(__nccwpck_require__(4334));
 const shared_1 = __nccwpck_require__(3826);
 function downloadSonarcloudFile(inputs) {
-    axios_1.default.get((0, util_1.buildSonarcloudUrl)(inputs), {
+    const { apiUrl, token } = inputs;
+    axios_1.default.get((0, util_1.buildSonarcloudUrl)(apiUrl), {
         headers: {
             contentType: 'application/json',
-            Authorization: `Bearer ${inputs.token}`
+            Authorization: `Bearer ${token}`
         },
         responseType: 'json'
     })
@@ -33725,7 +33725,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.VALID_TOOLS = exports.VALID_EVENTS = exports.UTF = exports.PIXEE_URL = exports.FILE_NAME = exports.AUDIENCE = void 0;
 exports.AUDIENCE = 'https://app.pixee.ai';
 exports.FILE_NAME = 'sonar_issues.json';
-exports.PIXEE_URL = 'https://d22balbl18.execute-api.us-east-1.amazonaws.com/prod/analysis-input';
+exports.PIXEE_URL = 'https://app.pixee.ai/analysis-input';
 exports.UTF = 'utf-8';
 exports.VALID_EVENTS = ['check_run', 'pull_request'];
 exports.VALID_TOOLS = ['sonar', 'codeql', 'semgrep'];
@@ -33771,8 +33771,9 @@ async function run() {
     core.setOutput("start-at", startedAt);
     try {
         const tool = (0, input_helper_1.getTool)();
+        // This is special behavior for SonarCloud that we either don't yet have for other supported tools
         if (tool === 'sonar') {
-            const inputs = (0, input_helper_1.getSonarcloudInputs)();
+            const inputs = (0, input_helper_1.getSonarCloudInputs)();
             analysis.downloadSonarcloudFile(inputs);
             return;
         }
@@ -33821,7 +33822,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.UserError = exports.buildError = exports.wrapError = exports.getGithubContext = exports.isGithubEventValid = exports.buildUploadApiUrl = exports.buildTriggerApiUrl = exports.buildSonarcloudUrl = void 0;
+exports.UserError = exports.buildError = exports.wrapError = exports.getGitHubContext = exports.isGitHubEventValid = exports.buildUploadApiUrl = exports.buildTriggerApiUrl = exports.buildSonarcloudUrl = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const github = __importStar(__nccwpck_require__(5438));
 const shared_1 = __nccwpck_require__(3826);
@@ -33829,35 +33830,32 @@ const eventHandlers = {
     'check_run': getCheckRunContext,
     'pull_request': getPullRequestContext
 };
-function buildSonarcloudUrl(inputs) {
-    const { componentKey, urlApi } = inputs;
-    const context = github.context;
-    const handler = eventHandlers[context.eventName];
-    const { prNumber } = handler(context);
-    return `${urlApi}/issues/search?componentKeys=${componentKey}&resolved=false&pullRequest=${prNumber}`;
+function buildSonarcloudUrl(apiUrl) {
+    const { owner, repo, prNumber } = getGitHubContext();
+    return `${apiUrl}/issues/search?componentKeys=${owner}_${repo}&resolved=false&pullRequest=${prNumber}`;
 }
 exports.buildSonarcloudUrl = buildSonarcloudUrl;
 function buildTriggerApiUrl(prNumber) {
-    const { owner, repo, sha } = getGithubContext();
+    const { owner, repo, sha } = getGitHubContext();
     return `${shared_1.PIXEE_URL}/${owner}/${repo}/${prNumber}`;
 }
 exports.buildTriggerApiUrl = buildTriggerApiUrl;
 function buildUploadApiUrl(tool) {
-    const { owner, repo, sha } = getGithubContext();
+    const { owner, repo, sha } = getGitHubContext();
     return `${shared_1.PIXEE_URL}/${owner}/${repo}/${sha}/${tool}`;
 }
 exports.buildUploadApiUrl = buildUploadApiUrl;
-function isGithubEventValid() {
+function isGitHubEventValid() {
     const eventName = github.context.eventName;
     return shared_1.VALID_EVENTS.includes(eventName);
 }
-exports.isGithubEventValid = isGithubEventValid;
-function getGithubContext() {
+exports.isGitHubEventValid = isGitHubEventValid;
+function getGitHubContext() {
     const { issue: { owner, repo }, eventName } = github.context;
     const handler = eventHandlers[eventName];
     return { owner, repo, ...handler(github.context) };
 }
-exports.getGithubContext = getGithubContext;
+exports.getGitHubContext = getGitHubContext;
 function getPullRequestContext(context) {
     const number = context.issue.number;
     const sha = context.payload.pull_request?.head.sha;
