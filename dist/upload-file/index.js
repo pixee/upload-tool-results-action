@@ -33578,7 +33578,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getRequiredInput = exports.getSonarcloudInputs = exports.getTool = void 0;
+exports.getSonarcloudInputs = exports.getTool = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const util_1 = __nccwpck_require__(2629);
 const shared_1 = __nccwpck_require__(3826);
@@ -33586,26 +33586,18 @@ const shared_1 = __nccwpck_require__(3826);
  * Helper to get all the inputs for the action
  */
 function getTool() {
-    const tool = getRequiredInput('tool');
+    const tool = core.getInput('tool', { required: true });
     validateTool(tool);
     return tool;
 }
 exports.getTool = getTool;
 function getSonarcloudInputs() {
     const token = core.getInput('sonar-token');
-    const componentKey = getRequiredInput('sonar-component-key');
-    const urlApi = getRequiredInput('sonar-api');
+    const componentKey = core.getInput('sonar-component-key', { required: true });
+    const urlApi = core.getInput('sonar-api', { required: true });
     return { token, componentKey, urlApi };
 }
 exports.getSonarcloudInputs = getSonarcloudInputs;
-function getRequiredInput(name) {
-    const value = core.getInput(name);
-    if (!value) {
-        throw new util_1.UserError(`Input required and not supplied: ${name}`);
-    }
-    return value;
-}
-exports.getRequiredInput = getRequiredInput;
 function validateTool(tool) {
     if (!shared_1.VALID_TOOLS.includes(tool)) {
         throw new util_1.UserError(`Invalid tool "${tool}". The tool must be one of: ${shared_1.VALID_TOOLS.join(', ')}.`);
@@ -33784,7 +33776,7 @@ async function run() {
             analysis.downloadSonarcloudFile(inputs);
             return;
         }
-        const file = (0, input_helper_1.getRequiredInput)('file');
+        const file = core.getInput('file', { required: true });
         analysis.uploadInputFile(tool, file);
         core.setOutput("status", "success");
     }
