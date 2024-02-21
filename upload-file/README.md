@@ -12,6 +12,8 @@ This action facilitates the process of uploading files to an AWS S3 bucket for f
         - `codeql`
         - `semgrep`
 
+**Note:** Please be aware that the `file` property is only required if you are not using the Sonar tool for analysis. If you are using SonarCloud for analysis, you can safely omit this property from your configuration.
+
 - `file`:
     - **Description:** The file to be uploaded.
     - **Required:** No
