@@ -3,9 +3,9 @@ import {buildError, buildSonarcloudUrl, buildTriggerApiUrl, buildUploadApiUrl} f
 import axios from "axios";
 import fs from "fs";
 import FormData from "form-data";
-import {AUDIENCE, FILE_NAME, SonarcloudInputs, Tool, UTF} from "./shared";
+import {AUDIENCE, FILE_NAME, SonarCloudInputs, Tool, UTF} from "./shared";
 
-export function downloadSonarcloudFile(inputs: SonarcloudInputs) {
+export function downloadSonarcloudFile(inputs: SonarCloudInputs) {
     axios.get(buildSonarcloudUrl(inputs), {
         headers: {
             contentType: 'application/json',

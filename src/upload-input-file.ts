@@ -1,7 +1,7 @@
 import * as core from "@actions/core";
 import {buildError} from "./util";
 import * as analysis from "./pixee-service";
-import {getSonarcloudInputs, getTool} from "./input-helper";
+import {getSonarCloudInputs, getTool} from "./input-helper";
 
 
 async function run() {
@@ -12,7 +12,7 @@ async function run() {
         const tool = getTool()
 
         if(tool === 'sonar'){
-            const inputs =  getSonarcloudInputs()
+            const inputs =  getSonarCloudInputs()
             analysis.downloadSonarcloudFile(inputs)
             return
         }

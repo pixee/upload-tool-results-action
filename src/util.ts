@@ -1,14 +1,14 @@
 import * as core from "@actions/core";
 import * as github from '@actions/github';
 import {Context} from "node:vm";
-import {GitHubContext, GitHubEvent, PIXEE_URL, SonarcloudInputs, VALID_EVENTS} from "./shared";
+import {GitHubContext, GitHubEvent, PIXEE_URL, SonarCloudInputs, VALID_EVENTS} from "./shared";
 
 const eventHandlers: { [eventName: string]: (context: Context) => Pick<GitHubContext, "prNumber" | "sha"> } = {
     'check_run': getCheckRunContext,
     'pull_request': getPullRequestContext
 };
 
-export function buildSonarcloudUrl(inputs: SonarcloudInputs): string {
+export function buildSonarcloudUrl(inputs: SonarCloudInputs): string {
     const {componentKey, urlApi} = inputs
     const context = github.context
     const handler = eventHandlers[context.eventName];

@@ -15,7 +15,7 @@ export interface GitHubContext {
     sha: string;
 }
 
-export interface SonarcloudInputs {
+export interface SonarCloudInputs {
     token: string
     componentKey: string
     urlApi: string

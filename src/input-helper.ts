@@ -1,6 +1,6 @@
 import * as core from '@actions/core'
 import {UserError} from "./util";
-import {SonarcloudInputs, Tool, VALID_TOOLS} from "./shared";
+import {SonarCloudInputs, Tool, VALID_TOOLS} from "./shared";
 
 /**
  * Helper to get all the inputs for the action
@@ -12,7 +12,7 @@ export function getTool(): Tool {
     return tool
 }
 
-export function getSonarcloudInputs(): SonarcloudInputs {
+export function getSonarCloudInputs(): SonarCloudInputs {
     const token = core.getInput('sonar-token');
     const componentKey = core.getInput('sonar-component-key', {required: true});
     const urlApi = core.getInput('sonar-api', {required: true});
