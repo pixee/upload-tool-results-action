@@ -14,7 +14,7 @@ This action facilitates the process of uploading files to an AWS S3 bucket for f
 
 - `file`:
     - **Description:** The file to be uploaded.
-    - **Required:** Yes
+    - **Required:** No
 
 **Note:** Please be aware that the properties related to SonarCloud (`sonar-token`, `sonar-component-key`, `sonar-api`) are only necessary if you are configuring the Sonar tool. If you are not using SonarCloud for analysis, you can safely omit these properties from your configuration.
 
@@ -27,7 +27,7 @@ This action facilitates the process of uploading files to an AWS S3 bucket for f
     - **Required:** No
 
 - `sonar-api`:
-    - **Description:** Base URL of the SonarCloud API.
+    - **Description:** Base URL of the SonarCloud API. This property is only required when using SonarQube. If you're using SonarCloud, you can omit it.
     - **Required:** No
 
 ### Outputs

@@ -9,7 +9,7 @@ inputs:
     required: true
   file:
     description: File to be uploaded.
-    required: true
+    required: false
   sonar-token:
     description: Access token for authenticating requests to SonarCloud.
     required: false
