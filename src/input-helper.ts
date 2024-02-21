@@ -1,22 +1,25 @@
 import * as core from '@actions/core'
-import {UploadInputs} from './upload-inputs'
 import {UserError} from "./util";
-
-export type Inputs = 'file' | 'tool'
-const VALID_TOOLS = ['sonar', 'codeql', 'semgrep'];
 
 /**
  * Helper to get all the inputs for the action
  */
-export function getInputs(): UploadInputs {
-    const file = getRequiredInput('file');
-    const tool = getRequiredInput('tool');
+export function getTool(): Tool {
+    const tool = getRequiredInput('tool') as Tool;
     validateTool(tool)
 
-    return {file, tool} as UploadInputs
+    return tool
 }
 
-function getRequiredInput(name: Inputs): string {
+export function getSonarcloudInputs(): SonarcloudInputs {
+    const token = core.getInput('sonar-token');
+    const componentKey = getRequiredInput('sonar-component-key');
+    const urlApi = getRequiredInput('sonar-api');
+
+    return { token, componentKey, urlApi}
+}
+
+export function getRequiredInput(name: string): string {
     const value = core.getInput(name);
     if (!value) {
         throw new UserError(`Input required and not supplied: ${name}`);
@@ -24,7 +27,7 @@ function getRequiredInput(name: Inputs): string {
     return value;
 }
 
-function validateTool(tool: string) {
+function validateTool(tool: Tool) {
     if (!VALID_TOOLS.includes(tool)) {
         throw new UserError(`Invalid tool "${tool}". The tool must be one of: ${VALID_TOOLS.join(', ')}.`);
     }

@@ -1,6 +1,6 @@
 import * as core from "@actions/core";
 import {buildError, getGithubContext, isGithubEventValid, wrapError} from "./util";
-import * as analysis from "./analysis-input-resource";
+import * as analysis from "./pixee-service";
 
 async function run() {
     const startedAt = (new Date()).toTimeString();

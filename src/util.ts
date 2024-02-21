@@ -2,16 +2,18 @@ import * as core from "@actions/core";
 import * as github from '@actions/github';
 import {Context} from "node:vm";
 
-type GithubEvent = 'check_run' | 'pull_request';
+const eventHandlers: { [eventName: string]: (context: Context) => Pick<GitHubContext, "prNumber" | "sha"> } = {
+    'check_run': getCheckRunContext,
+    'pull_request': getPullRequestContext
+};
 
-const validEvents: GithubEvent[] = ['check_run', 'pull_request'];
-const PIXEE_URL = 'https://app.pixee.ai/analysis-input'
+export function buildSonarcloudUrl(inputs: SonarcloudInputs): string {
+    const {componentKey, urlApi} = inputs
+    const context = github.context
+    const handler = eventHandlers[context.eventName];
 
-interface GitHubContext {
-    owner: string;
-    repo: string;
-    prNumber: number;
-    sha: string;
+    const { prNumber } = handler(context)
+    return `${urlApi}/issues/search?componentKeys=${componentKey}&resolved=false&pullRequest=${prNumber}`
 }
 
 export function buildTriggerApiUrl(prNumber: number): string {
@@ -28,18 +30,13 @@ export function buildUploadApiUrl(tool: string): string {
 
 export function isGithubEventValid(): boolean {
     const eventName = github.context.eventName as GithubEvent
-    return validEvents.includes(eventName);
+    return VALID_EVENTS.includes(eventName);
 }
 
 export function getGithubContext(): GitHubContext {
     const { issue: {owner, repo}, eventName } = github.context;
-
-    const eventHandlers: { [eventName: string]: (context: Context) => Pick<GitHubContext, "prNumber" | "sha"> } = {
-        'check_run': getCheckRunContext,
-        'pull_request': getPullRequestContext
-    };
-
     const handler = eventHandlers[eventName];
+
     return { owner, repo, ...handler(github.context) };
 }
 

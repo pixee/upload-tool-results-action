@@ -1,15 +1,25 @@
 import * as core from "@actions/core";
-import {buildError, buildTriggerApiUrl, buildUploadApiUrl} from "./util";
+import {buildError, buildSonarcloudUrl, buildTriggerApiUrl, buildUploadApiUrl} from "./util";
 import axios from "axios";
-import {UploadInputs} from "./upload-inputs";
 import fs from "fs";
 import FormData from "form-data";
 
-const UTF = 'utf-8'
-const AUDIENCE = 'https://app.pixee.ai'
+export function downloadSonarcloudFile(inputs: SonarcloudInputs) {
+    axios.get(buildSonarcloudUrl(inputs), {
+        headers: {
+            contentType: 'application/json',
+            Authorization: `Bearer ${inputs.token}`
+        },
+        responseType: 'json'
+    })
+        .then(response => {
+            fs.writeFileSync(FILE_NAME, JSON.stringify(response.data));
+            uploadInputFile('sonar', FILE_NAME)
+        })
+        .catch(error => buildError(error));
+}
 
-export function uploadInputFile(inputs: UploadInputs) {
-    const { file, tool} = inputs
+export function uploadInputFile(tool: Tool, file: string) {
     const fileContent = fs.readFileSync(file, UTF);
     const form = new FormData();
     form.append('file', fileContent);
