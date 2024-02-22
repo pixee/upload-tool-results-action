@@ -1,45 +1,42 @@
 import * as core from "@actions/core";
 import * as github from '@actions/github';
 import {Context} from "node:vm";
+import {GitHubContext, GitHubEvent, PIXEE_URL, SonarCloudInputs, VALID_EVENTS} from "./shared";
 
-type GithubEvent = 'check_run' | 'pull_request';
+const eventHandlers: { [eventName: string]: (context: Context) => Pick<GitHubContext, "prNumber" | "sha"> } = {
+    'check_run': getCheckRunContext,
+    'pull_request': getPullRequestContext
+};
 
-const validEvents: GithubEvent[] = ['check_run', 'pull_request'];
-const PIXEE_URL = 'https://app.pixee.ai/analysis-input'
+export function buildSonarcloudUrl(inputs: SonarCloudInputs): string {
+    const {apiUrl, componentKey} = inputs
+    const {owner, repo, prNumber} = getGitHubContext()
+    const defaultComponentKey = componentKey ? componentKey : `${owner}_${repo}`
 
-interface GitHubContext {
-    owner: string;
-    repo: string;
-    prNumber: number;
-    sha: string;
+    return `${apiUrl}/issues/search?componentKeys=${defaultComponentKey}&resolved=false&pullRequest=${prNumber}`
 }
 
 export function buildTriggerApiUrl(prNumber: number): string {
-    const {owner, repo, sha} = getGithubContext()
+    const {owner, repo, sha} = getGitHubContext()
 
     return `${PIXEE_URL}/${owner}/${repo}/${prNumber}`
 }
 
 export function buildUploadApiUrl(tool: string): string {
-    const {owner, repo, sha} = getGithubContext()
+    const {owner, repo, sha} = getGitHubContext()
 
     return `${PIXEE_URL}/${owner}/${repo}/${sha}/${tool}`
 }
 
-export function isGithubEventValid(): boolean {
-    const eventName = github.context.eventName as GithubEvent
-    return validEvents.includes(eventName);
+export function isGitHubEventValid(): boolean {
+    const eventName = github.context.eventName as GitHubEvent
+    return VALID_EVENTS.includes(eventName);
 }
 
-export function getGithubContext(): GitHubContext {
+export function getGitHubContext(): GitHubContext {
     const { issue: {owner, repo}, eventName } = github.context;
-
-    const eventHandlers: { [eventName: string]: (context: Context) => Pick<GitHubContext, "prNumber" | "sha"> } = {
-        'check_run': getCheckRunContext,
-        'pull_request': getPullRequestContext
-    };
-
     const handler = eventHandlers[eventName];
+
     return { owner, repo, ...handler(github.context) };
 }
 

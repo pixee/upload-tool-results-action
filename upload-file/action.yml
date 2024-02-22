@@ -2,14 +2,24 @@ name: Share Static Analysis with Pixeebot
 description: Upload file to Pixee
 author: Pixee
 inputs:
-  file:
-    description: File to be uploaded.
-    required: true
   tool:
     description: >
       Specific property that identifies the tool related to the uploaded file.
       Allowed values: 'sonar', 'codeql', 'semgrep'
     required: true
+  file:
+    description: File to be uploaded.
+    required: false
+  sonar-token:
+    description: Access token for authenticating requests to SonarCloud.
+    required: false
+  sonar-component-key:
+    description: Key identifying the SonarCloud component to be analyzed.
+    required: false
+  sonar-api-url:
+    description: Base URL of the SonarCloud API.
+    default: https://sonarcloud.io/api
+
 outputs:
   status:
     description: |

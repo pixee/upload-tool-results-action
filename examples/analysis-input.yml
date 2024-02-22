@@ -7,10 +7,6 @@ on:
 permissions:
   id-token: write
 
-env:
-  # Replace <sonar-project-key> with the project key retrieved from sonarcloud
-  SONAR_PROJECT_KEY: <sonar-project-key>
-
 jobs:
   pixeebot-fix:
     name: Pixeebot Fix
@@ -19,20 +15,9 @@ jobs:
     timeout-minutes: 6
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      - name: SonarCloud download
-        run: |
-          PR_NUMBER=${{ join(github.event.check_run.pull_requests.*.number, '') }}
-          URL="https://sonarcloud.io/api/issues/search?componentKeys=${{ env.SONAR_PROJECT_KEY }}&resolved=false"
-
-          if [ -n "$PR_NUMBER" ]; then
-            URL="${URL}&pullRequest=$PR_NUMBER"
-          fi
-          curl -v "$URL" -o sonar_issues.json
       - name: Upload file and trigger analysis
         uses: pixee/pixee-actions/analysis-input@main
         with:
-          file: sonar_issues.json
-          # Replace with the specific property that identifies the tool related to the uploaded file. Allowed values: 'sonar', 'codeql', 'semgrep'
-          tool: 'sonar'
+          # Replace <tool> with the specific property that identifies the tool related to the uploaded file. Allowed values: 'sonar', 'codeql', 'semgrep'
+          tool: <tool>
+          sonar-token: ${{ secrets.SONAR_TOKEN }}

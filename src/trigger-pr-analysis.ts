@@ -1,14 +1,14 @@
 import * as core from "@actions/core";
-import {buildError, getGithubContext, isGithubEventValid, wrapError} from "./util";
-import * as analysis from "./analysis-input-resource";
+import {buildError, getGitHubContext, isGitHubEventValid, wrapError} from "./util";
+import * as analysis from "./pixee-service";
 
 async function run() {
     const startedAt = (new Date()).toTimeString();
     core.setOutput("start-at", startedAt);
 
     try {
-        if (isGithubEventValid()){
-            const {prNumber} = getGithubContext();
+        if (isGitHubEventValid()){
+            const {prNumber} = getGitHubContext();
 
             if (prNumber) {
                 analysis.triggerPrAnalysis(prNumber);

@@ -33549,7 +33549,7 @@ function wrappy (fn, cb) {
 
 /***/ }),
 
-/***/ 9391:
+/***/ 3091:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -33581,20 +33581,33 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.triggerPrAnalysis = exports.uploadInputFile = void 0;
+exports.triggerPrAnalysis = exports.uploadInputFile = exports.downloadSonarcloudFile = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const util_1 = __nccwpck_require__(2629);
 const axios_1 = __importDefault(__nccwpck_require__(6545));
 const fs_1 = __importDefault(__nccwpck_require__(7147));
 const form_data_1 = __importDefault(__nccwpck_require__(4334));
-const UTF = 'utf-8';
-const AUDIENCE = 'https://app.pixee.ai';
-function uploadInputFile(inputs) {
-    const { file, tool } = inputs;
-    const fileContent = fs_1.default.readFileSync(file, UTF);
+const shared_1 = __nccwpck_require__(3826);
+function downloadSonarcloudFile(inputs) {
+    axios_1.default.get((0, util_1.buildSonarcloudUrl)(inputs), {
+        headers: {
+            contentType: 'application/json',
+            Authorization: `Bearer ${inputs.token}`
+        },
+        responseType: 'json'
+    })
+        .then(response => {
+        fs_1.default.writeFileSync(shared_1.FILE_NAME, JSON.stringify(response.data));
+        uploadInputFile('sonar', shared_1.FILE_NAME);
+    })
+        .catch(error => (0, util_1.buildError)(error));
+}
+exports.downloadSonarcloudFile = downloadSonarcloudFile;
+function uploadInputFile(tool, file) {
+    const fileContent = fs_1.default.readFileSync(file, shared_1.UTF);
     const form = new form_data_1.default();
     form.append('file', fileContent);
-    const tokenPromise = core.getIDToken(AUDIENCE);
+    const tokenPromise = core.getIDToken(shared_1.AUDIENCE);
     tokenPromise.then(token => {
         try {
             axios_1.default.put((0, util_1.buildUploadApiUrl)(tool), form, {
@@ -33618,7 +33631,7 @@ function uploadInputFile(inputs) {
 }
 exports.uploadInputFile = uploadInputFile;
 function triggerPrAnalysis(prNumber) {
-    const tokenPromise = core.getIDToken(AUDIENCE);
+    const tokenPromise = core.getIDToken(shared_1.AUDIENCE);
     tokenPromise.then(token => {
         try {
             axios_1.default.post((0, util_1.buildTriggerApiUrl)(prNumber), null, {
@@ -33641,6 +33654,23 @@ function triggerPrAnalysis(prNumber) {
     });
 }
 exports.triggerPrAnalysis = triggerPrAnalysis;
+
+
+/***/ }),
+
+/***/ 3826:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.VALID_TOOLS = exports.VALID_EVENTS = exports.UTF = exports.PIXEE_URL = exports.FILE_NAME = exports.AUDIENCE = void 0;
+exports.AUDIENCE = 'https://app.pixee.ai';
+exports.FILE_NAME = 'sonar_issues.json';
+exports.PIXEE_URL = 'https://app.pixee.ai/analysis-input';
+exports.UTF = 'utf-8';
+exports.VALID_EVENTS = ['check_run', 'pull_request'];
+exports.VALID_TOOLS = ['sonar', 'codeql', 'semgrep'];
 
 
 /***/ }),
@@ -33676,13 +33706,13 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(2186));
 const util_1 = __nccwpck_require__(2629);
-const analysis = __importStar(__nccwpck_require__(9391));
+const analysis = __importStar(__nccwpck_require__(3091));
 async function run() {
     const startedAt = (new Date()).toTimeString();
     core.setOutput("start-at", startedAt);
     try {
-        if ((0, util_1.isGithubEventValid)()) {
-            const { prNumber } = (0, util_1.getGithubContext)();
+        if ((0, util_1.isGitHubEventValid)()) {
+            const { prNumber } = (0, util_1.getGitHubContext)();
             if (prNumber) {
                 analysis.triggerPrAnalysis(prNumber);
                 core.setOutput('status', 'success');
@@ -33733,36 +33763,42 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.UserError = exports.buildError = exports.wrapError = exports.getGithubContext = exports.isGithubEventValid = exports.buildUploadApiUrl = exports.buildTriggerApiUrl = void 0;
+exports.UserError = exports.buildError = exports.wrapError = exports.getGitHubContext = exports.isGitHubEventValid = exports.buildUploadApiUrl = exports.buildTriggerApiUrl = exports.buildSonarcloudUrl = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const github = __importStar(__nccwpck_require__(5438));
-const validEvents = ['check_run', 'pull_request'];
-const PIXEE_URL = 'https://app.pixee.ai/analysis-input';
+const shared_1 = __nccwpck_require__(3826);
+const eventHandlers = {
+    'check_run': getCheckRunContext,
+    'pull_request': getPullRequestContext
+};
+function buildSonarcloudUrl(inputs) {
+    const { apiUrl, componentKey } = inputs;
+    const { owner, repo, prNumber } = getGitHubContext();
+    const defaultComponentKey = componentKey ? componentKey : `${owner}_${repo}`;
+    return `${apiUrl}/issues/search?componentKeys=${defaultComponentKey}&resolved=false&pullRequest=${prNumber}`;
+}
+exports.buildSonarcloudUrl = buildSonarcloudUrl;
 function buildTriggerApiUrl(prNumber) {
-    const { owner, repo, sha } = getGithubContext();
-    return `${PIXEE_URL}/${owner}/${repo}/${prNumber}`;
+    const { owner, repo, sha } = getGitHubContext();
+    return `${shared_1.PIXEE_URL}/${owner}/${repo}/${prNumber}`;
 }
 exports.buildTriggerApiUrl = buildTriggerApiUrl;
 function buildUploadApiUrl(tool) {
-    const { owner, repo, sha } = getGithubContext();
-    return `${PIXEE_URL}/${owner}/${repo}/${sha}/${tool}`;
+    const { owner, repo, sha } = getGitHubContext();
+    return `${shared_1.PIXEE_URL}/${owner}/${repo}/${sha}/${tool}`;
 }
 exports.buildUploadApiUrl = buildUploadApiUrl;
-function isGithubEventValid() {
+function isGitHubEventValid() {
     const eventName = github.context.eventName;
-    return validEvents.includes(eventName);
+    return shared_1.VALID_EVENTS.includes(eventName);
 }
-exports.isGithubEventValid = isGithubEventValid;
-function getGithubContext() {
+exports.isGitHubEventValid = isGitHubEventValid;
+function getGitHubContext() {
     const { issue: { owner, repo }, eventName } = github.context;
-    const eventHandlers = {
-        'check_run': getCheckRunContext,
-        'pull_request': getPullRequestContext
-    };
     const handler = eventHandlers[eventName];
     return { owner, repo, ...handler(github.context) };
 }
-exports.getGithubContext = getGithubContext;
+exports.getGitHubContext = getGitHubContext;
 function getPullRequestContext(context) {
     const number = context.issue.number;
     const sha = context.payload.pull_request?.head.sha;

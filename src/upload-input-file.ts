@@ -1,7 +1,7 @@
 import * as core from "@actions/core";
-import {buildError, wrapError} from "./util";
-import * as analysis from "./analysis-input-resource";
-import {getInputs} from "./input-helper";
+import {buildError} from "./util";
+import * as analysis from "./pixee-service";
+import {getSonarCloudInputs, getTool} from "./input-helper";
 
 
 async function run() {
@@ -9,8 +9,17 @@ async function run() {
     core.setOutput("start-at", startedAt);
 
     try {
-        const inputs = getInputs()
-        analysis.uploadInputFile(inputs);
+        const tool = getTool()
+
+        // This is special behavior for SonarCloud that we either don't yet have for other supported tools
+        if(tool === 'sonar'){
+            const inputs =  getSonarCloudInputs()
+            analysis.downloadSonarcloudFile(inputs)
+            return
+        }
+
+        const file = core.getInput('file', {required: true});
+        analysis.uploadInputFile(tool, file);
 
         core.setOutput("status", "success");
     } catch (error) {

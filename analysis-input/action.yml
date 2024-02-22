@@ -2,14 +2,23 @@ name: Pixeebot Fix
 description: Upload SonarCloud file and trigger analysis
 
 inputs:
-  file:
-    description: File to be uploaded.
-    required: true
   tool:
     description: >
       Specific property that identifies the tool related to the uploaded file.
       Allowed values: 'sonar', 'codeql', 'semgrep'
     required: true
+  file:
+    description: File to be uploaded.
+    required: false
+  sonar-token:
+    description: Access token for authenticating requests to SonarCloud.
+    required: false
+  sonar-component-key:
+    description: Key identifying the SonarCloud component to be analyzed.
+    required: false
+  sonar-api-url:
+    description: Base URL of the SonarCloud API.
+    default: https://sonarcloud.io/api
 
 runs:
   using: "composite"
@@ -19,5 +28,8 @@ runs:
       with:
         file: ${{ inputs.file }}
         tool: ${{ inputs.tool }}
+        sonar-token: ${{ inputs.sonar-token }}
+        sonar-component-key: ${{ inputs.sonar-component-key }}
+        sonar-api-url: ${{ inputs.sonar-api-url }}
     - name: Call trigger
       uses: pixee/pixee-actions/trigger@main

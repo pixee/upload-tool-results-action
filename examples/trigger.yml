@@ -18,6 +18,3 @@ jobs:
         uses: actions/checkout@v4
       - name: Trigger
         uses: pixee/pixee-actions/trigger@main
-        with:
-          # Replace <file> with the file to be uploaded.
-          file: <file>
