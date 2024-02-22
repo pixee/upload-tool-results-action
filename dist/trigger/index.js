@@ -33589,11 +33589,10 @@ const fs_1 = __importDefault(__nccwpck_require__(7147));
 const form_data_1 = __importDefault(__nccwpck_require__(4334));
 const shared_1 = __nccwpck_require__(3826);
 function downloadSonarcloudFile(inputs) {
-    const { apiUrl, token } = inputs;
-    axios_1.default.get((0, util_1.buildSonarcloudUrl)(apiUrl), {
+    axios_1.default.get((0, util_1.buildSonarcloudUrl)(inputs), {
         headers: {
             contentType: 'application/json',
-            Authorization: `Bearer ${token}`
+            Authorization: `Bearer ${inputs.token}`
         },
         responseType: 'json'
     })
@@ -33772,9 +33771,11 @@ const eventHandlers = {
     'check_run': getCheckRunContext,
     'pull_request': getPullRequestContext
 };
-function buildSonarcloudUrl(apiUrl) {
+function buildSonarcloudUrl(inputs) {
+    const { apiUrl, componentKey } = inputs;
     const { owner, repo, prNumber } = getGitHubContext();
-    return `${apiUrl}/issues/search?componentKeys=${owner}_${repo}&resolved=false&pullRequest=${prNumber}`;
+    const defaultComponentKey = componentKey ? componentKey : `${owner}_${repo}`;
+    return `${apiUrl}/issues/search?componentKeys=${defaultComponentKey}&resolved=false&pullRequest=${prNumber}`;
 }
 exports.buildSonarcloudUrl = buildSonarcloudUrl;
 function buildTriggerApiUrl(prNumber) {

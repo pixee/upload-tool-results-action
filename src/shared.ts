@@ -17,5 +17,6 @@ export interface GitHubContext {
 
 export interface SonarCloudInputs {
     token: string
+    componentKey: string
     apiUrl: string
 }
