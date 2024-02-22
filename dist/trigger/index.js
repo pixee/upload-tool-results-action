@@ -33667,7 +33667,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.VALID_TOOLS = exports.VALID_EVENTS = exports.UTF = exports.PIXEE_URL = exports.FILE_NAME = exports.AUDIENCE = void 0;
 exports.AUDIENCE = 'https://app.pixee.ai';
 exports.FILE_NAME = 'sonar_issues.json';
-exports.PIXEE_URL = 'https://app.pixee.ai/analysis-input';
+exports.PIXEE_URL = 'https://api.pixee.ai/analysis-input';
 exports.UTF = 'utf-8';
 exports.VALID_EVENTS = ['check_run', 'pull_request'];
 exports.VALID_TOOLS = ['sonar', 'codeql', 'semgrep'];
