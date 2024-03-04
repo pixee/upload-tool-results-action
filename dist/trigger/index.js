@@ -33670,7 +33670,7 @@ exports.FILE_NAME = 'sonar_issues.json';
 exports.PIXEE_URL = 'https://api.pixee.ai/analysis-input';
 exports.UTF = 'utf-8';
 exports.VALID_EVENTS = ['check_run', 'pull_request'];
-exports.VALID_TOOLS = ['sonar', 'codeql', 'semgrep'];
+exports.VALID_TOOLS = ['sonar', 'codeql', 'semgrep', 'appscan'];
 
 
 /***/ }),
