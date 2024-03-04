@@ -5,7 +5,7 @@ inputs:
   tool:
     description: >
       Specific property that identifies the tool related to the uploaded file.
-      Allowed values: 'sonar', 'codeql', 'semgrep'
+      Allowed values: 'sonar', 'codeql', 'semgrep', 'appscan'
     required: true
   file:
     description: File to be uploaded.
