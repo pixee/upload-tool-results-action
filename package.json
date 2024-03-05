@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "",
   "scripts": {
-    "build": "ncc build -o dist/upload-file/ src/upload-input-file.ts && ncc build -o dist/trigger/ src/trigger-pr-analysis.ts"
+    "build": "ncc build -o dist/upload-file/ src/upload-input-file.ts && ncc build -o dist/trigger/ src/trigger-pr-hardening.ts"
   },
   "keywords": [],
   "author": "Pixee",

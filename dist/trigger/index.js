@@ -33549,7 +33549,93 @@ function wrappy (fn, cb) {
 
 /***/ }),
 
-/***/ 3091:
+/***/ 7063:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getGitHubContext = exports.isGitHubEventValid = exports.getSonarCloudInputs = exports.getTool = void 0;
+const core = __importStar(__nccwpck_require__(2186));
+const github = __importStar(__nccwpck_require__(5438));
+const util_1 = __nccwpck_require__(2629);
+/**
+ * Helper to get all the inputs for the action
+ */
+function getTool() {
+    const tool = core.getInput("tool", { required: true });
+    validateTool(tool);
+    return tool;
+}
+exports.getTool = getTool;
+function getSonarCloudInputs() {
+    const token = core.getInput("sonar-token");
+    const componentKey = core.getInput("sonar-component-key");
+    const apiUrl = core.getInput("sonar-api-url", { required: true });
+    return { token, componentKey, apiUrl };
+}
+exports.getSonarCloudInputs = getSonarCloudInputs;
+function validateTool(tool) {
+    if (!VALID_TOOLS.includes(tool)) {
+        throw new util_1.UserError(`Invalid tool "${tool}". The tool must be one of: ${VALID_TOOLS.join(", ")}.`);
+    }
+}
+function isGitHubEventValid() {
+    const eventName = github.context.eventName;
+    return VALID_EVENTS.includes(eventName);
+}
+exports.isGitHubEventValid = isGitHubEventValid;
+function getGitHubContext() {
+    const { issue: { owner, repo }, eventName, } = github.context;
+    const handler = eventHandlers[eventName];
+    return { owner, repo, ...handler(github.context) };
+}
+exports.getGitHubContext = getGitHubContext;
+function getPullRequestContext(context) {
+    const number = context.issue.number;
+    const sha = context.payload.pull_request?.head.sha;
+    return { prNumber: number, sha };
+}
+function getCheckRunContext(context) {
+    const actionEvent = context.payload.check_run;
+    const number = actionEvent.pull_requests[0].number;
+    const sha = actionEvent.head_sha;
+    return { prNumber: number, sha };
+}
+const eventHandlers = {
+    check_run: getCheckRunContext,
+    pull_request: getPullRequestContext,
+};
+const VALID_TOOLS = ["sonar", "codeql", "semgrep", "appscan"];
+const VALID_EVENTS = ["check_run", "pull_request"];
+
+
+/***/ }),
+
+/***/ 891:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -33581,48 +33667,34 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.triggerPrAnalysis = exports.uploadInputFile = exports.downloadSonarcloudFile = void 0;
+exports.triggerPrAnalysis = exports.uploadInputFile = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const util_1 = __nccwpck_require__(2629);
 const axios_1 = __importDefault(__nccwpck_require__(6545));
 const fs_1 = __importDefault(__nccwpck_require__(7147));
 const form_data_1 = __importDefault(__nccwpck_require__(4334));
-const shared_1 = __nccwpck_require__(3826);
-function downloadSonarcloudFile(inputs) {
-    axios_1.default.get((0, util_1.buildSonarcloudUrl)(inputs), {
-        headers: {
-            contentType: 'application/json',
-            Authorization: `Bearer ${inputs.token}`
-        },
-        responseType: 'json'
-    })
-        .then(response => {
-        fs_1.default.writeFileSync(shared_1.FILE_NAME, JSON.stringify(response.data));
-        uploadInputFile('sonar', shared_1.FILE_NAME);
-    })
-        .catch(error => (0, util_1.buildError)(error));
-}
-exports.downloadSonarcloudFile = downloadSonarcloudFile;
+const inputs_1 = __nccwpck_require__(7063);
 function uploadInputFile(tool, file) {
-    const fileContent = fs_1.default.readFileSync(file, shared_1.UTF);
+    const fileContent = fs_1.default.readFileSync(file, "utf-8");
     const form = new form_data_1.default();
-    form.append('file', fileContent);
-    const tokenPromise = core.getIDToken(shared_1.AUDIENCE);
-    tokenPromise.then(token => {
+    form.append("file", fileContent);
+    const tokenPromise = core.getIDToken(AUDIENCE);
+    tokenPromise.then((token) => {
         try {
-            axios_1.default.put((0, util_1.buildUploadApiUrl)(tool), form, {
+            axios_1.default
+                .put(buildUploadApiUrl(tool), form, {
                 headers: {
                     ...form.getHeaders(),
                     Authorization: `Bearer ${token}`,
                 },
             })
-                .then(response => {
+                .then((response) => {
                 if (response.status != 204) {
                     core.setFailed(`Failed response status: ${response.status}`);
                     return;
                 }
             })
-                .catch(error => (0, util_1.buildError)(error));
+                .catch((error) => (0, util_1.buildError)(error));
         }
         catch (error) {
             (0, util_1.buildError)(error);
@@ -33631,22 +33703,23 @@ function uploadInputFile(tool, file) {
 }
 exports.uploadInputFile = uploadInputFile;
 function triggerPrAnalysis(prNumber) {
-    const tokenPromise = core.getIDToken(shared_1.AUDIENCE);
-    tokenPromise.then(token => {
+    const tokenPromise = core.getIDToken(AUDIENCE);
+    tokenPromise.then((token) => {
         try {
-            axios_1.default.post((0, util_1.buildTriggerApiUrl)(prNumber), null, {
+            axios_1.default
+                .post(buildTriggerApiUrl(prNumber), null, {
                 headers: {
-                    contentType: 'application/json',
-                    Authorization: `Bearer ${token}`
-                }
+                    contentType: "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
             })
-                .then(response => {
+                .then((response) => {
                 if (response.status != 204) {
                     core.setFailed(`Failed response status: ${response.status}`);
                     return;
                 }
             })
-                .catch(error => (0, util_1.buildError)(error));
+                .catch((error) => (0, util_1.buildError)(error));
         }
         catch (error) {
             (0, util_1.buildError)(error);
@@ -33654,28 +33727,21 @@ function triggerPrAnalysis(prNumber) {
     });
 }
 exports.triggerPrAnalysis = triggerPrAnalysis;
+function buildTriggerApiUrl(prNumber) {
+    const { owner, repo } = (0, inputs_1.getGitHubContext)();
+    return `${PIXEE_URL}/${owner}/${repo}/${prNumber}`;
+}
+function buildUploadApiUrl(tool) {
+    const { owner, repo, sha } = (0, inputs_1.getGitHubContext)();
+    return `${PIXEE_URL}/${owner}/${repo}/${sha}/${tool}`;
+}
+const AUDIENCE = "https://app.pixee.ai";
+const PIXEE_URL = "https://api.pixee.ai/analysis-input";
 
 
 /***/ }),
 
-/***/ 3826:
-/***/ ((__unused_webpack_module, exports) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.VALID_TOOLS = exports.VALID_EVENTS = exports.UTF = exports.PIXEE_URL = exports.FILE_NAME = exports.AUDIENCE = void 0;
-exports.AUDIENCE = 'https://app.pixee.ai';
-exports.FILE_NAME = 'sonar_issues.json';
-exports.PIXEE_URL = 'https://api.pixee.ai/analysis-input';
-exports.UTF = 'utf-8';
-exports.VALID_EVENTS = ['check_run', 'pull_request'];
-exports.VALID_TOOLS = ['sonar', 'codeql', 'semgrep', 'appscan'];
-
-
-/***/ }),
-
-/***/ 6941:
+/***/ 6360:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -33706,21 +33772,22 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(2186));
 const util_1 = __nccwpck_require__(2629);
-const analysis = __importStar(__nccwpck_require__(3091));
+const analysis = __importStar(__nccwpck_require__(891));
+const inputs_1 = __nccwpck_require__(7063);
 async function run() {
-    const startedAt = (new Date()).toTimeString();
+    const startedAt = new Date().toTimeString();
     core.setOutput("start-at", startedAt);
     try {
-        if ((0, util_1.isGitHubEventValid)()) {
-            const { prNumber } = (0, util_1.getGitHubContext)();
+        if ((0, inputs_1.isGitHubEventValid)()) {
+            const { prNumber } = (0, inputs_1.getGitHubContext)();
             if (prNumber) {
                 analysis.triggerPrAnalysis(prNumber);
-                core.setOutput('status', 'success');
+                core.setOutput("status", "success");
                 return;
             }
-            core.setFailed('PR number not found. Please provide a valid PR number.');
+            core.setFailed("PR number not found. Please provide a valid PR number.");
         }
-        core.setFailed('Invalid GitHub event');
+        core.setFailed("Invalid GitHub event");
     }
     catch (error) {
         (0, util_1.buildError)(error);
@@ -33763,53 +33830,8 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.UserError = exports.buildError = exports.wrapError = exports.getGitHubContext = exports.isGitHubEventValid = exports.buildUploadApiUrl = exports.buildTriggerApiUrl = exports.buildSonarcloudUrl = void 0;
+exports.UserError = exports.buildError = exports.wrapError = void 0;
 const core = __importStar(__nccwpck_require__(2186));
-const github = __importStar(__nccwpck_require__(5438));
-const shared_1 = __nccwpck_require__(3826);
-const eventHandlers = {
-    'check_run': getCheckRunContext,
-    'pull_request': getPullRequestContext
-};
-function buildSonarcloudUrl(inputs) {
-    const { apiUrl, componentKey } = inputs;
-    const { owner, repo, prNumber } = getGitHubContext();
-    const defaultComponentKey = componentKey ? componentKey : `${owner}_${repo}`;
-    return `${apiUrl}/issues/search?componentKeys=${defaultComponentKey}&resolved=false&pullRequest=${prNumber}`;
-}
-exports.buildSonarcloudUrl = buildSonarcloudUrl;
-function buildTriggerApiUrl(prNumber) {
-    const { owner, repo, sha } = getGitHubContext();
-    return `${shared_1.PIXEE_URL}/${owner}/${repo}/${prNumber}`;
-}
-exports.buildTriggerApiUrl = buildTriggerApiUrl;
-function buildUploadApiUrl(tool) {
-    const { owner, repo, sha } = getGitHubContext();
-    return `${shared_1.PIXEE_URL}/${owner}/${repo}/${sha}/${tool}`;
-}
-exports.buildUploadApiUrl = buildUploadApiUrl;
-function isGitHubEventValid() {
-    const eventName = github.context.eventName;
-    return shared_1.VALID_EVENTS.includes(eventName);
-}
-exports.isGitHubEventValid = isGitHubEventValid;
-function getGitHubContext() {
-    const { issue: { owner, repo }, eventName } = github.context;
-    const handler = eventHandlers[eventName];
-    return { owner, repo, ...handler(github.context) };
-}
-exports.getGitHubContext = getGitHubContext;
-function getPullRequestContext(context) {
-    const number = context.issue.number;
-    const sha = context.payload.pull_request?.head.sha;
-    return { prNumber: number, sha };
-}
-function getCheckRunContext(context) {
-    const actionEvent = context.payload.check_run;
-    const number = actionEvent.pull_requests[0].number;
-    const sha = actionEvent.head_sha;
-    return { prNumber: number, sha };
-}
 function wrapError(error) {
     return error instanceof Error ? error : new Error(String(error));
 }
@@ -35733,7 +35755,7 @@ module.exports = JSON.parse('{"application/1d-interleaved-parityfec":{"source":"
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
 /******/ 	// This entry module is referenced by other modules so it can't be inlined
-/******/ 	var __webpack_exports__ = __nccwpck_require__(6941);
+/******/ 	var __webpack_exports__ = __nccwpck_require__(6360);
 /******/ 	module.exports = __webpack_exports__;
 /******/ 	
 /******/ })()

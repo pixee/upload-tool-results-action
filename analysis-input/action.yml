@@ -4,14 +4,14 @@ description: Upload SonarCloud file and trigger analysis
 inputs:
   tool:
     description: >
-      Specific property that identifies the tool related to the uploaded file.
-      Allowed values: 'sonar', 'codeql', 'semgrep'
+      The supported code quality tool that produced the results being shared
+      with Pixee. Allowed values: 'sonar', 'codeql', 'semgrep'
     required: true
   file:
-    description: File to be uploaded.
+    description: Path to the tool's results file to share with Pixee.
     required: false
   sonar-token:
-    description: Access token for authenticating requests to SonarCloud.
+    description: Token for authenticating requests to SonarCloud.
     required: false
   sonar-component-key:
     description: Key identifying the SonarCloud component to be analyzed.
