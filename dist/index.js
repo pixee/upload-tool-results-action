@@ -34844,9 +34844,9 @@ const action = __importStar(__nccwpck_require__(7672));
  * Executes the `run` function from the `action` module.
  * Catches any errors thrown and sets the failure message using `core.setFailed`.
  */
-function run() {
+async function run() {
     try {
-        action.run();
+        await action.run();
     }
     catch (error) {
         core.setFailed(`${error?.message ?? error}`);
