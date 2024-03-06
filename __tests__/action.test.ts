@@ -1,11 +1,11 @@
 import * as core from "@actions/core";
 import { run } from "../src/action";
-import * as inputs from "../src/inputs";
 import * as pixee from "../src/pixee-platform";
 import * as sonar from "../src/sonar";
+import * as github from "../src/github";
 
 let getInputMock: jest.SpiedFunction<typeof core.getInput>;
-let getGitHubContextMock: jest.SpiedFunction<typeof inputs.getGitHubContext>;
+let getGitHubContextMock: jest.SpiedFunction<typeof github.getGitHubContext>;
 let uploadInputFileMock: jest.SpiedFunction<typeof pixee.uploadInputFile>;
 let retrieveSonarCloudResultsMock: jest.SpiedFunction<
   typeof sonar.retrieveSonarCloudResults
@@ -17,7 +17,7 @@ describe("action", () => {
     jest.clearAllMocks();
     getInputMock = jest.spyOn(core, "getInput").mockImplementation();
     getGitHubContextMock = jest
-      .spyOn(inputs, "getGitHubContext")
+      .spyOn(github, "getGitHubContext")
       .mockImplementation();
     uploadInputFileMock = jest
       .spyOn(pixee, "uploadInputFile")
@@ -28,7 +28,7 @@ describe("action", () => {
     retrieveSonarCloudResultsMock = jest
       .spyOn(sonar, "retrieveSonarCloudResults")
       .mockImplementation();
-    retrieveSonarCloudResultsMock.mockResolvedValue("file.json");
+    retrieveSonarCloudResultsMock.mockResolvedValue({ total: 1 });
   });
 
   it("triggers PR analysis when the PR number is available", async () => {
@@ -117,7 +117,10 @@ describe("action", () => {
       await run();
 
       expect(retrieveSonarCloudResultsMock).toHaveBeenCalled();
-      expect(uploadInputFileMock).toHaveBeenCalledWith("sonar", "file.json");
+      expect(uploadInputFileMock).toHaveBeenCalledWith(
+        "sonar",
+        "sonar_issues.json"
+      );
     });
   });
 });

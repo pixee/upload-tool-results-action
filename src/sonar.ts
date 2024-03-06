@@ -1,10 +1,17 @@
 import * as core from "@actions/core";
 import axios from "axios";
-import fs from "fs";
-import { getGitHubContext } from "./inputs";
+import { getGitHubContext } from "./github";
 
-export async function retrieveSonarCloudResults() {
-  const sonarCloudInputs = getSonarCloudInputs();
+/**
+ * Response from SonarCloud API search endpoint. Sparse implementation, because we only care about the total number of issues.
+ */
+interface SonarSearchResults {
+  total: number;
+}
+
+export async function retrieveSonarCloudResults(
+  sonarCloudInputs: SonarCloudInputs
+) {
   const { token } = sonarCloudInputs;
   const url = buildSonarCloudUrl(sonarCloudInputs);
   return axios
@@ -16,16 +23,7 @@ export async function retrieveSonarCloudResults() {
       responseType: "json",
     })
     .then((response) => {
-      core.info(
-        `Found ${response.data.total} SonarCloud issues for component ${sonarCloudInputs.componentKey}`
-      );
-      if (response.data.total === 0) {
-        core.warning(
-          "When the SonarCloud token is incorrect, the response will be empty. If you expected issues, please check the token."
-        );
-      }
-      fs.writeFileSync(FILE_NAME, JSON.stringify(response.data));
-      return FILE_NAME;
+      return response.data as SonarSearchResults;
     });
 }
 
@@ -35,7 +33,7 @@ interface SonarCloudInputs {
   apiUrl: string;
 }
 
-function getSonarCloudInputs(): SonarCloudInputs {
+export function getSonarCloudInputs(): SonarCloudInputs {
   const apiUrl = core.getInput("sonar-api-url", { required: true });
   const token = core.getInput("sonar-token", { required: true });
   let componentKey = core.getInput("sonar-component-key");
@@ -56,5 +54,3 @@ function buildSonarCloudUrl({
   )}&resolved=false`;
   return prNumber ? `${url}&pullRequest=${prNumber}` : url;
 }
-
-const FILE_NAME = "sonar_issues.json";

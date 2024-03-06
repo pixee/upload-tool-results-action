@@ -1,7 +1,9 @@
 import * as core from "@actions/core";
-import { Tool, getGitHubContext, getTool } from "./inputs";
+import fs from "fs";
+import { Tool, getTool } from "./inputs";
 import { triggerPrAnalysis, uploadInputFile } from "./pixee-platform";
-import { retrieveSonarCloudResults } from "./sonar";
+import { getSonarCloudInputs, retrieveSonarCloudResults } from "./sonar";
+import { getGitHubContext } from "./github";
 
 /**
  * Runs the action.
@@ -22,7 +24,7 @@ export async function run() {
 }
 
 async function fetchOrLocateResultsFile(tool: Tool) {
-  let file = core.getInput("file");
+  const file = core.getInput("file");
   if (file !== "") {
     return file;
   }
@@ -30,7 +32,19 @@ async function fetchOrLocateResultsFile(tool: Tool) {
   if (tool !== "sonar") {
     throw new Error("missing input tool");
   }
-  file = await retrieveSonarCloudResults();
+  const sonarCloudInputs = getSonarCloudInputs();
+  const results = await retrieveSonarCloudResults(sonarCloudInputs);
+  core.info(
+    `Found ${results.total} SonarCloud issues for component ${sonarCloudInputs.componentKey}`
+  );
+  if (results.total === 0) {
+    core.warning(
+      "When the SonarCloud token is incorrect, the response will be empty. If you expected issues, please check the token."
+    );
+  }
+  fs.writeFileSync(FILE_NAME, JSON.stringify(results));
   core.info(`Saved SonarCloud results to ${file}`);
-  return file;
+  return FILE_NAME;
 }
+
+const FILE_NAME = "sonar_issues.json";

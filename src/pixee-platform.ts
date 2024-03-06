@@ -2,7 +2,8 @@ import * as core from "@actions/core";
 import axios from "axios";
 import fs from "fs";
 import FormData from "form-data";
-import { Tool, getGitHubContext } from "./inputs";
+import { Tool } from "./inputs";
+import { getGitHubContext } from "./github";
 
 export async function uploadInputFile(tool: Tool, file: string) {
   const fileContent = fs.readFileSync(file, "utf-8");
