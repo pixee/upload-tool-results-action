@@ -1,6 +1,0 @@
-name: Pixeebot Fix PR
-description: Requests Pixee automated code fixes for a PR
-author: Pixee
-runs:
-  using: node20
-  main: ../dist/fix-pr/index.js

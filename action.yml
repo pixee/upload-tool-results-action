@@ -1,16 +1,16 @@
-name: Share Tool Results With Pixee
+name: Upload Tool Results To Pixeebot
 description:
-  Sends results from a code quality tool to Pixee so that Pixee may
+  Uploads results from a code scanning tool to Pixeebot, so that Pixeebot may
   automatically fix issues found.
 
 inputs:
   tool:
     description: >
-      The supported code quality tool that produced the results being shared
-      with Pixee. Allowed values: 'sonar', 'codeql', 'semgrep'
+      The supported code scanning tool that produced the results being uploaded.
+      Allowed values: 'sonar', 'codeql', 'semgrep'
     required: true
   file:
-    description: Path to the tool's results file to share with Pixee.
+    description: Path to the tool's results file to share with Pixeebot.
     required: false
   sonar-token:
     description: Token for authenticating requests to SonarCloud.
