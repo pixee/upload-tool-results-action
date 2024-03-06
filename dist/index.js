@@ -34749,12 +34749,17 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.run = void 0;
 const core = __importStar(__nccwpck_require__(2186));
+const fs_1 = __importDefault(__nccwpck_require__(7147));
 const inputs_1 = __nccwpck_require__(7063);
 const pixee_platform_1 = __nccwpck_require__(891);
 const sonar_1 = __nccwpck_require__(1920);
+const github_1 = __nccwpck_require__(978);
 /**
  * Runs the action.
  *
@@ -34766,7 +34771,7 @@ async function run() {
     const tool = (0, inputs_1.getTool)();
     const file = await fetchOrLocateResultsFile(tool);
     await (0, pixee_platform_1.uploadInputFile)(tool, file);
-    const { prNumber } = (0, inputs_1.getGitHubContext)();
+    const { prNumber } = (0, github_1.getGitHubContext)();
     if (prNumber) {
         await (0, pixee_platform_1.triggerPrAnalysis)(prNumber);
         core.info(`Hardening PR ${prNumber}`);
@@ -34774,7 +34779,7 @@ async function run() {
 }
 exports.run = run;
 async function fetchOrLocateResultsFile(tool) {
-    let file = core.getInput("file");
+    const file = core.getInput("file");
     if (file !== "") {
         return file;
     }
@@ -34782,10 +34787,17 @@ async function fetchOrLocateResultsFile(tool) {
     if (tool !== "sonar") {
         throw new Error("missing input tool");
     }
-    file = await (0, sonar_1.retrieveSonarCloudResults)();
+    const sonarCloudInputs = (0, sonar_1.getSonarCloudInputs)();
+    const results = await (0, sonar_1.retrieveSonarCloudResults)(sonarCloudInputs);
+    core.info(`Found ${results.total} SonarCloud issues for component ${sonarCloudInputs.componentKey}`);
+    if (results.total === 0) {
+        core.warning("When the SonarCloud token is incorrect, the response will be empty. If you expected issues, please check the token.");
+    }
+    fs_1.default.writeFileSync(FILE_NAME, JSON.stringify(results));
     core.info(`Saved SonarCloud results to ${file}`);
-    return file;
+    return FILE_NAME;
 }
+const FILE_NAME = "sonar_issues.json";
 
 
 /***/ }),
@@ -34803,6 +34815,69 @@ class UserError extends Error {
     }
 }
 exports.UserError = UserError;
+
+
+/***/ }),
+
+/***/ 978:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getGitHubContext = void 0;
+const github = __importStar(__nccwpck_require__(5438));
+/**
+ * Maps the GitHub context from supported event types to the normalized GitHub context.
+ *
+ * This strategy assumes that the action is only triggered by supported events and that those events have common properties. However, we know that there are use cases where we need to handle events that do not have a pull request associated with them. Furthermore, the check_run event may be associated with multiple pull requests. Fixing this is the subject of a future change.
+ *
+ * @returns The normalized GitHub context.
+ */
+function getGitHubContext() {
+    const { repo: { owner, repo }, eventName, } = github.context;
+    const handler = eventHandlers[eventName];
+    return { owner, repo, ...handler(github.context) };
+}
+exports.getGitHubContext = getGitHubContext;
+function getPullRequestContext(context) {
+    const number = context.issue.number;
+    const sha = context.payload.pull_request?.head.sha;
+    return { prNumber: number, sha };
+}
+function getCheckRunContext(context) {
+    const actionEvent = context.payload.check_run;
+    const number = actionEvent.pull_requests?.[0]?.number;
+    const sha = actionEvent.head_sha;
+    return { prNumber: number, sha };
+}
+const eventHandlers = {
+    check_run: getCheckRunContext,
+    pull_request: getPullRequestContext,
+};
 
 
 /***/ }),
@@ -34884,9 +34959,8 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getGitHubContext = exports.getTool = void 0;
+exports.getTool = void 0;
 const core = __importStar(__nccwpck_require__(2186));
-const github = __importStar(__nccwpck_require__(5438));
 const errors_1 = __nccwpck_require__(6976);
 /**
  * Helper function to get the selected tool from the action's inputs.
@@ -34904,34 +34978,6 @@ function validateTool(tool) {
         throw new errors_1.UserError(`Invalid tool "${tool}". The tool must be one of: ${VALID_TOOLS.join(", ")}.`);
     }
 }
-/**
- * Maps the GitHub context from supported event types to the normalized GitHub context.
- *
- * This strategy assumes that the action is only triggered by supported events and that those events have common properties. However, we know that there are use cases where we need to handle events that do not have a pull request associated with them. Furthermore, the check_run event may be associated with multiple pull requests. Fixing this is the subject of a future change.
- *
- * @returns The normalized GitHub context.
- */
-function getGitHubContext() {
-    const { repo: { owner, repo }, eventName, } = github.context;
-    const handler = eventHandlers[eventName];
-    return { owner, repo, ...handler(github.context) };
-}
-exports.getGitHubContext = getGitHubContext;
-function getPullRequestContext(context) {
-    const number = context.issue.number;
-    const sha = context.payload.pull_request?.head.sha;
-    return { prNumber: number, sha };
-}
-function getCheckRunContext(context) {
-    const actionEvent = context.payload.check_run;
-    const number = actionEvent.pull_requests?.[0]?.number;
-    const sha = actionEvent.head_sha;
-    return { prNumber: number, sha };
-}
-const eventHandlers = {
-    check_run: getCheckRunContext,
-    pull_request: getPullRequestContext,
-};
 const VALID_TOOLS = ["sonar", "codeql", "semgrep", "appscan"];
 
 
@@ -34974,7 +35020,7 @@ const core = __importStar(__nccwpck_require__(2186));
 const axios_1 = __importDefault(__nccwpck_require__(6545));
 const fs_1 = __importDefault(__nccwpck_require__(7147));
 const form_data_1 = __importDefault(__nccwpck_require__(4334));
-const inputs_1 = __nccwpck_require__(7063);
+const github_1 = __nccwpck_require__(978);
 async function uploadInputFile(tool, file) {
     const fileContent = fs_1.default.readFileSync(file, "utf-8");
     const form = new form_data_1.default();
@@ -35005,11 +35051,11 @@ async function triggerPrAnalysis(prNumber) {
 }
 exports.triggerPrAnalysis = triggerPrAnalysis;
 function buildTriggerApiUrl(prNumber) {
-    const { owner, repo } = (0, inputs_1.getGitHubContext)();
+    const { owner, repo } = (0, github_1.getGitHubContext)();
     return `${PIXEE_URL}/${owner}/${repo}/${prNumber}`;
 }
 function buildUploadApiUrl(tool) {
-    const { owner, repo, sha } = (0, inputs_1.getGitHubContext)();
+    const { owner, repo, sha } = (0, github_1.getGitHubContext)();
     return `${PIXEE_URL}/${owner}/${repo}/${sha}/${tool}`;
 }
 const AUDIENCE = "https://app.pixee.ai";
@@ -35050,15 +35096,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.retrieveSonarCloudResults = void 0;
+exports.getSonarCloudInputs = exports.retrieveSonarCloudResults = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const axios_1 = __importDefault(__nccwpck_require__(6545));
-const fs_1 = __importDefault(__nccwpck_require__(7147));
-const inputs_1 = __nccwpck_require__(7063);
-async function retrieveSonarCloudResults() {
-    const sonarCloudInputs = getSonarCloudInputs();
+const github_1 = __nccwpck_require__(978);
+async function retrieveSonarCloudResults(sonarCloudInputs) {
     const { token } = sonarCloudInputs;
     const url = buildSonarCloudUrl(sonarCloudInputs);
+    core.debug(`Retrieving SonarCloud results from ${url}`);
     return axios_1.default
         .get(url, {
         headers: {
@@ -35068,12 +35113,10 @@ async function retrieveSonarCloudResults() {
         responseType: "json",
     })
         .then((response) => {
-        core.info(`Found ${response.data.total} SonarCloud issues for component ${sonarCloudInputs.componentKey}`);
-        if (response.data.total === 0) {
-            core.warning("When the SonarCloud token is incorrect, the response will be empty. If you expected issues, please check the token.");
+        if (core.isDebug()) {
+            core.debug(`Retrieved SonarCloud results: ${JSON.stringify(response.data)}`);
         }
-        fs_1.default.writeFileSync(FILE_NAME, JSON.stringify(response.data));
-        return FILE_NAME;
+        return response.data;
     });
 }
 exports.retrieveSonarCloudResults = retrieveSonarCloudResults;
@@ -35082,17 +35125,17 @@ function getSonarCloudInputs() {
     const token = core.getInput("sonar-token", { required: true });
     let componentKey = core.getInput("sonar-component-key");
     if (!componentKey) {
-        const { owner, repo } = (0, inputs_1.getGitHubContext)();
+        const { owner, repo } = (0, github_1.getGitHubContext)();
         componentKey = `${owner}_${repo}`;
     }
     return { token, componentKey, apiUrl };
 }
+exports.getSonarCloudInputs = getSonarCloudInputs;
 function buildSonarCloudUrl({ apiUrl, componentKey, }) {
-    const { prNumber } = (0, inputs_1.getGitHubContext)();
+    const { prNumber } = (0, github_1.getGitHubContext)();
     const url = `${apiUrl}/issues/search?componentKeys=${encodeURIComponent(componentKey)}&resolved=false`;
     return prNumber ? `${url}&pullRequest=${prNumber}` : url;
 }
-const FILE_NAME = "sonar_issues.json";
 
 
 /***/ }),

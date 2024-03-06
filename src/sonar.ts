@@ -14,6 +14,7 @@ export async function retrieveSonarCloudResults(
 ) {
   const { token } = sonarCloudInputs;
   const url = buildSonarCloudUrl(sonarCloudInputs);
+  core.debug(`Retrieving SonarCloud results from ${url}`);
   return axios
     .get(url, {
       headers: {
@@ -23,6 +24,11 @@ export async function retrieveSonarCloudResults(
       responseType: "json",
     })
     .then((response) => {
+      if (core.isDebug()) {
+        core.debug(
+          `Retrieved SonarCloud results: ${JSON.stringify(response.data)}`
+        );
+      }
       return response.data as SonarSearchResults;
     });
 }
