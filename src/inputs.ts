@@ -45,7 +45,7 @@ function validateTool(tool: Tool) {
  */
 export function getGitHubContext(): GitHubContext {
   const {
-    issue: { owner, repo },
+    repo: { owner, repo },
     eventName,
   } = github.context;
   const handler = eventHandlers[eventName];
