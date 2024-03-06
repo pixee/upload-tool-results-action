@@ -1,37 +1,45 @@
+import * as core from "@actions/core";
 import axios from "axios";
 import fs from "fs";
 import { getGitHubContext } from "./inputs";
-import { uploadInputFile } from "./pixee-platform";
-import { buildError } from "./errors";
 
-export function retrieveSonarCloudResults(inputs: SonarCloudInputs) {
-  axios
-    .get(buildSonarCloudUrl(inputs), {
+export async function retrieveSonarCloudResults() {
+  const { token } = getSonarCloudInputs();
+  const url = buildSonarCloudUrl();
+  return axios
+    .get(url, {
       headers: {
         contentType: "application/json",
-        Authorization: `Bearer ${inputs.token}`,
+        Authorization: `Bearer ${token}`,
       },
       responseType: "json",
     })
     .then((response) => {
       fs.writeFileSync(FILE_NAME, JSON.stringify(response.data));
-      uploadInputFile("sonar", FILE_NAME);
-    })
-    .catch((error) => buildError(error));
+      return FILE_NAME;
+    });
 }
 
-export interface SonarCloudInputs {
+interface SonarCloudInputs {
   token: string;
   componentKey: string;
   apiUrl: string;
 }
 
-function buildSonarCloudUrl(inputs: SonarCloudInputs): string {
-  const { apiUrl, componentKey } = inputs;
+function getSonarCloudInputs(): SonarCloudInputs {
+  const token = core.getInput("sonar-token");
+  const componentKey = core.getInput("sonar-component-key");
+  const apiUrl = core.getInput("sonar-api-url", { required: true });
+
+  return { token, componentKey, apiUrl };
+}
+
+function buildSonarCloudUrl(): string {
+  const { apiUrl, componentKey } = getSonarCloudInputs();
   const { owner, repo, prNumber } = getGitHubContext();
   const defaultComponentKey = componentKey ? componentKey : `${owner}_${repo}`;
-
-  return `${apiUrl}/issues/search?componentKeys=${defaultComponentKey}&resolved=false&pullRequest=${prNumber}`;
+  const url = `${apiUrl}/issues/search?componentKeys=${defaultComponentKey}&resolved=false`;
+  return prNumber ? `${url}&pullRequest=${prNumber}` : url;
 }
 
 const FILE_NAME = "sonar_issues.json";

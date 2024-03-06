@@ -1,11 +1,10 @@
 import * as core from "@actions/core";
-import { buildError } from "./errors";
 import axios from "axios";
 import fs from "fs";
 import FormData from "form-data";
-import { getGitHubContext, Tool } from "./inputs";
+import { Tool, getGitHubContext } from "./inputs";
 
-export function uploadInputFile(tool: Tool, file: string) {
+export async function uploadInputFile(tool: Tool, file: string) {
   const fileContent = fs.readFileSync(file, "utf-8");
   const form = new FormData();
   form.append("file", fileContent);
@@ -13,50 +12,28 @@ export function uploadInputFile(tool: Tool, file: string) {
   const tokenPromise = core.getIDToken(AUDIENCE);
 
   tokenPromise.then((token) => {
-    try {
-      axios
-        .put(buildUploadApiUrl(tool), form, {
-          headers: {
-            ...form.getHeaders(),
-            Authorization: `Bearer ${token}`,
-          },
-        })
-        .then((response) => {
-          if (response.status != 204) {
-            core.setFailed(`Failed response status: ${response.status}`);
-            return;
-          }
-        })
-        .catch((error) => buildError(error));
-    } catch (error) {
-      buildError(error);
-    }
+    return axios.put(buildUploadApiUrl(tool), form, {
+      headers: {
+        ...form.getHeaders(),
+        Authorization: `Bearer ${token}`,
+      },
+    });
   });
 }
 
-export function triggerPrAnalysis(prNumber: number) {
-  const tokenPromise = core.getIDToken(AUDIENCE);
+export async function triggerPrAnalysis(prNumber: number) {
+  const token = await core.getIDToken(AUDIENCE);
 
-  tokenPromise.then((token) => {
-    try {
-      axios
-        .post(buildTriggerApiUrl(prNumber), null, {
-          headers: {
-            contentType: "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        })
-        .then((response) => {
-          if (response.status != 204) {
-            core.setFailed(`Failed response status: ${response.status}`);
-            return;
-          }
-        })
-        .catch((error) => buildError(error));
-    } catch (error) {
-      buildError(error);
-    }
-  });
+  return axios
+    .post(buildTriggerApiUrl(prNumber), null, {
+      headers: {
+        contentType: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    .then((response) => {
+      // don't return the axios response
+    });
 }
 
 function buildTriggerApiUrl(prNumber: number): string {

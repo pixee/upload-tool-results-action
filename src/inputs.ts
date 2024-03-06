@@ -2,33 +2,28 @@ import * as core from "@actions/core";
 import * as github from "@actions/github";
 import { Context } from "node:vm";
 import { UserError } from "./errors";
-import { SonarCloudInputs } from "./sonar";
 
 export type Tool = "sonar" | "codeql" | "semgrep" | "appscan";
-export type GitHubEvent = "check_run" | "pull_request";
+
+/**
+ * Normalized GitHub event context.
+ */
 export interface GitHubContext {
   owner: string;
   repo: string;
-  prNumber: number;
   sha: string;
+  prNumber?: number;
 }
 
 /**
- * Helper to get all the inputs for the action
+ * Helper function to get the selected tool from the action's inputs.
+ * @returns The selected tool.
+ * @throws {UserError} If the selected tool is invalid.
  */
 export function getTool(): Tool {
   const tool = core.getInput("tool", { required: true }) as Tool;
   validateTool(tool);
-
   return tool;
-}
-
-export function getSonarCloudInputs(): SonarCloudInputs {
-  const token = core.getInput("sonar-token");
-  const componentKey = core.getInput("sonar-component-key");
-  const apiUrl = core.getInput("sonar-api-url", { required: true });
-
-  return { token, componentKey, apiUrl };
 }
 
 function validateTool(tool: Tool) {
@@ -41,11 +36,13 @@ function validateTool(tool: Tool) {
   }
 }
 
-export function isGitHubEventValid(): boolean {
-  const eventName = github.context.eventName as GitHubEvent;
-  return VALID_EVENTS.includes(eventName);
-}
-
+/**
+ * Maps the GitHub context from supported event types to the normalized GitHub context.
+ *
+ * This strategy assumes that the action is only triggered by supported events and that those events have common properties. However, we know that there are use cases where we need to handle events that do not have a pull request associated with them. Furthermore, the check_run event may be associated with multiple pull requests. Fixing this is the subject of a future change.
+ *
+ * @returns The normalized GitHub context.
+ */
 export function getGitHubContext(): GitHubContext {
   const {
     issue: { owner, repo },
@@ -68,8 +65,7 @@ function getCheckRunContext(
   context: Context
 ): Pick<GitHubContext, "prNumber" | "sha"> {
   const actionEvent = context.payload.check_run;
-
-  const number = actionEvent.pull_requests[0].number;
+  const number = actionEvent.pull_requests?.[0]?.number;
   const sha = actionEvent.head_sha;
   return { prNumber: number, sha };
 }
@@ -84,4 +80,3 @@ const eventHandlers: {
 };
 
 const VALID_TOOLS: Tool[] = ["sonar", "codeql", "semgrep", "appscan"];
-const VALID_EVENTS: GitHubEvent[] = ["check_run", "pull_request"];

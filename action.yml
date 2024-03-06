@@ -1,5 +1,7 @@
-name: Pixeebot Fix
-description: Upload SonarCloud file and trigger analysis
+name: Share Tool Results With Pixee
+description:
+  Sends results from a code quality tool to Pixee so that Pixee may
+  automatically fix issues found.
 
 inputs:
   tool:
@@ -21,15 +23,5 @@ inputs:
     default: https://sonarcloud.io/api
 
 runs:
-  using: "composite"
-  steps:
-    - name: Upload file to pixee
-      uses: pixee/pixee-actions/upload-file@main
-      with:
-        file: ${{ inputs.file }}
-        tool: ${{ inputs.tool }}
-        sonar-token: ${{ inputs.sonar-token }}
-        sonar-component-key: ${{ inputs.sonar-component-key }}
-        sonar-api-url: ${{ inputs.sonar-api-url }}
-    - name: Call trigger
-      uses: pixee/pixee-actions/trigger@main
+  using: "node20"
+  main: dist/index.js
