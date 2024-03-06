@@ -27,7 +27,7 @@ interface SonarCloudInputs {
 }
 
 function getSonarCloudInputs(): SonarCloudInputs {
-  const token = core.getInput("sonar-token");
+  const token = core.getInput("sonar-token", { required: true });
   const componentKey = core.getInput("sonar-component-key");
   const apiUrl = core.getInput("sonar-api-url", { required: true });
 
