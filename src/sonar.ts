@@ -16,11 +16,12 @@ export async function retrieveSonarCloudResults() {
       responseType: "json",
     })
     .then((response) => {
+      core.info(
+        `Found ${response.data.total} SonarCloud issues for component ${sonarCloudInputs.componentKey}`
+      );
       if (response.data.total === 0) {
-        core.warning("No SonarCloud issues found. Is the Sonar token correct?");
-      } else {
-        core.info(
-          `Found ${response.data.total} SonarCloud issues for component ${sonarCloudInputs.componentKey}`
+        core.warning(
+          "When the SonarCloud token is incorrect, the response will be empty. If you expected issues, please check the token."
         );
       }
       fs.writeFileSync(FILE_NAME, JSON.stringify(response.data));
