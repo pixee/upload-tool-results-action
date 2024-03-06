@@ -17,11 +17,12 @@ export async function run() {
   const { prNumber } = getGitHubContext();
   if (prNumber) {
     await triggerPrAnalysis(prNumber);
+    console.info(`Hardening PR ${prNumber}`);
   }
 }
 
 async function fetchOrLocateResultsFile(tool: Tool) {
-  var file = core.getInput("file");
+  let file = core.getInput("file");
   if (file !== "") {
     return file;
   }
@@ -29,5 +30,7 @@ async function fetchOrLocateResultsFile(tool: Tool) {
   if (tool !== "sonar") {
     throw new Error("missing input tool");
   }
-  return await retrieveSonarCloudResults();
+  file = await retrieveSonarCloudResults();
+  console.info(`Saved SonarCloud results to ${file}`);
+  return file;
 }
