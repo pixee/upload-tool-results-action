@@ -17,9 +17,9 @@ export async function retrieveSonarCloudResults() {
     })
     .then((response) => {
       if (response.data.total === 0) {
-        console.warn("No SonarCloud issues found. Is the Sonar token correct?");
+        core.warning("No SonarCloud issues found. Is the Sonar token correct?");
       } else {
-        console.info(
+        core.info(
           `Found ${response.data.total} SonarCloud issues for component ${sonarCloudInputs.componentKey}`
         );
       }

@@ -17,7 +17,7 @@ export async function run() {
   const { prNumber } = getGitHubContext();
   if (prNumber) {
     await triggerPrAnalysis(prNumber);
-    console.info(`Hardening PR ${prNumber}`);
+    core.info(`Hardening PR ${prNumber}`);
   }
 }
 
@@ -31,6 +31,6 @@ async function fetchOrLocateResultsFile(tool: Tool) {
     throw new Error("missing input tool");
   }
   file = await retrieveSonarCloudResults();
-  console.info(`Saved SonarCloud results to ${file}`);
+  core.info(`Saved SonarCloud results to ${file}`);
   return file;
 }
