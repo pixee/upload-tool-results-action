@@ -34769,11 +34769,12 @@ async function run() {
     const { prNumber } = (0, inputs_1.getGitHubContext)();
     if (prNumber) {
         await (0, pixee_platform_1.triggerPrAnalysis)(prNumber);
+        core.info(`Hardening PR ${prNumber}`);
     }
 }
 exports.run = run;
 async function fetchOrLocateResultsFile(tool) {
-    var file = core.getInput("file");
+    let file = core.getInput("file");
     if (file !== "") {
         return file;
     }
@@ -34781,7 +34782,9 @@ async function fetchOrLocateResultsFile(tool) {
     if (tool !== "sonar") {
         throw new Error("missing input tool");
     }
-    return await (0, sonar_1.retrieveSonarCloudResults)();
+    file = await (0, sonar_1.retrieveSonarCloudResults)();
+    core.info(`Saved SonarCloud results to ${file}`);
+    return file;
 }
 
 
@@ -34911,7 +34914,7 @@ function validateTool(tool) {
  * @returns The normalized GitHub context.
  */
 function getGitHubContext() {
-    const { issue: { owner, repo }, eventName, } = github.context;
+    const { repo: { owner, repo }, eventName, } = github.context;
     const handler = eventHandlers[eventName];
     return { owner, repo, ...handler(github.context) };
 }
@@ -35055,8 +35058,9 @@ const axios_1 = __importDefault(__nccwpck_require__(6545));
 const fs_1 = __importDefault(__nccwpck_require__(7147));
 const inputs_1 = __nccwpck_require__(7063);
 async function retrieveSonarCloudResults() {
-    const { token } = getSonarCloudInputs();
-    const url = buildSonarCloudUrl();
+    const sonarCloudInputs = getSonarCloudInputs();
+    const { token } = sonarCloudInputs;
+    const url = buildSonarCloudUrl(sonarCloudInputs);
     return axios_1.default
         .get(url, {
         headers: {
@@ -35066,22 +35070,30 @@ async function retrieveSonarCloudResults() {
         responseType: "json",
     })
         .then((response) => {
+        if (response.data.total === 0) {
+            core.warning("No SonarCloud issues found. Is the Sonar token correct?");
+        }
+        else {
+            core.info(`Found ${response.data.total} SonarCloud issues for component ${sonarCloudInputs.componentKey}`);
+        }
         fs_1.default.writeFileSync(FILE_NAME, JSON.stringify(response.data));
         return FILE_NAME;
     });
 }
 exports.retrieveSonarCloudResults = retrieveSonarCloudResults;
 function getSonarCloudInputs() {
-    const token = core.getInput("sonar-token");
-    const componentKey = core.getInput("sonar-component-key");
     const apiUrl = core.getInput("sonar-api-url", { required: true });
+    const token = core.getInput("sonar-token", { required: true });
+    let componentKey = core.getInput("sonar-component-key");
+    if (!componentKey) {
+        const { owner, repo } = (0, inputs_1.getGitHubContext)();
+        componentKey = `${owner}_${repo}`;
+    }
     return { token, componentKey, apiUrl };
 }
-function buildSonarCloudUrl() {
-    const { apiUrl, componentKey } = getSonarCloudInputs();
-    const { owner, repo, prNumber } = (0, inputs_1.getGitHubContext)();
-    const defaultComponentKey = componentKey ? componentKey : `${owner}_${repo}`;
-    const url = `${apiUrl}/issues/search?componentKeys=${defaultComponentKey}&resolved=false`;
+function buildSonarCloudUrl({ apiUrl, componentKey, }) {
+    const { prNumber } = (0, inputs_1.getGitHubContext)();
+    const url = `${apiUrl}/issues/search?componentKeys=${encodeURIComponent(componentKey)}&resolved=false`;
     return prNumber ? `${url}&pullRequest=${prNumber}` : url;
 }
 const FILE_NAME = "sonar_issues.json";
