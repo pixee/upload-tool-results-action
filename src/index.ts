@@ -6,10 +6,10 @@ import * as action from "./action";
  * Executes the `run` function from the `action` module.
  * Catches any errors thrown and sets the failure message using `core.setFailed`.
  */
-export async function run() {
+(async function run() {
   try {
     await action.run();
   } catch (error) {
     core.setFailed(`${(error as any)?.message ?? error}`);
   }
-}
+})();

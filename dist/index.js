@@ -34836,7 +34836,6 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.run = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const action = __importStar(__nccwpck_require__(7672));
 /**
@@ -34844,15 +34843,14 @@ const action = __importStar(__nccwpck_require__(7672));
  * Executes the `run` function from the `action` module.
  * Catches any errors thrown and sets the failure message using `core.setFailed`.
  */
-async function run() {
+(async function run() {
     try {
         await action.run();
     }
     catch (error) {
         core.setFailed(`${error?.message ?? error}`);
     }
-}
-exports.run = run;
+})();
 
 
 /***/ }),
