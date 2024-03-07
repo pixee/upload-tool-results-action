@@ -1,0 +1,27 @@
+name: Upload Tool Results To Pixeebot
+description:
+  Uploads results from a code scanning tool to Pixeebot, so that Pixeebot may
+  automatically fix issues found.
+
+inputs:
+  tool:
+    description: >
+      The supported code scanning tool that produced the results being uploaded.
+      Allowed values: 'sonar', 'codeql', 'semgrep'
+    required: true
+  file:
+    description: Path to the tool's results file to share with Pixeebot.
+    required: false
+  sonar-token:
+    description: Token for authenticating requests to SonarCloud.
+    required: false
+  sonar-component-key:
+    description: Key identifying the SonarCloud component to be analyzed.
+    required: false
+  sonar-api-url:
+    description: Base URL of the SonarCloud API.
+    default: https://sonarcloud.io/api
+
+runs:
+  using: "node20"
+  main: dist/index.js
