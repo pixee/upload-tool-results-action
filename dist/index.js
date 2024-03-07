@@ -34771,6 +34771,7 @@ async function run() {
     const tool = (0, inputs_1.getTool)();
     const file = await fetchOrLocateResultsFile(tool);
     await (0, pixee_platform_1.uploadInputFile)(tool, file);
+    core.info(`Uploaded ${file} to Pixeebot for analysis`);
     const { prNumber } = (0, github_1.getGitHubContext)();
     if (prNumber) {
         await (0, pixee_platform_1.triggerPrAnalysis)(prNumber);

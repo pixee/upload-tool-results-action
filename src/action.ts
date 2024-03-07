@@ -16,6 +16,7 @@ export async function run() {
   const tool = getTool();
   const file = await fetchOrLocateResultsFile(tool);
   await uploadInputFile(tool, file);
+  core.info(`Uploaded ${file} to Pixeebot for analysis`);
   const { prNumber } = getGitHubContext();
   if (prNumber) {
     await triggerPrAnalysis(prNumber);
