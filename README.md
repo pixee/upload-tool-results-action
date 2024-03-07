@@ -44,8 +44,9 @@ use SonarCloud.
 
 1. Copy the [sonar-pixeeebot.yml](./examples/sonar-pixeebot.yml) workflow to the
    repository's `.github/workflows` directory.
-1. Set the `SONAR_TOKEN` secret. See
-   [Using secrets in GitHub Actions](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions)
+1. Set the `SONAR_TOKEN` secret. Create a SonarCloud token at
+   https://sonarcloud.io/account/security. See
+   [Using secrets in GitHub Actions](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions).
 
 ## Inputs
 
