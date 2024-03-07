@@ -48,4 +48,4 @@ async function fetchOrLocateResultsFile(tool: Tool) {
   return FILE_NAME;
 }
 
-const FILE_NAME = "sonar_issues.json";
+const FILE_NAME = "sonar-issues.json";

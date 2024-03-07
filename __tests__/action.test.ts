@@ -119,7 +119,7 @@ describe("action", () => {
       expect(retrieveSonarCloudResultsMock).toHaveBeenCalled();
       expect(uploadInputFileMock).toHaveBeenCalledWith(
         "sonar",
-        "sonar_issues.json"
+        "sonar-issues.json"
       );
     });
   });
