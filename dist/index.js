@@ -34780,7 +34780,7 @@ async function run() {
 }
 exports.run = run;
 async function fetchOrLocateResultsFile(tool) {
-    const file = core.getInput("file");
+    let file = core.getInput("file");
     if (file !== "") {
         return file;
     }
@@ -34794,11 +34794,13 @@ async function fetchOrLocateResultsFile(tool) {
     if (results.total === 0) {
         core.warning("When the SonarCloud token is incorrect, the response will be empty. If you expected issues, please check the token.");
     }
-    fs_1.default.writeFileSync(FILE_NAME, JSON.stringify(results));
-    core.info(`Saved SonarCloud results to ${FILE_NAME}`);
-    return FILE_NAME;
+    const tmp = (0, github_1.getTempDir)();
+    file = core.toPlatformPath(`${tmp}/${FILE_NAME}`);
+    fs_1.default.writeFileSync(file, JSON.stringify(results));
+    core.info(`Saved SonarCloud results to ${file}`);
+    return file;
 }
-const FILE_NAME = "sonar_issues.json";
+const FILE_NAME = "sonar-issues.json";
 
 
 /***/ }),
@@ -34849,7 +34851,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getGitHubContext = void 0;
+exports.getTempDir = exports.getGitHubContext = void 0;
 const github = __importStar(__nccwpck_require__(5438));
 /**
  * Maps the GitHub context from supported event types to the normalized GitHub context.
@@ -34864,6 +34866,17 @@ function getGitHubContext() {
     return { owner, repo, ...handler(github.context) };
 }
 exports.getGitHubContext = getGitHubContext;
+/**
+ * @returns The path to the temporary directory.
+ */
+function getTempDir() {
+    const temp = process.env.RUNNER_TEMP;
+    if (temp === undefined) {
+        throw new Error("RUNNER_TEMP not set");
+    }
+    return temp;
+}
+exports.getTempDir = getTempDir;
 function getPullRequestContext(context) {
     const number = context.issue.number;
     const sha = context.payload.pull_request?.head.sha;
