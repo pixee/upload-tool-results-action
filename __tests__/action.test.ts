@@ -1,3 +1,4 @@
+import * as os from "os";
 import * as core from "@actions/core";
 import { run } from "../src/action";
 import * as pixee from "../src/pixee-platform";
@@ -6,6 +7,7 @@ import * as github from "../src/github";
 
 let getInputMock: jest.SpiedFunction<typeof core.getInput>;
 let getGitHubContextMock: jest.SpiedFunction<typeof github.getGitHubContext>;
+let getTempDir: jest.SpiedFunction<typeof github.getTempDir>;
 let uploadInputFileMock: jest.SpiedFunction<typeof pixee.uploadInputFile>;
 let retrieveSonarCloudResultsMock: jest.SpiedFunction<
   typeof sonar.retrieveSonarCloudResults
@@ -19,6 +21,10 @@ describe("action", () => {
     getGitHubContextMock = jest
       .spyOn(github, "getGitHubContext")
       .mockImplementation();
+    getTempDir = jest
+      .spyOn(github, "getTempDir")
+      .mockImplementation()
+      .mockReturnValue(os.tmpdir());
     uploadInputFileMock = jest
       .spyOn(pixee, "uploadInputFile")
       .mockImplementation();
@@ -119,7 +125,7 @@ describe("action", () => {
       expect(retrieveSonarCloudResultsMock).toHaveBeenCalled();
       expect(uploadInputFileMock).toHaveBeenCalledWith(
         "sonar",
-        "sonar-issues.json"
+        expect.stringMatching(/sonar-issues.json$/)
       );
     });
   });

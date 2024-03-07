@@ -3,7 +3,7 @@ import fs from "fs";
 import { Tool, getTool } from "./inputs";
 import { triggerPrAnalysis, uploadInputFile } from "./pixee-platform";
 import { getSonarCloudInputs, retrieveSonarCloudResults } from "./sonar";
-import { getGitHubContext } from "./github";
+import { getGitHubContext, getTempDir } from "./github";
 
 /**
  * Runs the action.
@@ -25,7 +25,7 @@ export async function run() {
 }
 
 async function fetchOrLocateResultsFile(tool: Tool) {
-  const file = core.getInput("file");
+  let file = core.getInput("file");
   if (file !== "") {
     return file;
   }
@@ -43,9 +43,11 @@ async function fetchOrLocateResultsFile(tool: Tool) {
       "When the SonarCloud token is incorrect, the response will be empty. If you expected issues, please check the token."
     );
   }
-  fs.writeFileSync(FILE_NAME, JSON.stringify(results));
-  core.info(`Saved SonarCloud results to ${FILE_NAME}`);
-  return FILE_NAME;
+  const tmp = getTempDir();
+  file = core.toPlatformPath(`${tmp}/${FILE_NAME}`);
+  fs.writeFileSync(file, JSON.stringify(results));
+  core.info(`Saved SonarCloud results to ${file}`);
+  return file;
 }
 
 const FILE_NAME = "sonar-issues.json";

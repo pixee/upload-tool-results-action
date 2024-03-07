@@ -28,6 +28,17 @@ export function getGitHubContext(): GitHubContext {
   return { owner, repo, ...handler(github.context) };
 }
 
+/**
+ * @returns The path to the temporary directory.
+ */
+export function getTempDir(): string {
+  const temp = process.env.RUNNER_TEMP;
+  if (temp === undefined) {
+    throw new Error("RUNNER_TEMP not set");
+  }
+  return temp;
+}
+
 function getPullRequestContext(
   context: Context
 ): Pick<GitHubContext, "prNumber" | "sha"> {
