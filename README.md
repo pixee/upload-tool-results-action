@@ -33,15 +33,24 @@ features.
 
 ## Sonar Usage
 
-Note: this Action is only needed for private repositories. Pixeebot integrates
-with public repositories using SonarCloud automatically.
+For Sonar integration, the pixee/upload-tool-results-action must be configured
+to execute when the Sonar GitHub App completes a check. The `sonar-pixeebot.yml`
+example workflow includes the requisite configuration and is generic enough to
+apply to most repositories without modification.
+
+Note: the pixee/upload-tool-results-action is only needed for private
+repositories. Pixeebot automatically integrates with public repositories that
+use SonarCloud.
 
 1. Copy the [sonar-pixeeebot.yml](./examples/sonar-pixeebot.yml) workflow to the
    repository's `.github/workflows` directory.
 1. Set the `SONAR_TOKEN` secret. See
    [Using secrets in GitHub Actions](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions)
 
-## Detailed Usage
+## Inputs
+
+Detailed description of the inputs exposed by the
+pixee/upload-tool-results-action.
 
 ```yaml
 - uses: pixee/upload-tool-results-action
