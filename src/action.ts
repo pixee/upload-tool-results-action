@@ -39,8 +39,8 @@ async function fetchOrLocateResultsFile(tool: Tool) {
     `Found ${results.total} SonarCloud issues for component ${sonarCloudInputs.componentKey}`
   );
   if (results.total === 0) {
-    core.warning(
-      "When the SonarCloud token is incorrect, the response will be empty. If you expected issues, please check the token."
+    core.info(
+      "When the SonarCloud token is incorrect, SonarCloud responds with an empty response indistinguishable from cases where there are no issues. If you expected issues, please check the token."
     );
   }
   const tmp = getTempDir();
