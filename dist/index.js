@@ -34794,7 +34794,7 @@ async function fetchOrLocateResultsFile(tool) {
         core.warning("When the SonarCloud token is incorrect, the response will be empty. If you expected issues, please check the token.");
     }
     fs_1.default.writeFileSync(FILE_NAME, JSON.stringify(results));
-    core.info(`Saved SonarCloud results to ${file}`);
+    core.info(`Saved SonarCloud results to ${FILE_NAME}`);
     return FILE_NAME;
 }
 const FILE_NAME = "sonar_issues.json";

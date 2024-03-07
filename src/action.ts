@@ -43,7 +43,7 @@ async function fetchOrLocateResultsFile(tool: Tool) {
     );
   }
   fs.writeFileSync(FILE_NAME, JSON.stringify(results));
-  core.info(`Saved SonarCloud results to ${file}`);
+  core.info(`Saved SonarCloud results to ${FILE_NAME}`);
   return FILE_NAME;
 }
 
