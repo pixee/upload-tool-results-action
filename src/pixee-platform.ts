@@ -10,16 +10,17 @@ export async function uploadInputFile(tool: Tool, file: string) {
   const form = new FormData();
   form.append("file", fileContent);
 
-  const tokenPromise = core.getIDToken(AUDIENCE);
-
-  tokenPromise.then((token) => {
-    return axios.put(buildUploadApiUrl(tool), form, {
+  const token = await core.getIDToken(AUDIENCE);
+  return axios
+    .put(buildUploadApiUrl(tool), form, {
       headers: {
         ...form.getHeaders(),
         Authorization: `Bearer ${token}`,
       },
+    })
+    .then(() => {
+      // don't return the axios response
     });
-  });
 }
 
 export async function triggerPrAnalysis(prNumber: number) {
@@ -32,7 +33,7 @@ export async function triggerPrAnalysis(prNumber: number) {
         Authorization: `Bearer ${token}`,
       },
     })
-    .then((response) => {
+    .then(() => {
       // don't return the axios response
     });
 }
