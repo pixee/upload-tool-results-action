@@ -1,12 +1,17 @@
 {
-  "name": "pixee-actions",
-  "version": "0.0.1",
-  "description": "",
+  "name": "upload-tool-results-action",
+  "version": "1.0.0",
+  "description": "GitHub Action for extending Pixeebot's coverage to fix issues found by supported code scanning tools",
+  "main": "dist/index.js",
   "scripts": {
     "build": "ncc build -o dist/ src/index.ts",
     "test": "npx jest"
   },
-  "keywords": [],
+  "keywords": [
+    "pixee",
+    "pixeebot",
+    "sonar"
+  ],
   "author": "Pixee",
   "jest": {
     "preset": "ts-jest",
