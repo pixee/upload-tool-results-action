@@ -45,6 +45,14 @@ Detailed description of the inputs exposed by the `pixee/upload-tool-results-act
     # Path to the tool's results file to upload to Pixeebot. This does not apply to SonarCloud integration, because the action retrieves the results directly from SonarCloud.
     # Required, when `tool` is not "sonar"
     file:
+
+    # This property specifies the pull request number to trigger the analysis for.
+    # Optional: It is required only if the workflow is triggered from a workflow dispatch.
+    pr-number:
+
+    # Token to authenticate requests to the GH API.
+    # Default: ${{ github.token }}
+    token:
 ```
 
 ## How Does It Work?
