@@ -13,6 +13,7 @@ let retrieveSonarCloudResultsMock: jest.SpiedFunction<
   typeof sonar.retrieveSonarCloudResults
 >;
 let triggerPrAnalysisMock: jest.SpiedFunction<typeof pixee.triggerPrAnalysis>;
+let getRepositoryInfoMock: jest.SpiedFunction<typeof github.getRepositoryInfo>;
 
 describe("action", () => {
   beforeEach(() => {
@@ -34,11 +35,14 @@ describe("action", () => {
     retrieveSonarCloudResultsMock = jest
       .spyOn(sonar, "retrieveSonarCloudResults")
       .mockImplementation();
+    getRepositoryInfoMock = jest
+      .spyOn(github, "getRepositoryInfo")
+      .mockImplementation();
     retrieveSonarCloudResultsMock.mockResolvedValue({ total: 1 });
   });
 
   it("triggers PR analysis when the PR number is available", async () => {
-    getGitHubContextMock.mockReturnValue({
+    getGitHubContextMock.mockResolvedValue({
       owner: "owner",
       repo: "repo",
       sha: "sha",
@@ -73,7 +77,7 @@ describe("action", () => {
             return "";
         }
       });
-      getGitHubContextMock.mockReturnValue({
+      getGitHubContextMock.mockResolvedValue({
         owner: "owner",
         repo: "repo",
         sha: "sha",
@@ -96,7 +100,7 @@ describe("action", () => {
             return "";
         }
       });
-      getGitHubContextMock.mockReturnValue({
+      getGitHubContextMock.mockResolvedValue({
         owner: "owner",
         repo: "repo",
         sha: "sha",
@@ -114,10 +118,15 @@ describe("action", () => {
             return "";
         }
       });
-      getGitHubContextMock.mockReturnValue({
+      getGitHubContextMock.mockResolvedValue({
         owner: "owner",
         repo: "repo",
         sha: "sha",
+      });
+
+      getRepositoryInfoMock.mockReturnValue({
+        owner: "owner",
+        repo: "repo"
       });
 
       await run();
