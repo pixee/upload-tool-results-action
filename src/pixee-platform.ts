@@ -3,7 +3,7 @@ import axios from "axios";
 import fs from "fs";
 import FormData from "form-data";
 import { Tool } from "./inputs";
-import { getGitHubContext } from "./github";
+import {getGitHubContext, getRepositoryInfo} from "./github";
 
 export async function uploadInputFile(tool: Tool, file: string) {
   const fileContent = fs.readFileSync(file, "utf-8");
@@ -11,8 +11,10 @@ export async function uploadInputFile(tool: Tool, file: string) {
   form.append("file", fileContent);
 
   const token = await core.getIDToken(AUDIENCE);
+  const url = await buildUploadApiUrl(tool)
+
   return axios
-    .put(buildUploadApiUrl(tool), form, {
+    .put(url, form, {
       headers: {
         ...form.getHeaders(),
         Authorization: `Bearer ${token}`,
@@ -39,13 +41,13 @@ export async function triggerPrAnalysis(prNumber: number) {
 }
 
 function buildTriggerApiUrl(prNumber: number): string {
-  const { owner, repo } = getGitHubContext();
+  const { owner, repo } = getRepositoryInfo();
 
   return `${PIXEE_URL}/${owner}/${repo}/${prNumber}`;
 }
 
-function buildUploadApiUrl(tool: string): string {
-  const { owner, repo, sha } = getGitHubContext();
+async function buildUploadApiUrl(tool: string): Promise<string> {
+  const { owner, repo, sha } = await getGitHubContext();
 
   return `${PIXEE_URL}/${owner}/${repo}/${sha}/${tool}`;
 }

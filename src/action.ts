@@ -17,11 +17,21 @@ export async function run() {
   const file = await fetchOrLocateResultsFile(tool);
   await uploadInputFile(tool, file);
   core.info(`Uploaded ${file} to Pixeebot for analysis`);
-  const { prNumber } = getGitHubContext();
+  const prNumber = await fetchPullRequestNumber();
   if (prNumber) {
     await triggerPrAnalysis(prNumber);
     core.info(`Hardening PR ${prNumber}`);
   }
+}
+
+async function fetchPullRequestNumber(){
+  const inputPrNumber = core.getInput("pr-number");
+  if (inputPrNumber !== "") {
+    return parseInt(inputPrNumber);
+  }
+
+  const {prNumber} = await getGitHubContext();
+  return prNumber;
 }
 
 async function fetchOrLocateResultsFile(tool: Tool) {

@@ -1,12 +1,18 @@
 import * as github from "@actions/github";
-import { Context } from "@actions/github/lib/context";
+import {Context} from "@actions/github/lib/context";
+import * as core from "@actions/core";
 
 /**
  * Normalized GitHub event context.
  */
-export interface GitHubContext {
+export type GitHubContext = RepositoryInfo & PullRequestInfo
+
+export interface RepositoryInfo {
   owner: string;
   repo: string;
+}
+
+export interface PullRequestInfo {
   sha: string;
   prNumber?: number;
 }
@@ -18,14 +24,23 @@ export interface GitHubContext {
  *
  * @returns The normalized GitHub context.
  */
-export function getGitHubContext(): GitHubContext {
-  const {
-    repo: { owner, repo },
-    eventName,
-  } = github.context;
-  const handler = eventHandlers[eventName];
+export async function getGitHubContext(): Promise<GitHubContext> {
+  const context = github.context
+  const { eventName} = context;
 
-  return { owner, repo, ...handler(github.context) };
+  const commitInfo =
+    eventName !== 'workflow_dispatch' ? eventHandlers[eventName](context) : await getWorkflowDispatchContext(context)
+
+  return { ...getRepositoryInfo(), ...commitInfo};
+}
+
+/**
+ * Retrieves information about the current repository from the GitHub context.
+ * @returns The information about the current repository
+ */
+export function getRepositoryInfo(): RepositoryInfo {
+  const { owner, repo } = github.context.repo;
+  return { owner, repo };
 }
 
 /**
@@ -41,26 +56,57 @@ export function getTempDir(): string {
 
 function getPullRequestContext(
   context: Context
-): Pick<GitHubContext, "prNumber" | "sha"> {
-  const number = context.issue.number;
+): PullRequestInfo {
+  const prNumber = context.issue.number;
   const sha = context.payload.pull_request?.head.sha;
-  return { prNumber: number, sha };
+
+  return { prNumber, sha };
 }
 
 function getCheckRunContext(
   context: Context
-): Pick<GitHubContext, "prNumber" | "sha"> {
+): PullRequestInfo {
   const actionEvent = context.payload.check_run;
-  const number = actionEvent.pull_requests?.[0]?.number;
+  const prNumber = actionEvent.pull_requests?.[0]?.number;
   const sha = actionEvent.head_sha;
-  return { prNumber: number, sha };
+
+  return { prNumber, sha };
+}
+
+/**
+ * Retrieves commit information for a pull request from the GitHub API if the workflow
+ * is triggered from a specified branch. Otherwise, returns the commit information
+ * for the current branch.
+ * @param context The GitHub context object containing information about the event.
+ * @returns A Promise that resolves to a CommitInfo object with the SHA of the commit.
+ */
+async function getWorkflowDispatchContext(context: Context): Promise<PullRequestInfo> {
+  const branchName: string = context.ref.substring('refs/heads/'.length);
+  const allowedBranches: string[] = ['main', 'develop'];
+
+  if (allowedBranches.includes(branchName)) {
+    const token = core.getInput("token");
+    const prNumber = core.getInput("pr-number");
+    const {owner, repo} = getRepositoryInfo();
+
+    return github.getOctokit(token).rest.pulls.get({
+      owner,
+      repo,
+      pull_number: parseInt(prNumber)
+    })
+      .then((response) => {
+        const sha: string = response.data.head.sha;
+        return { sha };
+      })
+  }
+  return {sha: context.sha}
 }
 
 const eventHandlers: {
   [eventName: string]: (
     context: Context
-  ) => Pick<GitHubContext, "prNumber" | "sha">;
+  ) => PullRequestInfo;
 } = {
   check_run: getCheckRunContext,
-  pull_request: getPullRequestContext,
+  pull_request: getPullRequestContext
 };

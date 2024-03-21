@@ -1,6 +1,6 @@
 import * as core from "@actions/core";
 import axios from "axios";
-import { getGitHubContext } from "./github";
+import {getGitHubContext, getRepositoryInfo} from "./github";
 
 /**
  * Response from SonarCloud API search endpoint. Sparse implementation, because we only care about the total number of issues.
@@ -13,7 +13,7 @@ export async function retrieveSonarCloudResults(
   sonarCloudInputs: SonarCloudInputs
 ) {
   const { token } = sonarCloudInputs;
-  const url = buildSonarCloudUrl(sonarCloudInputs);
+  const url = await buildSonarCloudUrl(sonarCloudInputs);
   core.debug(`Retrieving SonarCloud results from ${url}`);
   return axios
     .get(url, {
@@ -41,20 +41,20 @@ interface SonarCloudInputs {
 
 export function getSonarCloudInputs(): SonarCloudInputs {
   const apiUrl = core.getInput("sonar-api-url", { required: true });
-  const token = core.getInput("sonar-token", { required: true });
+  const token = core.getInput("sonar-token", { required: false });
   let componentKey = core.getInput("sonar-component-key");
   if (!componentKey) {
-    const { owner, repo } = getGitHubContext();
+    const { owner, repo } = getRepositoryInfo();
     componentKey = `${owner}_${repo}`;
   }
   return { token, componentKey, apiUrl };
 }
 
-function buildSonarCloudUrl({
+async function buildSonarCloudUrl({
   apiUrl,
   componentKey,
-}: SonarCloudInputs): string {
-  const { prNumber } = getGitHubContext();
+}: SonarCloudInputs): Promise<string> {
+  const {prNumber} = await getGitHubContext();
   const url = `${apiUrl}/issues/search?componentKeys=${encodeURIComponent(
     componentKey
   )}&resolved=false`;
