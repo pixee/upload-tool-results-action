@@ -82,11 +82,11 @@ function getCheckRunContext(
  */
 async function getWorkflowDispatchContext(context: Context): Promise<PullRequestInfo> {
   const branchName: string = context.ref.substring('refs/heads/'.length);
-  const allowedBranches: string[] = ['main', 'develop'];
+  const defaultBranch: string = context.payload.repository?.default_branch;
 
-  if (allowedBranches.includes(branchName)) {
+  if (branchName === defaultBranch) {
     const token = core.getInput("token");
-    const prNumber = core.getInput("pr-number");
+    const prNumber = core.getInput("pr-number", {required: true});
     const {owner, repo} = getRepositoryInfo();
 
     return github.getOctokit(token).rest.pulls.get({
