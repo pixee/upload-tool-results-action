@@ -24,9 +24,6 @@ inputs:
   pr-number:
     description: PR number to trigger analysis for.
     required: false
-  token:
-    description: Token
-    default: ${{ github.token }}
 
 runs:
   using: "node20"

@@ -49,10 +49,6 @@ Detailed description of the inputs exposed by the `pixee/upload-tool-results-act
     # This property specifies the pull request number to trigger the analysis for.
     # Optional: It is required only if the workflow is triggered from a workflow dispatch.
     pr-number:
-
-    # Token to authenticate requests to the GH API.
-    # Default: ${{ github.token }}
-    token:
 ```
 
 ## How Does It Work?

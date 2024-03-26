@@ -84,22 +84,12 @@ async function getWorkflowDispatchContext(context: Context): Promise<PullRequest
   const branchName: string = context.ref.substring('refs/heads/'.length);
   const defaultBranch: string = context.payload.repository?.default_branch;
 
-  if (branchName === defaultBranch) {
-    const token = core.getInput("token");
-    const prNumber = core.getInput("pr-number", {required: true});
-    const {owner, repo} = getRepositoryInfo();
-
-    return github.getOctokit(token).rest.pulls.get({
-      owner,
-      repo,
-      pull_number: parseInt(prNumber)
-    })
-      .then((response) => {
-        const sha: string = response.data.head.sha;
-        return { sha };
-      })
+  let prNumber;
+  if (branchName !== defaultBranch) {
+    const inputPrNumber = core.getInput("pr-number", {required: true});
+    prNumber = parseInt(inputPrNumber)
   }
-  return {sha: context.sha}
+  return {sha: context.sha, prNumber}
 }
 
 const eventHandlers: {

@@ -32459,21 +32459,13 @@ async function run() {
     const file = await fetchOrLocateResultsFile(tool);
     await (0, pixee_platform_1.uploadInputFile)(tool, file);
     core.info(`Uploaded ${file} to Pixeebot for analysis`);
-    const prNumber = await fetchPullRequestNumber();
+    const { prNumber } = await (0, github_1.getGitHubContext)();
     if (prNumber) {
         await (0, pixee_platform_1.triggerPrAnalysis)(prNumber);
         core.info(`Hardening PR ${prNumber}`);
     }
 }
 exports.run = run;
-async function fetchPullRequestNumber() {
-    const inputPrNumber = core.getInput("pr-number");
-    if (inputPrNumber !== "") {
-        return parseInt(inputPrNumber);
-    }
-    const { prNumber } = await (0, github_1.getGitHubContext)();
-    return prNumber;
-}
 async function fetchOrLocateResultsFile(tool) {
     let file = core.getInput("file");
     if (file !== "") {
@@ -32604,21 +32596,12 @@ function getCheckRunContext(context) {
 async function getWorkflowDispatchContext(context) {
     const branchName = context.ref.substring('refs/heads/'.length);
     const defaultBranch = context.payload.repository?.default_branch;
-    if (branchName === defaultBranch) {
-        const token = core.getInput("token");
-        const prNumber = core.getInput("pr-number", { required: true });
-        const { owner, repo } = getRepositoryInfo();
-        return github.getOctokit(token).rest.pulls.get({
-            owner,
-            repo,
-            pull_number: parseInt(prNumber)
-        })
-            .then((response) => {
-            const sha = response.data.head.sha;
-            return { sha };
-        });
+    let prNumber;
+    if (branchName !== defaultBranch) {
+        const inputPrNumber = core.getInput("pr-number", { required: true });
+        prNumber = parseInt(inputPrNumber);
     }
-    return { sha: context.sha };
+    return { sha: context.sha, prNumber };
 }
 const eventHandlers = {
     check_run: getCheckRunContext,
@@ -32808,7 +32791,8 @@ async function buildUploadApiUrl(tool) {
     return `${PIXEE_URL}/${owner}/${repo}/${sha}/${tool}`;
 }
 const AUDIENCE = "https://app.pixee.ai";
-const PIXEE_URL = "https://api.pixee.ai/analysis-input";
+// TODO - For test purposes only, remove before fusion.
+const PIXEE_URL = "https://ol39wim1od.execute-api.us-east-1.amazonaws.com/prod/analysis-input";
 
 
 /***/ }),
