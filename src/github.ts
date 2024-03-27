@@ -74,11 +74,8 @@ function getCheckRunContext(
 }
 
 /**
- * Retrieves commit information for a pull request from the GitHub API if the workflow
- * is triggered from a specified branch. Otherwise, returns the commit information
- * for the current branch.
  * @param context The GitHub context object containing information about the event.
- * @returns A Promise that resolves to a CommitInfo object with the SHA of the commit.
+ * @returns A Promise that resolves to a PullRequestInfo object with the SHA of the commit.
  */
 async function getWorkflowDispatchContext(context: Context): Promise<PullRequestInfo> {
   const branchName: string = context.ref.substring('refs/heads/'.length);

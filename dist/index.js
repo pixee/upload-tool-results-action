@@ -32587,11 +32587,8 @@ function getCheckRunContext(context) {
     return { prNumber, sha };
 }
 /**
- * Retrieves commit information for a pull request from the GitHub API if the workflow
- * is triggered from a specified branch. Otherwise, returns the commit information
- * for the current branch.
  * @param context The GitHub context object containing information about the event.
- * @returns A Promise that resolves to a CommitInfo object with the SHA of the commit.
+ * @returns A Promise that resolves to a PullRequestInfo object with the SHA of the commit.
  */
 async function getWorkflowDispatchContext(context) {
     const branchName = context.ref.substring('refs/heads/'.length);
@@ -32791,8 +32788,7 @@ async function buildUploadApiUrl(tool) {
     return `${PIXEE_URL}/${owner}/${repo}/${sha}/${tool}`;
 }
 const AUDIENCE = "https://app.pixee.ai";
-// TODO - For test purposes only, remove before fusion.
-const PIXEE_URL = "https://ol39wim1od.execute-api.us-east-1.amazonaws.com/prod/analysis-input";
+const PIXEE_URL = "https://api.pixee.ai/analysis-input";
 
 
 /***/ }),

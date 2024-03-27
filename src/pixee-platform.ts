@@ -53,5 +53,4 @@ async function buildUploadApiUrl(tool: string): Promise<string> {
 }
 
 const AUDIENCE = "https://app.pixee.ai";
-// TODO - For test purposes only, remove before fusion.
-const PIXEE_URL = "https://ol39wim1od.execute-api.us-east-1.amazonaws.com/prod/analysis-input";
+const PIXEE_URL = "https://api.pixee.ai/analysis-input";
