@@ -82,8 +82,9 @@ async function getWorkflowDispatchContext(context: Context): Promise<PullRequest
   const defaultBranch: string = context.payload.repository?.default_branch;
 
   let prNumber;
-  if (branchName !== defaultBranch) {
-    const inputPrNumber = core.getInput("pr-number", {required: true});
+  const inputPrNumber = core.getInput("pr-number");
+
+  if (branchName !== defaultBranch && inputPrNumber) {
     prNumber = parseInt(inputPrNumber)
   }
   return {sha: context.sha, prNumber}

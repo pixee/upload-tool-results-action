@@ -32594,8 +32594,8 @@ async function getWorkflowDispatchContext(context) {
     const branchName = context.ref.substring('refs/heads/'.length);
     const defaultBranch = context.payload.repository?.default_branch;
     let prNumber;
-    if (branchName !== defaultBranch) {
-        const inputPrNumber = core.getInput("pr-number", { required: true });
+    const inputPrNumber = core.getInput("pr-number");
+    if (branchName !== defaultBranch && inputPrNumber) {
         prNumber = parseInt(inputPrNumber);
     }
     return { sha: context.sha, prNumber };
@@ -32851,7 +32851,7 @@ async function retrieveSonarCloudResults(sonarCloudInputs) {
 exports.retrieveSonarCloudResults = retrieveSonarCloudResults;
 function getSonarCloudInputs() {
     const apiUrl = core.getInput("sonar-api-url", { required: true });
-    const token = core.getInput("sonar-token", { required: false });
+    const token = core.getInput("sonar-token");
     let componentKey = core.getInput("sonar-component-key");
     if (!componentKey) {
         const { owner, repo } = (0, github_1.getRepositoryInfo)();
