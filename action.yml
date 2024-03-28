@@ -21,9 +21,6 @@ inputs:
   sonar-api-url:
     description: Base URL of the SonarCloud API.
     default: https://sonarcloud.io/api
-  pr-number:
-    description: PR number to trigger analysis for.
-    required: false
 
 runs:
   using: "node20"

@@ -32459,7 +32459,7 @@ async function run() {
     const file = await fetchOrLocateResultsFile(tool);
     await (0, pixee_platform_1.uploadInputFile)(tool, file);
     core.info(`Uploaded ${file} to Pixeebot for analysis`);
-    const { prNumber } = await (0, github_1.getGitHubContext)();
+    const { prNumber } = (0, github_1.getGitHubContext)();
     if (prNumber) {
         await (0, pixee_platform_1.triggerPrAnalysis)(prNumber);
         core.info(`Hardening PR ${prNumber}`);
@@ -32540,7 +32540,6 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getTempDir = exports.getRepositoryInfo = exports.getGitHubContext = void 0;
 const github = __importStar(__nccwpck_require__(5438));
-const core = __importStar(__nccwpck_require__(2186));
 /**
  * Maps the GitHub context from supported event types to the normalized GitHub context.
  *
@@ -32548,10 +32547,10 @@ const core = __importStar(__nccwpck_require__(2186));
  *
  * @returns The normalized GitHub context.
  */
-async function getGitHubContext() {
+function getGitHubContext() {
     const context = github.context;
-    const { eventName } = context;
-    const commitInfo = eventName !== 'workflow_dispatch' ? eventHandlers[eventName](context) : await getWorkflowDispatchContext(context);
+    const { eventName, sha } = context;
+    const commitInfo = eventName !== 'workflow_dispatch' ? eventHandlers[eventName](context) : { sha };
     return { ...getRepositoryInfo(), ...commitInfo };
 }
 exports.getGitHubContext = getGitHubContext;
@@ -32585,20 +32584,6 @@ function getCheckRunContext(context) {
     const prNumber = actionEvent.pull_requests?.[0]?.number;
     const sha = actionEvent.head_sha;
     return { prNumber, sha };
-}
-/**
- * @param context The GitHub context object containing information about the event.
- * @returns A Promise that resolves to a PullRequestInfo object with the SHA of the commit.
- */
-async function getWorkflowDispatchContext(context) {
-    const branchName = context.ref.substring('refs/heads/'.length);
-    const defaultBranch = context.payload.repository?.default_branch;
-    let prNumber;
-    const inputPrNumber = core.getInput("pr-number");
-    if (branchName !== defaultBranch && inputPrNumber) {
-        prNumber = parseInt(inputPrNumber);
-    }
-    return { sha: context.sha, prNumber };
 }
 const eventHandlers = {
     check_run: getCheckRunContext,
@@ -32784,7 +32769,7 @@ function buildTriggerApiUrl(prNumber) {
     return `${PIXEE_URL}/${owner}/${repo}/${prNumber}`;
 }
 async function buildUploadApiUrl(tool) {
-    const { owner, repo, sha } = await (0, github_1.getGitHubContext)();
+    const { owner, repo, sha } = (0, github_1.getGitHubContext)();
     return `${PIXEE_URL}/${owner}/${repo}/${sha}/${tool}`;
 }
 const AUDIENCE = "https://app.pixee.ai";
@@ -32861,7 +32846,7 @@ function getSonarCloudInputs() {
 }
 exports.getSonarCloudInputs = getSonarCloudInputs;
 async function buildSonarCloudUrl({ apiUrl, componentKey, }) {
-    const { prNumber } = await (0, github_1.getGitHubContext)();
+    const { prNumber } = (0, github_1.getGitHubContext)();
     const url = `${apiUrl}/issues/search?componentKeys=${encodeURIComponent(componentKey)}&resolved=false`;
     return prNumber ? `${url}&pullRequest=${prNumber}` : url;
 }

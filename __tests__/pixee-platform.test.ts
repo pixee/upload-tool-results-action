@@ -15,7 +15,7 @@ describe("pixee-platform", () => {
     getIDTokenMock = jest.spyOn(core, "getIDToken").mockResolvedValue("token");
     getGitHubContextMock = jest
       .spyOn(github, "getGitHubContext")
-      .mockResolvedValue({
+      .mockReturnValue({
         owner: "owner",
         repo: "repo",
         sha: "sha",

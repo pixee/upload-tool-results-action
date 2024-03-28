@@ -13,7 +13,7 @@ export async function retrieveSonarCloudResults(
   sonarCloudInputs: SonarCloudInputs
 ) {
   const { token } = sonarCloudInputs;
-  const url = await buildSonarCloudUrl(sonarCloudInputs);
+  const url = buildSonarCloudUrl(sonarCloudInputs);
   core.debug(`Retrieving SonarCloud results from ${url}`);
   return axios
     .get(url, {
@@ -50,11 +50,11 @@ export function getSonarCloudInputs(): SonarCloudInputs {
   return { token, componentKey, apiUrl };
 }
 
-async function buildSonarCloudUrl({
+function buildSonarCloudUrl({
   apiUrl,
   componentKey,
-}: SonarCloudInputs): Promise<string> {
-  const {prNumber} = await getGitHubContext();
+}: SonarCloudInputs): string {
+  const { prNumber } = getGitHubContext();
   const url = `${apiUrl}/issues/search?componentKeys=${encodeURIComponent(
     componentKey
   )}&resolved=false`;

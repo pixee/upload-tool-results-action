@@ -24,12 +24,12 @@ export interface PullRequestInfo {
  *
  * @returns The normalized GitHub context.
  */
-export async function getGitHubContext(): Promise<GitHubContext> {
+export function getGitHubContext(): GitHubContext {
   const context = github.context
-  const { eventName} = context;
+  const { eventName, sha} = context;
 
   const commitInfo =
-    eventName !== 'workflow_dispatch' ? eventHandlers[eventName](context) : await getWorkflowDispatchContext(context)
+    eventName !== 'workflow_dispatch' ? eventHandlers[eventName](context) : {sha}
 
   return { ...getRepositoryInfo(), ...commitInfo};
 }
@@ -71,23 +71,6 @@ function getCheckRunContext(
   const sha = actionEvent.head_sha;
 
   return { prNumber, sha };
-}
-
-/**
- * @param context The GitHub context object containing information about the event.
- * @returns A Promise that resolves to a PullRequestInfo object with the SHA of the commit.
- */
-async function getWorkflowDispatchContext(context: Context): Promise<PullRequestInfo> {
-  const branchName: string = context.ref.substring('refs/heads/'.length);
-  const defaultBranch: string = context.payload.repository?.default_branch;
-
-  let prNumber;
-  const inputPrNumber = core.getInput("pr-number");
-
-  if (branchName !== defaultBranch && inputPrNumber) {
-    prNumber = parseInt(inputPrNumber)
-  }
-  return {sha: context.sha, prNumber}
 }
 
 const eventHandlers: {

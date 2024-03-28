@@ -47,7 +47,7 @@ function buildTriggerApiUrl(prNumber: number): string {
 }
 
 async function buildUploadApiUrl(tool: string): Promise<string> {
-  const { owner, repo, sha } = await getGitHubContext();
+  const { owner, repo, sha } = getGitHubContext();
 
   return `${PIXEE_URL}/${owner}/${repo}/${sha}/${tool}`;
 }

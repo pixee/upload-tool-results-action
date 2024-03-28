@@ -42,7 +42,7 @@ describe("action", () => {
   });
 
   it("triggers PR analysis when the PR number is available", async () => {
-    getGitHubContextMock.mockResolvedValue({
+    getGitHubContextMock.mockReturnValue({
       owner: "owner",
       repo: "repo",
       sha: "sha",
@@ -77,7 +77,7 @@ describe("action", () => {
             return "";
         }
       });
-      getGitHubContextMock.mockResolvedValue({
+      getGitHubContextMock.mockReturnValue({
         owner: "owner",
         repo: "repo",
         sha: "sha",
@@ -100,7 +100,7 @@ describe("action", () => {
             return "";
         }
       });
-      getGitHubContextMock.mockResolvedValue({
+      getGitHubContextMock.mockReturnValue({
         owner: "owner",
         repo: "repo",
         sha: "sha",
@@ -118,7 +118,7 @@ describe("action", () => {
             return "";
         }
       });
-      getGitHubContextMock.mockResolvedValue({
+      getGitHubContextMock.mockReturnValue({
         owner: "owner",
         repo: "repo",
         sha: "sha",
