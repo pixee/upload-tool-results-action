@@ -11,7 +11,7 @@ export async function uploadInputFile(tool: Tool, file: string) {
   form.append("file", fileContent);
 
   const token = await core.getIDToken(AUDIENCE);
-  const url = await buildUploadApiUrl(tool)
+  const url = buildUploadApiUrl(tool)
 
   return axios
     .put(url, form, {
@@ -46,7 +46,7 @@ function buildTriggerApiUrl(prNumber: number): string {
   return `${PIXEE_URL}/${owner}/${repo}/${prNumber}`;
 }
 
-async function buildUploadApiUrl(tool: string): Promise<string> {
+function buildUploadApiUrl(tool: string): string {
   const { owner, repo, sha } = getGitHubContext();
 
   return `${PIXEE_URL}/${owner}/${repo}/${sha}/${tool}`;
