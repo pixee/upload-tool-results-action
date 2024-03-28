@@ -1,6 +1,6 @@
 import * as core from "@actions/core";
 import axios from "axios";
-import { getGitHubContext } from "./github";
+import {getGitHubContext, getRepositoryInfo} from "./github";
 
 /**
  * Response from SonarCloud API search endpoint. Sparse implementation, because we only care about the total number of issues.
@@ -41,10 +41,10 @@ interface SonarCloudInputs {
 
 export function getSonarCloudInputs(): SonarCloudInputs {
   const apiUrl = core.getInput("sonar-api-url", { required: true });
-  const token = core.getInput("sonar-token", { required: true });
+  const token = core.getInput("sonar-token");
   let componentKey = core.getInput("sonar-component-key");
   if (!componentKey) {
-    const { owner, repo } = getGitHubContext();
+    const { owner, repo } = getRepositoryInfo();
     componentKey = `${owner}_${repo}`;
   }
   return { token, componentKey, apiUrl };

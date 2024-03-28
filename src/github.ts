@@ -1,12 +1,18 @@
 import * as github from "@actions/github";
-import { Context } from "@actions/github/lib/context";
+import {Context} from "@actions/github/lib/context";
+import * as core from "@actions/core";
 
 /**
  * Normalized GitHub event context.
  */
-export interface GitHubContext {
+export type GitHubContext = RepositoryInfo & PullRequestInfo
+
+export interface RepositoryInfo {
   owner: string;
   repo: string;
+}
+
+export interface PullRequestInfo {
   sha: string;
   prNumber?: number;
 }
@@ -19,13 +25,22 @@ export interface GitHubContext {
  * @returns The normalized GitHub context.
  */
 export function getGitHubContext(): GitHubContext {
-  const {
-    repo: { owner, repo },
-    eventName,
-  } = github.context;
-  const handler = eventHandlers[eventName];
+  const context = github.context
+  const { eventName, sha} = context;
 
-  return { owner, repo, ...handler(github.context) };
+  const commitInfo =
+    eventName !== 'workflow_dispatch' ? eventHandlers[eventName](context) : {sha}
+
+  return { ...getRepositoryInfo(), ...commitInfo};
+}
+
+/**
+ * Retrieves information about the current repository from the GitHub context.
+ * @returns The information about the current repository
+ */
+export function getRepositoryInfo(): RepositoryInfo {
+  const { owner, repo } = github.context.repo;
+  return { owner, repo };
 }
 
 /**
@@ -41,26 +56,28 @@ export function getTempDir(): string {
 
 function getPullRequestContext(
   context: Context
-): Pick<GitHubContext, "prNumber" | "sha"> {
-  const number = context.issue.number;
+): PullRequestInfo {
+  const prNumber = context.issue.number;
   const sha = context.payload.pull_request?.head.sha;
-  return { prNumber: number, sha };
+
+  return { prNumber, sha };
 }
 
 function getCheckRunContext(
   context: Context
-): Pick<GitHubContext, "prNumber" | "sha"> {
+): PullRequestInfo {
   const actionEvent = context.payload.check_run;
-  const number = actionEvent.pull_requests?.[0]?.number;
+  const prNumber = actionEvent.pull_requests?.[0]?.number;
   const sha = actionEvent.head_sha;
-  return { prNumber: number, sha };
+
+  return { prNumber, sha };
 }
 
 const eventHandlers: {
   [eventName: string]: (
     context: Context
-  ) => Pick<GitHubContext, "prNumber" | "sha">;
+  ) => PullRequestInfo;
 } = {
   check_run: getCheckRunContext,
-  pull_request: getPullRequestContext,
+  pull_request: getPullRequestContext
 };

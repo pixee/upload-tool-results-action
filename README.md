@@ -31,7 +31,7 @@ Detailed description of the inputs exposed by the `pixee/upload-tool-results-act
     tool:
 
     # Token for authenticating requests to SonarCloud.
-    # Required, when tool is "sonar" and "file" has not been set
+    # Required, when tool is "sonar" and "file" has not been set. Only required for private repository.
     sonar-token:
 
     # Key identifying the SonarCloud component to be analyzed. Only necessary if deviating from SonarCloud's established convention.
