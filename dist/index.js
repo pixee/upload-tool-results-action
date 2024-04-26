@@ -32778,7 +32778,7 @@ function validateTool(tool) {
         throw new errors_1.UserError(`Invalid tool "${tool}". The tool must be one of: ${VALID_TOOLS.join(", ")}.`);
     }
 }
-const VALID_TOOLS = ["sonar", "codeql", "semgrep", "appscan"];
+const VALID_TOOLS = ["sonar", "codeql", "semgrep", "appscan", "defect-dojo"];
 
 
 /***/ }),
