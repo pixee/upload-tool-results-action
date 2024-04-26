@@ -8,7 +8,7 @@ import * as action from "./action";
  */
 (async function run() {
   try {
-    await action.run() ;
+    await action.run();
   } catch (error) {
     core.setFailed(`${(error as any)?.message ?? error}`);
   }
