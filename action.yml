@@ -21,6 +21,12 @@ inputs:
   sonar-api-url:
     description: Base URL of the SonarCloud API.
     default: https://sonarcloud.io/api
+  defectdojo-token:
+    default: my-token
+  defectdojo-api-url:
+    default: https://pixee-test.cloud.defectdojo.com/api
+  defectdojo-product-name:
+    default: my-product
 
 runs:
   using: "node20"

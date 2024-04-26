@@ -3,6 +3,7 @@ import fs from "fs";
 import { Tool, getTool } from "./inputs";
 import { triggerPrAnalysis, uploadInputFile } from "./pixee-platform";
 import { getSonarCloudInputs, retrieveSonarCloudResults } from "./sonar";
+import { getDefectDojoInputs, retrieveDefectDojoResults } from "./defect-dojo";
 import { getGitHubContext, getTempDir } from "./github";
 
 /**
@@ -30,9 +31,30 @@ async function fetchOrLocateResultsFile(tool: Tool) {
     return file;
   }
   // This is special behavior for SonarCloud that we either don't yet have for other supported tools
-  if (tool !== "sonar") {
-    throw new Error("missing input tool");
+  
+  let results;
+
+  switch(tool){
+    case "sonar":
+      core.info("Carlos sonar");
+      results = fetchSonarCloudResults();
+      break;
+    case "defect-dojo":
+      core.info("Carlos defect-dojo");
+      results = fetchDefectDojoResults();
+      break;
+    default:
+      throw new Error("missing input tool");
   }
+
+  const tmp = getTempDir();
+  file = core.toPlatformPath(`${tmp}/${FILE_NAME}`);
+  fs.writeFileSync(file, JSON.stringify(results));
+  core.info(`Saved SonarCloud results to ${file}`);
+  return file;
+}
+
+async function fetchSonarCloudResults(){
   const sonarCloudInputs = getSonarCloudInputs();
   const results = await retrieveSonarCloudResults(sonarCloudInputs);
   core.info(
@@ -43,11 +65,14 @@ async function fetchOrLocateResultsFile(tool: Tool) {
       "When the SonarCloud token is incorrect, SonarCloud responds with an empty response indistinguishable from cases where there are no issues. If you expected issues, please check the token."
     );
   }
-  const tmp = getTempDir();
-  file = core.toPlatformPath(`${tmp}/${FILE_NAME}`);
-  fs.writeFileSync(file, JSON.stringify(results));
-  core.info(`Saved SonarCloud results to ${file}`);
-  return file;
+}
+
+/*async*/ function fetchDefectDojoResults(){
+  const inputs = getDefectDojoInputs();
+  const results = /*await*/ retrieveDefectDojoResults(inputs);
+  core.info(
+    `Found ${results.count} DefectDojo issues for component ${inputs.productName}`
+  );
 }
 
 const FILE_NAME = "sonar-issues.json";
