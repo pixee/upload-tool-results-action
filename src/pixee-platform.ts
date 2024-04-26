@@ -6,38 +6,42 @@ import { Tool } from "./inputs";
 import {getGitHubContext, getRepositoryInfo} from "./github";
 
 export async function uploadInputFile(tool: Tool, file: string) {
-  const fileContent = fs.readFileSync(file, "utf-8");
-  const form = new FormData();
-  form.append("file", fileContent);
+  try {
+    const fileContent = fs.readFileSync(file, 'utf-8');
+    const form = new FormData();
+    form.append('file', fileContent);
 
-  const token = await core.getIDToken(AUDIENCE);
-  const url = buildUploadApiUrl(tool)
+    const token = await core.getIDToken(AUDIENCE);
+    const url = buildUploadApiUrl(tool);
 
-  return axios
-    .put(url, form, {
+    await axios.put(url, form, {
       headers: {
         ...form.getHeaders(),
         Authorization: `Bearer ${token}`,
       },
-    })
-    .then(() => {
-      // don't return the axios response
     });
+  } catch (error) {
+    // Log the error here
+    console.error('Error occurred during uploadInputFile:', error);
+    throw error; // rethrow the error to propagate it further if necessary
+  }
 }
 
 export async function triggerPrAnalysis(prNumber: number) {
-  const token = await core.getIDToken(AUDIENCE);
+  try {
+    const token = await core.getIDToken(AUDIENCE);
 
-  return axios
-    .post(buildTriggerApiUrl(prNumber), null, {
+    await axios.post(buildTriggerApiUrl(prNumber), null, {
       headers: {
-        contentType: "application/json",
+        'Content-Type': 'application/json', // corrected contentType to Content-Type
         Authorization: `Bearer ${token}`,
       },
-    })
-    .then(() => {
-      // don't return the axios response
     });
+  } catch (error) {
+    // Log the error here
+    console.error('Error occurred during triggerPrAnalysis:', error);
+    throw error; // rethrow the error to propagate it further if necessary
+  }
 }
 
 function buildTriggerApiUrl(prNumber: number): string {
