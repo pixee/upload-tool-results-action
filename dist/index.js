@@ -32446,6 +32446,7 @@ const fs_1 = __importDefault(__nccwpck_require__(7147));
 const inputs_1 = __nccwpck_require__(7063);
 const pixee_platform_1 = __nccwpck_require__(891);
 const sonar_1 = __nccwpck_require__(1920);
+const defect_dojo_1 = __nccwpck_require__(4768);
 const github_1 = __nccwpck_require__(978);
 /**
  * Runs the action.
@@ -32472,14 +32473,18 @@ async function fetchOrLocateResultsFile(tool) {
         return file;
     }
     // This is special behavior for SonarCloud that we either don't yet have for other supported tools
-    if (tool !== "sonar") {
-        throw new Error("missing input tool");
-    }
-    const sonarCloudInputs = (0, sonar_1.getSonarCloudInputs)();
-    const results = await (0, sonar_1.retrieveSonarCloudResults)(sonarCloudInputs);
-    core.info(`Found ${results.total} SonarCloud issues for component ${sonarCloudInputs.componentKey}`);
-    if (results.total === 0) {
-        core.info("When the SonarCloud token is incorrect, SonarCloud responds with an empty response indistinguishable from cases where there are no issues. If you expected issues, please check the token.");
+    let results;
+    switch (tool) {
+        case "sonar":
+            core.info("Carlos sonar");
+            results = fetchSonarCloudResults();
+            break;
+        case "defect-dojo":
+            core.info("Carlos defect-dojo");
+            results = fetchDefectDojoResults();
+            break;
+        default:
+            throw new Error("missing input tool");
     }
     const tmp = (0, github_1.getTempDir)();
     file = core.toPlatformPath(`${tmp}/${FILE_NAME}`);
@@ -32487,7 +32492,91 @@ async function fetchOrLocateResultsFile(tool) {
     core.info(`Saved SonarCloud results to ${file}`);
     return file;
 }
+async function fetchSonarCloudResults() {
+    const sonarCloudInputs = (0, sonar_1.getSonarCloudInputs)();
+    const results = await (0, sonar_1.retrieveSonarCloudResults)(sonarCloudInputs);
+    core.info(`Found ${results.total} SonarCloud issues for component ${sonarCloudInputs.componentKey}`);
+    if (results.total === 0) {
+        core.info("When the SonarCloud token is incorrect, SonarCloud responds with an empty response indistinguishable from cases where there are no issues. If you expected issues, please check the token.");
+    }
+}
+/*async*/ function fetchDefectDojoResults() {
+    const inputs = (0, defect_dojo_1.getDefectDojoInputs)();
+    const results = /*await*/ (0, defect_dojo_1.retrieveDefectDojoResults)(inputs);
+    core.info(`Found ${results.count} DefectDojo issues for component ${inputs.productName}`);
+}
 const FILE_NAME = "sonar-issues.json";
+
+
+/***/ }),
+
+/***/ 4768:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getDefectDojoInputs = exports.retrieveDefectDojoResults = void 0;
+const core = __importStar(__nccwpck_require__(2186));
+const github_1 = __nccwpck_require__(978);
+function retrieveDefectDojoResults(defectDojoInputs) {
+    const { token } = defectDojoInputs;
+    const url = buildDefectDojoUrl(defectDojoInputs);
+    core.info(`Retrieving DefectDojo results from ${url}`);
+    return { "count": 8 };
+    /*return axios
+      .get(url, {
+        headers: {
+          contentType: "application/json",
+          Authorization: `Token ${token}`,
+        },
+        responseType: "json",
+      })
+      .then((response) => {
+        core.info(
+          `Retrieved DefectDojo results: ${JSON.stringify(response.data)}`
+        );
+        return response.data as DefectDojoSearchResults;
+      });*/
+}
+exports.retrieveDefectDojoResults = retrieveDefectDojoResults;
+function getDefectDojoInputs() {
+    const apiUrl = core.getInput("defectdojo-api-url", { required: true });
+    const token = core.getInput("defectdojo-token");
+    const productName = core.getInput("defectdojo-product-name");
+    core.info(`apiUrl ${apiUrl} productName ${productName} token ${token}`);
+    return { token, productName, apiUrl };
+}
+exports.getDefectDojoInputs = getDefectDojoInputs;
+function buildDefectDojoUrl({ apiUrl, productName, }) {
+    const { prNumber } = (0, github_1.getGitHubContext)();
+    const url = `${apiUrl}/v2/findings/?product_name=${productName}&limit=1000`;
+    core.info(`final url ${url}`);
+    return url;
+}
 
 
 /***/ }),
@@ -32773,7 +32862,7 @@ function buildUploadApiUrl(tool) {
     return `${PIXEE_URL}/${owner}/${repo}/${sha}/${tool}`;
 }
 const AUDIENCE = "https://app.pixee.ai";
-const PIXEE_URL = "https://api.pixee.ai/analysis-input";
+const PIXEE_URL = "https://lfqk75ktn4.execute-api.us-east-1.amazonaws.com/prod/analysis-input";
 
 
 /***/ }),
