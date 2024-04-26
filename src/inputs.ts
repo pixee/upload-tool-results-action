@@ -24,4 +24,4 @@ function validateTool(tool: Tool) {
   }
 }
 
-const VALID_TOOLS: Tool[] = ["sonar", "codeql", "semgrep", "appscan"];
+const VALID_TOOLS: Tool[] = ["sonar", "codeql", "semgrep", "appscan", "defect-dojo"];
