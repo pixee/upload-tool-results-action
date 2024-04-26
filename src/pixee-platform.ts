@@ -22,7 +22,7 @@ export async function uploadInputFile(tool: Tool, file: string) {
     });
   } catch (error) {
     // Log the error here
-    console.error('Error occurred during uploadInputFile:', error);
+    core.info(`Error occurred during uploadInputFile: ${error}`);
     throw error; // rethrow the error to propagate it further if necessary
   }
 }
@@ -39,7 +39,7 @@ export async function triggerPrAnalysis(prNumber: number) {
     });
   } catch (error) {
     // Log the error here
-    console.error('Error occurred during triggerPrAnalysis:', error);
+    core.info(`Error occurred during triggerPrAnalysis: ${error}`);
     throw error; // rethrow the error to propagate it further if necessary
   }
 }
