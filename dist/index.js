@@ -32474,22 +32474,25 @@ async function fetchOrLocateResultsFile(tool) {
     }
     // This is special behavior for SonarCloud that we either don't yet have for other supported tools
     let results;
+    let fileName;
     switch (tool) {
         case "sonar":
             core.info("Carlos sonar");
             results = fetchSonarCloudResults();
+            fileName = "sonar-issues.json";
             break;
-        case "defect-dojo":
-            core.info("Carlos defect-dojo");
+        case "defectdojo":
+            core.info("Carlos defectdojo");
             results = fetchDefectDojoResults();
+            fileName = "defectdojo.findings.json";
             break;
         default:
             throw new Error("missing input tool");
     }
     const tmp = (0, github_1.getTempDir)();
-    file = core.toPlatformPath(`${tmp}/${FILE_NAME}`);
+    file = core.toPlatformPath(`${tmp}/${fileName}`);
     fs_1.default.writeFileSync(file, JSON.stringify(results));
-    core.info(`Saved SonarCloud results to ${file}`);
+    core.info(`Saved ${tool} results to ${file}`);
     return file;
 }
 async function fetchSonarCloudResults() {
@@ -32505,7 +32508,6 @@ async function fetchSonarCloudResults() {
     const results = /*await*/ (0, defect_dojo_1.retrieveDefectDojoResults)(inputs);
     core.info(`Found ${results.count} DefectDojo issues for component ${inputs.productName}`);
 }
-const FILE_NAME = "sonar-issues.json";
 
 
 /***/ }),
@@ -32778,7 +32780,7 @@ function validateTool(tool) {
         throw new errors_1.UserError(`Invalid tool "${tool}". The tool must be one of: ${VALID_TOOLS.join(", ")}.`);
     }
 }
-const VALID_TOOLS = ["sonar", "codeql", "semgrep", "appscan", "defect-dojo"];
+const VALID_TOOLS = ["sonar", "codeql", "semgrep", "appscan", "defectdojo"];
 
 
 /***/ }),

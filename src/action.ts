@@ -33,24 +33,27 @@ async function fetchOrLocateResultsFile(tool: Tool) {
   // This is special behavior for SonarCloud that we either don't yet have for other supported tools
   
   let results;
+  let fileName;
 
   switch(tool){
     case "sonar":
       core.info("Carlos sonar");
       results = fetchSonarCloudResults();
+      fileName = "sonar-issues.json"
       break;
-    case "defect-dojo":
-      core.info("Carlos defect-dojo");
+    case "defectdojo":
+      core.info("Carlos defectdojo");
       results = fetchDefectDojoResults();
+      fileName = "defectdojo.findings.json"
       break;
     default:
       throw new Error("missing input tool");
   }
 
   const tmp = getTempDir();
-  file = core.toPlatformPath(`${tmp}/${FILE_NAME}`);
+  file = core.toPlatformPath(`${tmp}/${fileName}`);
   fs.writeFileSync(file, JSON.stringify(results));
-  core.info(`Saved SonarCloud results to ${file}`);
+  core.info(`Saved ${tool} results to ${file}`);
   return file;
 }
 
@@ -74,5 +77,3 @@ async function fetchSonarCloudResults(){
     `Found ${results.count} DefectDojo issues for component ${inputs.productName}`
   );
 }
-
-const FILE_NAME = "sonar-issues.json";

@@ -1,7 +1,7 @@
 import * as core from "@actions/core";
 import { UserError } from "./errors";
 
-export type Tool = "sonar" | "codeql" | "semgrep" | "appscan" | "defect-dojo";
+export type Tool = "sonar" | "codeql" | "semgrep" | "appscan" | "defectdojo";
 
 /**
  * Helper function to get the selected tool from the action's inputs.
@@ -24,4 +24,4 @@ function validateTool(tool: Tool) {
   }
 }
 
-const VALID_TOOLS: Tool[] = ["sonar", "codeql", "semgrep", "appscan", "defect-dojo"];
+const VALID_TOOLS: Tool[] = ["sonar", "codeql", "semgrep", "appscan", "defectdojo"];
