@@ -53,7 +53,8 @@ function buildDefectDojoUrl({
   productName,
 }: DefectDojoInputs): string {
   const { prNumber } = getGitHubContext();
-  const url = `${apiUrl}/v2/findings/?product_name=${productName}&limit=1000`;
+  // TODO check limit
+  const url = `${apiUrl}/v2/findings/?product_name=${productName}&limit=1`;
   core.info(`final url ${url}`);
   return url;
 }
