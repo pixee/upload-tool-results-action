@@ -32503,9 +32503,9 @@ async function fetchSonarCloudResults() {
         core.info("When the SonarCloud token is incorrect, SonarCloud responds with an empty response indistinguishable from cases where there are no issues. If you expected issues, please check the token.");
     }
 }
-/*async*/ function fetchDefectDojoResults() {
+async function fetchDefectDojoResults() {
     const inputs = (0, defect_dojo_1.getDefectDojoInputs)();
-    const results = /*await*/ (0, defect_dojo_1.retrieveDefectDojoResults)(inputs);
+    const results = await (0, defect_dojo_1.retrieveDefectDojoResults)(inputs);
     core.info(`Found ${results.count} DefectDojo issues for component ${inputs.productName}`);
 }
 
@@ -32540,29 +32540,30 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getDefectDojoInputs = exports.retrieveDefectDojoResults = void 0;
 const core = __importStar(__nccwpck_require__(2186));
+const axios_1 = __importDefault(__nccwpck_require__(8757));
 const github_1 = __nccwpck_require__(978);
 function retrieveDefectDojoResults(defectDojoInputs) {
     const { token } = defectDojoInputs;
     const url = buildDefectDojoUrl(defectDojoInputs);
     core.info(`Retrieving DefectDojo results from ${url}`);
-    return { "count": 8 };
-    /*return axios
-      .get(url, {
+    return axios_1.default
+        .get(url, {
         headers: {
-          contentType: "application/json",
-          Authorization: `Token ${token}`,
+            contentType: "application/json",
+            Authorization: `Token ${token}`,
         },
         responseType: "json",
-      })
-      .then((response) => {
-        core.info(
-          `Retrieved DefectDojo results: ${JSON.stringify(response.data)}`
-        );
-        return response.data as DefectDojoSearchResults;
-      });*/
+    })
+        .then((response) => {
+        core.info(`Retrieved DefectDojo results: ${JSON.stringify(response.data)}`);
+        return response.data;
+    });
 }
 exports.retrieveDefectDojoResults = retrieveDefectDojoResults;
 function getDefectDojoInputs() {

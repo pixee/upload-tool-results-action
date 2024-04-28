@@ -70,9 +70,9 @@ async function fetchSonarCloudResults(){
   }
 }
 
-/*async*/ function fetchDefectDojoResults(){
+async function fetchDefectDojoResults(){
   const inputs = getDefectDojoInputs();
-  const results = /*await*/ retrieveDefectDojoResults(inputs);
+  const results =  await retrieveDefectDojoResults(inputs);
   core.info(
     `Found ${results.count} DefectDojo issues for component ${inputs.productName}`
   );

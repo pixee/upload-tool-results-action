@@ -9,15 +9,14 @@ interface DefectDojoSearchResults {
   count: number;
 }
 
-export /*async*/ function retrieveDefectDojoResults(
+export function retrieveDefectDojoResults(
   defectDojoInputs: DefectDojoInputs
 ) {
   const { token } = defectDojoInputs;
   const url = buildDefectDojoUrl(defectDojoInputs);
   core.info(`Retrieving DefectDojo results from ${url}`);
 
-  return {"count":8}
-  /*return axios
+  return axios
     .get(url, {
       headers: {
         contentType: "application/json",
@@ -30,7 +29,8 @@ export /*async*/ function retrieveDefectDojoResults(
         `Retrieved DefectDojo results: ${JSON.stringify(response.data)}`
       );
       return response.data as DefectDojoSearchResults;
-    });*/
+    });
+
 }
 
 interface DefectDojoInputs {
