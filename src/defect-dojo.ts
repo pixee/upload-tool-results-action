@@ -58,7 +58,7 @@ function buildDefectDojoUrl({
   productName,
 }: DefectDojoInputs): string {
   const { sha } = getGitHubContext();
-  const url = `${apiUrl}/v2/findings/?product_name=${productName}&commit_hash=${sha}&limit=100`;
+  const url = `${apiUrl}/api/v2/findings/?product_name=${productName}&commit_hash=${sha}&limit=100`;
   core.info(`final url ${url}`);
   return url;
 }
