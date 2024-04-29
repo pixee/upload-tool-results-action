@@ -32487,7 +32487,7 @@ async function fetchOrLocateResultsFile(tool) {
             fileName = "defectdojo.findings.json";
             break;
         default:
-            throw new Error("missing input tool");
+            throw new Error("Action not implemented for tool: " + tool);
     }
     const tmp = (0, github_1.getTempDir)();
     file = core.toPlatformPath(`${tmp}/${fileName}`);
@@ -32569,7 +32569,11 @@ exports.retrieveDefectDojoResults = retrieveDefectDojoResults;
 function getDefectDojoInputs() {
     const apiUrl = core.getInput("defectdojo-api-url", { required: true });
     const token = core.getInput("defectdojo-token");
-    const productName = core.getInput("defectdojo-product-name");
+    let productName = core.getInput("defectdojo-product-name");
+    if (!productName) {
+        const { repo } = (0, github_1.getRepositoryInfo)();
+        productName = repo;
+    }
     core.info(`apiUrl ${apiUrl} productName ${productName} token ${token}`);
     return { token, productName, apiUrl };
 }
@@ -32866,6 +32870,7 @@ function buildUploadApiUrl(tool) {
     return `${PIXEE_URL}/${owner}/${repo}/${sha}/${tool}`;
 }
 const AUDIENCE = "https://app.pixee.ai";
+// TODO: revert change
 const PIXEE_URL = "https://lfqk75ktn4.execute-api.us-east-1.amazonaws.com/prod/analysis-input";
 
 

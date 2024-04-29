@@ -47,7 +47,7 @@ async function fetchOrLocateResultsFile(tool: Tool) {
       fileName = "defectdojo.findings.json"
       break;
     default:
-      throw new Error("missing input tool");
+      throw new Error("Action not implemented for tool: " + tool);
   }
 
   const tmp = getTempDir();

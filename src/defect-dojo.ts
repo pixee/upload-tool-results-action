@@ -33,6 +33,7 @@ export function retrieveDefectDojoResults(
 
 }
 
+// TODO add missing input information
 interface DefectDojoInputs {
   token: string;
   productName: string;
@@ -42,7 +43,11 @@ interface DefectDojoInputs {
 export function getDefectDojoInputs(): DefectDojoInputs {
   const apiUrl = core.getInput("defectdojo-api-url", { required: true });
   const token = core.getInput("defectdojo-token");
-  const productName = core.getInput("defectdojo-product-name");
+  let productName = core.getInput("defectdojo-product-name");
+  if (!productName) {
+    const { repo } = getRepositoryInfo();
+    productName = repo;
+  }
 
   core.info(`apiUrl ${apiUrl} productName ${productName} token ${token}`);
   return { token, productName, apiUrl };
