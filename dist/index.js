@@ -32869,8 +32869,7 @@ function buildUploadApiUrl(tool) {
     return `${PIXEE_URL}/${owner}/${repo}/${sha}/${tool}`;
 }
 const AUDIENCE = "https://app.pixee.ai";
-// TODO: revert change
-const PIXEE_URL = "https://lfqk75ktn4.execute-api.us-east-1.amazonaws.com/prod/analysis-input";
+const PIXEE_URL = "https://api.pixee.ai/analysis-input";
 
 
 /***/ }),
