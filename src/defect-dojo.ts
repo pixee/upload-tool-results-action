@@ -49,8 +49,10 @@ export function getDefectDojoInputs(): DefectDojoInputs {
     productName = repo;
   }
 
-  core.info(`apiUrl ${apiUrl} productName ${productName} token ${token}`);
-  return { token, productName, apiUrl };
+  // TODO
+  core.info(`apiUrl https://pixee-test.cloud.defectdojo.com productName ${productName} token ${token}`);
+
+  return { token: "d27a66703fe2be1c989c6d987c27fc4595209613", productName: "pygoat_demo", apiUrl: "https://pixee-test.cloud.defectdojo.com" };
 }
 
 function buildDefectDojoUrl({
@@ -58,6 +60,7 @@ function buildDefectDojoUrl({
   productName,
 }: DefectDojoInputs): string {
   const { sha } = getGitHubContext();
+  core.info(`sha : ${sha}`)
   const url = `${apiUrl}/api/v2/findings/?product_name=${productName}&commit_hash=${sha}&limit=100`;
   core.info(`final url ${url}`);
   return url;
