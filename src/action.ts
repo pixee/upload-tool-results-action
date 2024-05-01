@@ -68,6 +68,8 @@ async function fetchSonarCloudResults(){
       "When the SonarCloud token is incorrect, SonarCloud responds with an empty response indistinguishable from cases where there are no issues. If you expected issues, please check the token."
     );
   }
+
+  return results;
 }
 
 async function fetchDefectDojoResults(){
@@ -76,4 +78,6 @@ async function fetchDefectDojoResults(){
   core.info(
     `Found ${results.count} DefectDojo issues for component ${inputs.productName}`
   );
+
+  return results;
 }

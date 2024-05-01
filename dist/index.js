@@ -32502,11 +32502,13 @@ async function fetchSonarCloudResults() {
     if (results.total === 0) {
         core.info("When the SonarCloud token is incorrect, SonarCloud responds with an empty response indistinguishable from cases where there are no issues. If you expected issues, please check the token.");
     }
+    return results;
 }
 async function fetchDefectDojoResults() {
     const inputs = (0, defect_dojo_1.getDefectDojoInputs)();
     const results = await (0, defect_dojo_1.retrieveDefectDojoResults)(inputs);
     core.info(`Found ${results.count} DefectDojo issues for component ${inputs.productName}`);
+    return results;
 }
 
 
