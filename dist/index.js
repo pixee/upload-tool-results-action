@@ -32561,7 +32561,7 @@ function retrieveDefectDojoResults(defectDojoInputs) {
         responseType: "json",
     })
         .then((response) => {
-        core.info(`Retrieved DefectDojo response: ${JSON.stringify(response)}`);
+        core.info(`Retrieved DefectDojo results: ${JSON.stringify(response.data)}`);
         return response.data;
     });
 }
