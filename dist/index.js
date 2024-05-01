@@ -32478,12 +32478,12 @@ async function fetchOrLocateResultsFile(tool) {
     switch (tool) {
         case "sonar":
             core.info("Carlos sonar");
-            results = fetchSonarCloudResults();
+            results = await fetchSonarCloudResults();
             fileName = "sonar-issues.json";
             break;
         case "defectdojo":
             core.info("Carlos defectdojo");
-            results = fetchDefectDojoResults();
+            results = await fetchDefectDojoResults();
             fileName = "defectdojo.findings.json";
             break;
         default:
@@ -32834,6 +32834,7 @@ async function uploadInputFile(tool, file) {
     form.append("file", fileContent);
     const token = await core.getIDToken(AUDIENCE);
     const url = buildUploadApiUrl(tool);
+    core.info(`uploading file ${file} to pixee ${url}`);
     return axios_1.default
         .put(url, form, {
         headers: {

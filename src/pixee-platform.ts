@@ -13,6 +13,8 @@ export async function uploadInputFile(tool: Tool, file: string) {
   const token = await core.getIDToken(AUDIENCE);
   const url = buildUploadApiUrl(tool)
 
+  core.info(`uploading file ${file} to pixee ${url}`)
+
   return axios
     .put(url, form, {
       headers: {

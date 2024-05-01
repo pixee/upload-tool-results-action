@@ -38,12 +38,12 @@ async function fetchOrLocateResultsFile(tool: Tool) {
   switch(tool){
     case "sonar":
       core.info("Carlos sonar");
-      results = fetchSonarCloudResults();
+      results = await fetchSonarCloudResults();
       fileName = "sonar-issues.json"
       break;
     case "defectdojo":
       core.info("Carlos defectdojo");
-      results = fetchDefectDojoResults();
+      results = await fetchDefectDojoResults();
       fileName = "defectdojo.findings.json"
       break;
     default:
