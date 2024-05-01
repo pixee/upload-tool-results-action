@@ -26,7 +26,7 @@ export function retrieveDefectDojoResults(
     })
     .then((response) => {
       core.info(
-        `Retrieved DefectDojo results: ${JSON.stringify(response.data)}`
+        `Retrieved DefectDojo results: ${response.data.count}`
       );
       return response.data as DefectDojoSearchResults;
     });

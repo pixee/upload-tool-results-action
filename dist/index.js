@@ -32561,7 +32561,7 @@ function retrieveDefectDojoResults(defectDojoInputs) {
         responseType: "json",
     })
         .then((response) => {
-        core.info(`Retrieved DefectDojo results: ${JSON.stringify(response.data)}`);
+        core.info(`Retrieved DefectDojo results: ${response.data.count}`);
         return response.data;
     });
 }
@@ -32829,6 +32829,7 @@ const fs_1 = __importDefault(__nccwpck_require__(7147));
 const form_data_1 = __importDefault(__nccwpck_require__(4334));
 const github_1 = __nccwpck_require__(978);
 async function uploadInputFile(tool, file) {
+    core.info("uploadInputFile");
     const fileContent = fs_1.default.readFileSync(file, "utf-8");
     const form = new form_data_1.default();
     form.append("file", fileContent);

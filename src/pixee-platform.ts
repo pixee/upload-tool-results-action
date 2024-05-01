@@ -6,6 +6,7 @@ import { Tool } from "./inputs";
 import {getGitHubContext, getRepositoryInfo} from "./github";
 
 export async function uploadInputFile(tool: Tool, file: string) {
+  core.info("uploadInputFile")
   const fileContent = fs.readFileSync(file, "utf-8");
   const form = new FormData();
   form.append("file", fileContent);
