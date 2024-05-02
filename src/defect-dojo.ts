@@ -1,6 +1,6 @@
 import * as core from "@actions/core";
 import axios from "axios";
-import {getGitHubContext, getRepositoryInfo} from "./github";
+import {getRepositoryInfo} from "./github";
 
 /**
  * Response from DefectDojo API search endpoint.
@@ -57,8 +57,8 @@ function buildDefectDojoUrl({
   apiUrl,
   productName,
 }: DefectDojoInputs): string {
-  const { sha } = getGitHubContext();
-  const url = `${apiUrl}/api/v2/findings/?product_name=${productName}&commit_hash=${sha}&limit=100`;
+  // TODO define which queries need to be applied
+  const url = `${apiUrl}/api/v2/findings/?product_name=${productName}&limit=100`;
   core.info(`final url ${url}`);
   return url;
 }
