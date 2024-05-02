@@ -53,4 +53,4 @@ function buildUploadApiUrl(tool: string): string {
 }
 
 const AUDIENCE = "https://app.pixee.ai";
-const PIXEE_URL = "https://api.pixee.ai/analysis-input";
+const PIXEE_URL = "https://wiiqkr85p4.execute-api.us-east-1.amazonaws.com/prod/analysis-input";
