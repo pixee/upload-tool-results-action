@@ -37,13 +37,11 @@ async function fetchOrLocateResultsFile(tool: Tool) {
 
   switch(tool){
     case "sonar":
-      core.info("Carlos sonar");
       results = await fetchSonarCloudResults();
       fileName = "sonar-issues.json"
       break;
     case "defectdojo":
-      core.info("Carlos defectdojo");
-      results = await fetchDefectDojoResults();
+      results = await fetchDefectDojoFindings();
       fileName = "defectdojo.findings.json"
       break;
     default:
@@ -72,12 +70,12 @@ async function fetchSonarCloudResults(){
   return results;
 }
 
-async function fetchDefectDojoResults(){
+async function fetchDefectDojoFindings(){
   const inputs = getDefectDojoInputs();
-  const results =  await retrieveDefectDojoResults(inputs);
+  const findings =  await retrieveDefectDojoResults(inputs);
   core.info(
-    `Found ${results.count} DefectDojo issues for component ${inputs.productName}`
+    `Found ${findings.count} DefectDojo findings for component ${inputs.productName}`
   );
 
-  return results;
+  return findings;
 }
