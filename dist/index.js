@@ -32477,13 +32477,11 @@ async function fetchOrLocateResultsFile(tool) {
     let fileName;
     switch (tool) {
         case "sonar":
-            core.info("Carlos sonar");
             results = await fetchSonarCloudResults();
             fileName = "sonar-issues.json";
             break;
         case "defectdojo":
-            core.info("Carlos defectdojo");
-            results = await fetchDefectDojoResults();
+            results = await fetchDefectDojoFindings();
             fileName = "defectdojo.findings.json";
             break;
         default:
@@ -32504,11 +32502,11 @@ async function fetchSonarCloudResults() {
     }
     return results;
 }
-async function fetchDefectDojoResults() {
+async function fetchDefectDojoFindings() {
     const inputs = (0, defect_dojo_1.getDefectDojoInputs)();
-    const results = await (0, defect_dojo_1.retrieveDefectDojoResults)(inputs);
-    core.info(`Found ${results.count} DefectDojo issues for component ${inputs.productName}`);
-    return results;
+    const findings = await (0, defect_dojo_1.retrieveDefectDojoResults)(inputs);
+    core.info(`Found ${findings.count} DefectDojo findings for component ${inputs.productName}`);
+    return findings;
 }
 
 
@@ -32553,7 +32551,7 @@ const github_1 = __nccwpck_require__(978);
 function retrieveDefectDojoResults(defectDojoInputs) {
     const { token } = defectDojoInputs;
     const url = buildDefectDojoUrl(defectDojoInputs);
-    core.info(`Retrieving DefectDojo results from ${url}`);
+    core.debug(`Retrieving DefectDojo results from ${url}`);
     return axios_1.default
         .get(url, {
         headers: {
@@ -32563,7 +32561,7 @@ function retrieveDefectDojoResults(defectDojoInputs) {
         responseType: "json",
     })
         .then((response) => {
-        core.info(`Retrieved DefectDojo results: ${JSON.stringify(response.data)}`);
+        core.debug(`Retrieved DefectDojo results: ${JSON.stringify(response.data)}`);
         return response.data;
     });
 }
@@ -32576,14 +32574,12 @@ function getDefectDojoInputs() {
         const { repo } = (0, github_1.getRepositoryInfo)();
         productName = repo;
     }
-    core.info(`apiUrl ${apiUrl} productName ${productName} token ${token}`);
     return { token, productName, apiUrl };
 }
 exports.getDefectDojoInputs = getDefectDojoInputs;
 function buildDefectDojoUrl({ apiUrl, productName, }) {
-    const { sha } = (0, github_1.getGitHubContext)();
-    const url = `${apiUrl}/api/v2/findings/?product_name=${productName}&commit_hash=${sha}&limit=100`;
-    core.info(`final url ${url}`);
+    // TODO define which queries need to be applied
+    const url = `${apiUrl}/api/v2/findings/?product_name=${productName}&limit=100`;
     return url;
 }
 
@@ -32831,13 +32827,11 @@ const fs_1 = __importDefault(__nccwpck_require__(7147));
 const form_data_1 = __importDefault(__nccwpck_require__(4334));
 const github_1 = __nccwpck_require__(978);
 async function uploadInputFile(tool, file) {
-    core.info("uploadInputFile");
     const fileContent = fs_1.default.readFileSync(file, "utf-8");
     const form = new form_data_1.default();
     form.append("file", fileContent);
     const token = await core.getIDToken(AUDIENCE);
     const url = buildUploadApiUrl(tool);
-    core.info(`uploading file ${file} to pixee ${url}`);
     return axios_1.default
         .put(url, form, {
         headers: {

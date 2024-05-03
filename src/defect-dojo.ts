@@ -14,7 +14,7 @@ export function retrieveDefectDojoResults(
 ) {
   const { token } = defectDojoInputs;
   const url = buildDefectDojoUrl(defectDojoInputs);
-  core.info(`Retrieving DefectDojo results from ${url}`);
+  core.debug(`Retrieving DefectDojo results from ${url}`);
 
   return axios
     .get(url, {
@@ -25,7 +25,7 @@ export function retrieveDefectDojoResults(
       responseType: "json",
     })
     .then((response) => {
-      core.info(
+      core.debug(
         `Retrieved DefectDojo results: ${JSON.stringify(response.data)}`
       );
       return response.data as DefectDojoSearchResults;
@@ -33,7 +33,6 @@ export function retrieveDefectDojoResults(
 
 }
 
-// TODO add missing input information
 interface DefectDojoInputs {
   token: string;
   productName: string;
@@ -48,8 +47,6 @@ export function getDefectDojoInputs(): DefectDojoInputs {
     const { repo } = getRepositoryInfo();
     productName = repo;
   }
-
-  core.info(`apiUrl ${apiUrl} productName ${productName} token ${token}`);
   return { token, productName, apiUrl };
 }
 
@@ -59,6 +56,5 @@ function buildDefectDojoUrl({
 }: DefectDojoInputs): string {
   // TODO define which queries need to be applied
   const url = `${apiUrl}/api/v2/findings/?product_name=${productName}&limit=100`;
-  core.info(`final url ${url}`);
   return url;
 }
