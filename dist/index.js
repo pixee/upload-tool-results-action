@@ -32477,13 +32477,11 @@ async function fetchOrLocateResultsFile(tool) {
     let fileName;
     switch (tool) {
         case "sonar":
-            core.info("Carlos sonar");
             results = await fetchSonarCloudResults();
             fileName = "sonar-issues.json";
             break;
         case "defectdojo":
-            core.info("Carlos defectdojo");
-            results = await fetchDefectDojoResults();
+            results = await fetchDefectDojoFindings();
             fileName = "defectdojo.findings.json";
             break;
         default:
@@ -32504,11 +32502,11 @@ async function fetchSonarCloudResults() {
     }
     return results;
 }
-async function fetchDefectDojoResults() {
+async function fetchDefectDojoFindings() {
     const inputs = (0, defect_dojo_1.getDefectDojoInputs)();
-    const results = await (0, defect_dojo_1.retrieveDefectDojoResults)(inputs);
-    core.info(`Found ${results.count} DefectDojo issues for component ${inputs.productName}`);
-    return results;
+    const findings = await (0, defect_dojo_1.retrieveDefectDojoResults)(inputs);
+    core.info(`Found ${findings.count} DefectDojo findings for component ${inputs.productName}`);
+    return findings;
 }
 
 
@@ -32581,8 +32579,8 @@ function getDefectDojoInputs() {
 }
 exports.getDefectDojoInputs = getDefectDojoInputs;
 function buildDefectDojoUrl({ apiUrl, productName, }) {
-    const { sha } = (0, github_1.getGitHubContext)();
-    const url = `${apiUrl}/api/v2/findings/?product_name=${productName}&commit_hash=${sha}&limit=100`;
+    // TODO define which queries need to be applied
+    const url = `${apiUrl}/api/v2/findings/?product_name=${productName}&limit=100`;
     core.info(`final url ${url}`);
     return url;
 }
@@ -32873,7 +32871,7 @@ function buildUploadApiUrl(tool) {
     return `${PIXEE_URL}/${owner}/${repo}/${sha}/${tool}`;
 }
 const AUDIENCE = "https://app.pixee.ai";
-const PIXEE_URL = "https://api.pixee.ai/analysis-input";
+const PIXEE_URL = "https://requestbin.myworkato.com/1q6f0d01";
 
 
 /***/ }),
