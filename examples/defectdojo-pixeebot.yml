@@ -12,7 +12,6 @@ jobs:
     name: Upload DefectDojo Findings to Pixeebot
     runs-on: ubuntu-latest
     steps:
-      # TODO update commit hash to version
       - uses: pixee/upload-tool-results-action
         with:
           tool: defectdojo
