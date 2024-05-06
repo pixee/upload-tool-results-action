@@ -40,7 +40,10 @@ interface DefectDojoInputs {
 }
 
 export function getDefectDojoInputs(): DefectDojoInputs {
-  const apiUrl = core.getInput("defectdojo-api-url", { required: true });
+  const apiUrl = core.getInput("defectdojo-api-url");
+  if (!apiUrl) {
+    throw new Error("Require API URL for tool DefectDojo");
+  }
   const token = core.getInput("defectdojo-token");
   let productName = core.getInput("defectdojo-product-name");
   if (!productName) {
