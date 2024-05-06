@@ -26,6 +26,7 @@ inputs:
     required: false
   defectdojo-api-url:
     description: Base URL of the DefectDojo API.
+    required: false
   defectdojo-product-name:
     description: Key identifying the DefectDojo product to be analyzed.
     required: false

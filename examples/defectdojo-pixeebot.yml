@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # TODO update commit hash to version
-      - uses: pixee/upload-tool-results-action@dca12668dd9cb999cd4a441e81ed67cb8d5d8b2d
+      - uses: pixee/upload-tool-results-action
         with:
           tool: defectdojo
           defectdojo-token: ${{ secrets.DEFECTDOJO_TOKEN }}
