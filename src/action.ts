@@ -2,7 +2,7 @@ import * as core from "@actions/core";
 import fs from "fs";
 import { Tool, getTool } from "./inputs";
 import { triggerPrAnalysis, uploadInputFile } from "./pixee-platform";
-import { getSonarCloudInputs, retrieveSonarCloudResults } from "./sonar";
+import { SONAR_OUTPUT, getSonarCloudInputs, retrieveSonarCloudResults } from "./sonar";
 import { getDefectDojoInputs, retrieveDefectDojoResults } from "./defect-dojo";
 import { getGitHubContext, getTempDir } from "./github";
 
@@ -37,8 +37,9 @@ async function fetchOrLocateResultsFile(tool: Tool) {
 
   switch(tool){
     case "sonar":
-      results = await fetchSonarCloudResults();
-      fileName = "sonar-issues.json"
+      const hotspots : SONAR_OUTPUT = "hotspots";
+      results = await fetchSonarCloudResults(hotspots);
+      fileName = `sonar-${hotspots}.json`
       break;
     case "defectdojo":
       results = await fetchDefectDojoFindings();
@@ -55,15 +56,15 @@ async function fetchOrLocateResultsFile(tool: Tool) {
   return file;
 }
 
-async function fetchSonarCloudResults(){
+async function fetchSonarCloudResults(output: SONAR_OUTPUT){
   const sonarCloudInputs = getSonarCloudInputs();
-  const results = await retrieveSonarCloudResults(sonarCloudInputs);
+  const results = await retrieveSonarCloudResults(sonarCloudInputs, output);
   core.info(
-    `Found ${results.total} SonarCloud issues for component ${sonarCloudInputs.componentKey}`
+    `Found ${results.total} SonarCloud ${output} for component ${sonarCloudInputs.componentKey}`
   );
   if (results.total === 0) {
     core.info(
-      "When the SonarCloud token is incorrect, SonarCloud responds with an empty response indistinguishable from cases where there are no issues. If you expected issues, please check the token."
+      `When the SonarCloud token is incorrect, SonarCloud responds with an empty response indistinguishable from cases where there are no ${output}. If you expected issues, please check the token.`
     );
   }
 

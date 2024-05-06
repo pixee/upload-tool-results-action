@@ -9,12 +9,15 @@ interface SonarSearchResults {
   total: number;
 }
 
+export type SONAR_OUTPUT = "issues" | "hotspots"
+
 export async function retrieveSonarCloudResults(
-  sonarCloudInputs: SonarCloudInputs
+  sonarCloudInputs: SonarCloudInputs,
+  output: SONAR_OUTPUT
 ) {
   const { token } = sonarCloudInputs;
-  const url = buildSonarCloudUrl(sonarCloudInputs);
-  core.debug(`Retrieving SonarCloud results from ${url}`);
+  const url = buildSonarCloudUrl(sonarCloudInputs, output);
+  core.info(`Retrieving SonarCloud ${output} from ${url}`);
   return axios
     .get(url, {
       headers: {
@@ -25,8 +28,8 @@ export async function retrieveSonarCloudResults(
     })
     .then((response) => {
       if (core.isDebug()) {
-        core.debug(
-          `Retrieved SonarCloud results: ${JSON.stringify(response.data)}`
+        core.info(
+          `Retrieved SonarCloud ${output}: ${JSON.stringify(response.data)}`
         );
       }
       return response.data as SonarSearchResults;
@@ -53,9 +56,12 @@ export function getSonarCloudInputs(): SonarCloudInputs {
 function buildSonarCloudUrl({
   apiUrl,
   componentKey,
-}: SonarCloudInputs): string {
-  const { prNumber } = getGitHubContext();
-  const url = `${apiUrl}/issues/search?componentKeys=${encodeURIComponent(
+}: SonarCloudInputs,
+  output: SONAR_OUTPUT
+): string {
+  //const { prNumber } = getGitHubContext();
+  const prNumber = null;
+  const url = `${apiUrl}/${output}/search?componentKeys=${encodeURIComponent(
     componentKey
   )}&resolved=false`;
   return prNumber ? `${url}&pullRequest=${prNumber}` : url;
