@@ -32477,9 +32477,8 @@ async function fetchOrLocateResultsFile(tool) {
     let fileName;
     switch (tool) {
         case "sonar":
-            const hotspots = "hotspots";
-            results = await fetchSonarCloudResults(hotspots);
-            fileName = `sonar-${hotspots}.json`;
+            results = await fetchSonarCloudIssues();
+            fileName = `sonar-issues.json`;
             break;
         case "defectdojo":
             results = await fetchDefectDojoFindings();
@@ -32494,12 +32493,12 @@ async function fetchOrLocateResultsFile(tool) {
     core.info(`Saved ${tool} results to ${file}`);
     return file;
 }
-async function fetchSonarCloudResults(output) {
+async function fetchSonarCloudIssues() {
     const sonarCloudInputs = (0, sonar_1.getSonarCloudInputs)();
-    const results = await (0, sonar_1.retrieveSonarCloudResults)(sonarCloudInputs, output);
-    core.info(`Found ${results.total} SonarCloud ${output} for component ${sonarCloudInputs.componentKey}`);
+    const results = await (0, sonar_1.retrieveSonarCloudIssues)(sonarCloudInputs);
+    core.info(`Found ${results.total} SonarCloud issues for component ${sonarCloudInputs.componentKey}`);
     if (results.total === 0) {
-        core.info(`When the SonarCloud token is incorrect, SonarCloud responds with an empty response indistinguishable from cases where there are no ${output}. If you expected issues, please check the token.`);
+        core.info(`When the SonarCloud token is incorrect, SonarCloud responds with an empty response indistinguishable from cases where there are no issues. If you expected issues, please check the token.`);
     }
     return results;
 }
@@ -32908,14 +32907,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getSonarCloudInputs = exports.retrieveSonarCloudResults = void 0;
+exports.getSonarCloudInputs = exports.retrieveSonarCloudHotspots = exports.retrieveSonarCloudIssues = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const axios_1 = __importDefault(__nccwpck_require__(8757));
 const github_1 = __nccwpck_require__(978);
-async function retrieveSonarCloudResults(sonarCloudInputs, output) {
+async function retrieveSonarCloudIssues(sonarCloudInputs) {
     const { token } = sonarCloudInputs;
-    const url = buildSonarCloudUrl(sonarCloudInputs, output);
-    core.debug(`Retrieving SonarCloud ${output} from ${url}`);
+    const url = buildSonarCloudIssuesUrl(sonarCloudInputs);
+    core.info(`Retrieving SonarCloud issues from ${url}`);
     return axios_1.default
         .get(url, {
         headers: {
@@ -32926,12 +32925,32 @@ async function retrieveSonarCloudResults(sonarCloudInputs, output) {
     })
         .then((response) => {
         if (core.isDebug()) {
-            core.debug(`Retrieved SonarCloud ${output}: ${JSON.stringify(response.data)}`);
+            core.info(`Retrieved SonarCloud issues: ${JSON.stringify(response.data)}`);
         }
         return response.data;
     });
 }
-exports.retrieveSonarCloudResults = retrieveSonarCloudResults;
+exports.retrieveSonarCloudIssues = retrieveSonarCloudIssues;
+async function retrieveSonarCloudHotspots(sonarCloudInputs) {
+    const { token } = sonarCloudInputs;
+    const url = buildSonarCloudHotspotsUrl(sonarCloudInputs);
+    core.info(`Retrieving SonarCloud hotspots from ${url}`);
+    return axios_1.default
+        .get(url, {
+        headers: {
+            contentType: "application/json",
+            Authorization: `Bearer ${token}`,
+        },
+        responseType: "json",
+    })
+        .then((response) => {
+        if (core.isDebug()) {
+            core.info(`Retrieved SonarCloud hotspots: ${JSON.stringify(response.data)}`);
+        }
+        return response.data;
+    });
+}
+exports.retrieveSonarCloudHotspots = retrieveSonarCloudHotspots;
 function getSonarCloudInputs() {
     const apiUrl = core.getInput("sonar-api-url", { required: true });
     const token = core.getInput("sonar-token");
@@ -32943,10 +32962,13 @@ function getSonarCloudInputs() {
     return { token, componentKey, apiUrl };
 }
 exports.getSonarCloudInputs = getSonarCloudInputs;
-function buildSonarCloudUrl({ apiUrl, componentKey, }, output) {
+function buildSonarCloudIssuesUrl({ apiUrl, componentKey, }) {
     const { prNumber } = (0, github_1.getGitHubContext)();
-    const url = `${apiUrl}/${output}/search?componentKeys=${encodeURIComponent(componentKey)}&resolved=false`;
+    const url = `${apiUrl}/issues/search?componentKeys=${encodeURIComponent(componentKey)}&resolved=false`;
     return prNumber ? `${url}&pullRequest=${prNumber}` : url;
+}
+function buildSonarCloudHotspotsUrl({ apiUrl, componentKey, }) {
+    return `${apiUrl}/hotspots/search?projectKey=${encodeURIComponent(componentKey)}&resolved=false`;
 }
 
 

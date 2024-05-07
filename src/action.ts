@@ -2,7 +2,7 @@ import * as core from "@actions/core";
 import fs from "fs";
 import { Tool, getTool } from "./inputs";
 import { triggerPrAnalysis, uploadInputFile } from "./pixee-platform";
-import { SONAR_OUTPUT, getSonarCloudInputs, retrieveSonarCloudHotspots, retrieveSonarCloudIssues } from "./sonar";
+import { getSonarCloudInputs, retrieveSonarCloudIssues } from "./sonar";
 import { getDefectDojoInputs, retrieveDefectDojoResults } from "./defect-dojo";
 import { getGitHubContext, getTempDir } from "./github";
 
