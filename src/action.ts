@@ -2,7 +2,7 @@ import * as core from "@actions/core";
 import fs from "fs";
 import { Tool, getTool } from "./inputs";
 import { triggerPrAnalysis, uploadInputFile } from "./pixee-platform";
-import { getSonarCloudInputs, retrieveSonarCloudIssues } from "./sonar";
+import { getSonarCloudInputs, retrieveSonarCloudHotspots, retrieveSonarCloudIssues } from "./sonar";
 import { getDefectDojoInputs, retrieveDefectDojoResults } from "./defect-dojo";
 import { getGitHubContext, getTempDir } from "./github";
 
@@ -37,8 +37,8 @@ async function fetchOrLocateResultsFile(tool: Tool) {
 
   switch(tool){
     case "sonar":
-      results = await fetchSonarCloudIssues();
-      fileName = `sonar-issues.json`
+      results = await fetchSonarCloudHotspots();
+      fileName = `sonar-hotspots.json`
       break;
     case "defectdojo":
       results = await fetchDefectDojoFindings();
@@ -66,6 +66,16 @@ async function fetchSonarCloudIssues(){
       `When the SonarCloud token is incorrect, SonarCloud responds with an empty response indistinguishable from cases where there are no issues. If you expected issues, please check the token.`
     );
   }
+
+  return results;
+}
+
+async function fetchSonarCloudHotspots(){
+  const sonarCloudInputs = getSonarCloudInputs();
+  const results = await retrieveSonarCloudHotspots(sonarCloudInputs);
+  core.info(
+    `Found ${results.paging.total} SonarCloud issues for component ${sonarCloudInputs.componentKey}`
+  );
 
   return results;
 }
