@@ -32477,8 +32477,8 @@ async function fetchOrLocateResultsFile(tool) {
     let fileName;
     switch (tool) {
         case "sonar":
-            results = await fetchSonarCloudIssues();
-            fileName = `sonar-issues.json`;
+            results = await fetchSonarCloudHotspots();
+            fileName = `sonar-hotspots.json`;
             break;
         case "defectdojo":
             results = await fetchDefectDojoFindings();
@@ -32500,6 +32500,12 @@ async function fetchSonarCloudIssues() {
     if (results.total === 0) {
         core.info(`When the SonarCloud token is incorrect, SonarCloud responds with an empty response indistinguishable from cases where there are no issues. If you expected issues, please check the token.`);
     }
+    return results;
+}
+async function fetchSonarCloudHotspots() {
+    const sonarCloudInputs = (0, sonar_1.getSonarCloudInputs)();
+    const results = await (0, sonar_1.retrieveSonarCloudHotspots)(sonarCloudInputs);
+    core.info(`Found ${results.paging.total} SonarCloud issues for component ${sonarCloudInputs.componentKey}`);
     return results;
 }
 async function fetchDefectDojoFindings() {
