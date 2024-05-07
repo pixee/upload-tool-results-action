@@ -17,7 +17,7 @@ export async function retrieveSonarCloudResults(
 ) {
   const { token } = sonarCloudInputs;
   const url = buildSonarCloudUrl(sonarCloudInputs, output);
-  core.info(`Retrieving SonarCloud ${output} from ${url}`);
+  core.debug(`Retrieving SonarCloud ${output} from ${url}`);
   return axios
     .get(url, {
       headers: {
@@ -28,7 +28,7 @@ export async function retrieveSonarCloudResults(
     })
     .then((response) => {
       if (core.isDebug()) {
-        core.info(
+        core.debug(
           `Retrieved SonarCloud ${output}: ${JSON.stringify(response.data)}`
         );
       }
@@ -59,8 +59,7 @@ function buildSonarCloudUrl({
 }: SonarCloudInputs,
   output: SONAR_OUTPUT
 ): string {
-  //const { prNumber } = getGitHubContext();
-  const prNumber = null;
+  const { prNumber } = getGitHubContext();
   const url = `${apiUrl}/${output}/search?componentKeys=${encodeURIComponent(
     componentKey
   )}&resolved=false`;
