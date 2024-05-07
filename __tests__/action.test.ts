@@ -9,8 +9,8 @@ let getInputMock: jest.SpiedFunction<typeof core.getInput>;
 let getGitHubContextMock: jest.SpiedFunction<typeof github.getGitHubContext>;
 let getTempDir: jest.SpiedFunction<typeof github.getTempDir>;
 let uploadInputFileMock: jest.SpiedFunction<typeof pixee.uploadInputFile>;
-let retrieveSonarCloudResultsMock: jest.SpiedFunction<
-  typeof sonar.retrieveSonarCloudResults
+let retrieveSonarCloudIssuesMock: jest.SpiedFunction<
+  typeof sonar.retrieveSonarCloudIssues
 >;
 let triggerPrAnalysisMock: jest.SpiedFunction<typeof pixee.triggerPrAnalysis>;
 let getRepositoryInfoMock: jest.SpiedFunction<typeof github.getRepositoryInfo>;
@@ -32,13 +32,13 @@ describe("action", () => {
     triggerPrAnalysisMock = jest
       .spyOn(pixee, "triggerPrAnalysis")
       .mockImplementation();
-    retrieveSonarCloudResultsMock = jest
-      .spyOn(sonar, "retrieveSonarCloudResults")
+    retrieveSonarCloudIssuesMock = jest
+      .spyOn(sonar, "retrieveSonarCloudIssues")
       .mockImplementation();
     getRepositoryInfoMock = jest
       .spyOn(github, "getRepositoryInfo")
       .mockImplementation();
-    retrieveSonarCloudResultsMock.mockResolvedValue({ total: 1 });
+    retrieveSonarCloudIssuesMock.mockResolvedValue({ total: 1 });
   });
 
   it("triggers PR analysis when the PR number is available", async () => {
@@ -131,7 +131,7 @@ describe("action", () => {
 
       await run();
 
-      expect(retrieveSonarCloudResultsMock).toHaveBeenCalled();
+      expect(retrieveSonarCloudIssuesMock).toHaveBeenCalled();
       expect(uploadInputFileMock).toHaveBeenCalledWith(
         "sonar",
         expect.stringMatching(/sonar-issues.json$/)
