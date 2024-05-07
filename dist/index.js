@@ -32915,7 +32915,7 @@ const github_1 = __nccwpck_require__(978);
 async function retrieveSonarCloudResults(sonarCloudInputs, output) {
     const { token } = sonarCloudInputs;
     const url = buildSonarCloudUrl(sonarCloudInputs, output);
-    core.info(`Retrieving SonarCloud ${output} from ${url}`);
+    core.debug(`Retrieving SonarCloud ${output} from ${url}`);
     return axios_1.default
         .get(url, {
         headers: {
@@ -32926,7 +32926,7 @@ async function retrieveSonarCloudResults(sonarCloudInputs, output) {
     })
         .then((response) => {
         if (core.isDebug()) {
-            core.info(`Retrieved SonarCloud ${output}: ${JSON.stringify(response.data)}`);
+            core.debug(`Retrieved SonarCloud ${output}: ${JSON.stringify(response.data)}`);
         }
         return response.data;
     });
@@ -32944,8 +32944,7 @@ function getSonarCloudInputs() {
 }
 exports.getSonarCloudInputs = getSonarCloudInputs;
 function buildSonarCloudUrl({ apiUrl, componentKey, }, output) {
-    //const { prNumber } = getGitHubContext();
-    const prNumber = null;
+    const { prNumber } = (0, github_1.getGitHubContext)();
     const url = `${apiUrl}/${output}/search?componentKeys=${encodeURIComponent(componentKey)}&resolved=false`;
     return prNumber ? `${url}&pullRequest=${prNumber}` : url;
 }
