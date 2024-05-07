@@ -12,6 +12,9 @@ let uploadInputFileMock: jest.SpiedFunction<typeof pixee.uploadInputFile>;
 let retrieveSonarCloudIssuesMock: jest.SpiedFunction<
   typeof sonar.retrieveSonarCloudIssues
 >;
+let retrieveSonarCloudHotspotsMock: jest.SpiedFunction<
+  typeof sonar.retrieveSonarCloudHotspots
+>;
 let triggerPrAnalysisMock: jest.SpiedFunction<typeof pixee.triggerPrAnalysis>;
 let getRepositoryInfoMock: jest.SpiedFunction<typeof github.getRepositoryInfo>;
 
@@ -35,10 +38,14 @@ describe("action", () => {
     retrieveSonarCloudIssuesMock = jest
       .spyOn(sonar, "retrieveSonarCloudIssues")
       .mockImplementation();
+    retrieveSonarCloudHotspotsMock = jest
+      .spyOn(sonar, "retrieveSonarCloudHotspots")
+      .mockImplementation();
     getRepositoryInfoMock = jest
       .spyOn(github, "getRepositoryInfo")
       .mockImplementation();
     retrieveSonarCloudIssuesMock.mockResolvedValue({ total: 1 });
+    retrieveSonarCloudHotspotsMock.mockResolvedValue({ paging: {total: 1} });
   });
 
   it("triggers PR analysis when the PR number is available", async () => {
@@ -57,6 +64,10 @@ describe("action", () => {
         default:
           return "";
       }
+    });
+    getRepositoryInfoMock.mockReturnValue({
+      owner: "owner",
+      repo: "repo"
     });
     triggerPrAnalysisMock.mockResolvedValue(undefined);
 
@@ -81,6 +92,10 @@ describe("action", () => {
         owner: "owner",
         repo: "repo",
         sha: "sha",
+      });
+      getRepositoryInfoMock.mockReturnValue({
+        owner: "owner",
+        repo: "repo"
       });
 
       await run();
@@ -132,6 +147,7 @@ describe("action", () => {
       await run();
 
       expect(retrieveSonarCloudIssuesMock).toHaveBeenCalled();
+      expect(retrieveSonarCloudHotspotsMock).toHaveBeenCalled();
       expect(uploadInputFileMock).toHaveBeenCalledWith(
         "sonar",
         expect.stringMatching(/sonar-issues.json$/)
