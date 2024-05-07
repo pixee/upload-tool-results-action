@@ -74,7 +74,7 @@ async function fetchSonarCloudHotspots(){
   const sonarCloudInputs = getSonarCloudInputs();
   const results = await retrieveSonarCloudHotspots(sonarCloudInputs);
   core.info(
-    `Found ${results.paging.total} SonarCloud issues for component ${sonarCloudInputs.componentKey}`
+    `Found ${results.paging.total} SonarCloud hotspots for component ${sonarCloudInputs.componentKey}`
   );
 
   return results;

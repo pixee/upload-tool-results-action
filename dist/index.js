@@ -32505,7 +32505,7 @@ async function fetchSonarCloudIssues() {
 async function fetchSonarCloudHotspots() {
     const sonarCloudInputs = (0, sonar_1.getSonarCloudInputs)();
     const results = await (0, sonar_1.retrieveSonarCloudHotspots)(sonarCloudInputs);
-    core.info(`Found ${results.paging.total} SonarCloud issues for component ${sonarCloudInputs.componentKey}`);
+    core.info(`Found ${results.paging.total} SonarCloud hotspots for component ${sonarCloudInputs.componentKey}`);
     return results;
 }
 async function fetchDefectDojoFindings() {
