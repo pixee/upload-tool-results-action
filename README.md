@@ -42,6 +42,15 @@ Detailed description of the inputs exposed by the `pixee/upload-tool-results-act
     # Default: https://sonarcloud.io/api
     sonar-api-url:
 
+    # Token for authenticating requests to DefectDojo.
+    defectdojo-token:
+
+    # Key identifying the DefectDojo product (repository) to be analyzed. 
+    defectdojo-product-name:
+
+    # Base URL of the DefectDojo API.
+    defectdojo-api-url:
+
     # Path to the tool's results file to upload to Pixeebot. This does not apply to SonarCloud integration, because the action retrieves the results directly from SonarCloud.
     # Required, when `tool` is not "sonar"
     file:
