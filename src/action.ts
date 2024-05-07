@@ -15,9 +15,26 @@ import { getGitHubContext, getTempDir } from "./github";
  */
 export async function run() {
   const tool = getTool();
-  const file = await fetchOrLocateResultsFile(tool);
-  await uploadInputFile(tool, file);
-  core.info(`Uploaded ${file} to Pixeebot for analysis`);
+
+  switch(tool){
+    case "defectdojo":
+      const file = await fetchOrLocateDefectDojoResultsFile();
+      await uploadInputFile(tool, file);
+      core.info(`Uploaded ${file} to Pixeebot for analysis`);
+      break;
+    case "sonar":
+      const issuesfile  = await fetchOrLocateSonarResultsFile("issues");
+      await uploadInputFile(tool, issuesfile);
+      core.info(`Uploaded ${issuesfile} to Pixeebot for analysis`);
+
+      const hotspotFile  = await fetchOrLocateSonarResultsFile("hotspot");
+      await uploadInputFile(tool, hotspotFile);
+      core.info(`Uploaded ${hotspotFile} to Pixeebot for analysis`);
+      break;
+    default:
+      throw new Error("Action not implemented for tool: " + tool);
+  }
+  
   const { prNumber } = getGitHubContext();
   if (prNumber) {
     await triggerPrAnalysis(prNumber);
@@ -25,27 +42,28 @@ export async function run() {
   }
 }
 
-async function fetchOrLocateResultsFile(tool: Tool) {
+type SONAR_RESULT = "issues" | "hotspot";
+
+async function fetchOrLocateDefectDojoResultsFile() {
+
+  let results = await fetchDefectDojoFindings();
+  let fileName = "defectdojo.findings.json";
+
+
+  return fetchOrLocateResultsFile("defectdojo", results, fileName);
+}
+
+async function fetchOrLocateSonarResultsFile(resultType : SONAR_RESULT) {
+  let results = resultType == "issues" ? await fetchSonarCloudIssues() : await fetchSonarCloudHotspots();
+  let fileName = `sonar-${resultType}.json`;
+
+  return fetchOrLocateResultsFile("sonar", results, fileName);
+}
+
+async function fetchOrLocateResultsFile(tool: Tool, results: any, fileName: string) {
   let file = core.getInput("file");
   if (file !== "") {
     return file;
-  }
-  // This is special behavior for SonarCloud that we either don't yet have for other supported tools
-  
-  let results;
-  let fileName;
-
-  switch(tool){
-    case "sonar":
-      results = await fetchSonarCloudHotspots();
-      fileName = `sonar-hotspots.json`
-      break;
-    case "defectdojo":
-      results = await fetchDefectDojoFindings();
-      fileName = "defectdojo.findings.json"
-      break;
-    default:
-      throw new Error("Action not implemented for tool: " + tool);
   }
 
   const tmp = getTempDir();

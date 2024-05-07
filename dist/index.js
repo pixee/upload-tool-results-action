@@ -32457,9 +32457,23 @@ const github_1 = __nccwpck_require__(978);
  */
 async function run() {
     const tool = (0, inputs_1.getTool)();
-    const file = await fetchOrLocateResultsFile(tool);
-    await (0, pixee_platform_1.uploadInputFile)(tool, file);
-    core.info(`Uploaded ${file} to Pixeebot for analysis`);
+    switch (tool) {
+        case "defectdojo":
+            const file = await fetchOrLocateDefectDojoResultsFile();
+            await (0, pixee_platform_1.uploadInputFile)(tool, file);
+            core.info(`Uploaded ${file} to Pixeebot for analysis`);
+            break;
+        case "sonar":
+            const issuesfile = await fetchOrLocateSonarResultsFile("issues");
+            await (0, pixee_platform_1.uploadInputFile)(tool, issuesfile);
+            core.info(`Uploaded ${issuesfile} to Pixeebot for analysis`);
+            const hotspotFile = await fetchOrLocateSonarResultsFile("hotspot");
+            await (0, pixee_platform_1.uploadInputFile)(tool, hotspotFile);
+            core.info(`Uploaded ${hotspotFile} to Pixeebot for analysis`);
+            break;
+        default:
+            throw new Error("Action not implemented for tool: " + tool);
+    }
     const { prNumber } = (0, github_1.getGitHubContext)();
     if (prNumber) {
         await (0, pixee_platform_1.triggerPrAnalysis)(prNumber);
@@ -32467,25 +32481,20 @@ async function run() {
     }
 }
 exports.run = run;
-async function fetchOrLocateResultsFile(tool) {
+async function fetchOrLocateDefectDojoResultsFile() {
+    let results = await fetchDefectDojoFindings();
+    let fileName = "defectdojo.findings.json";
+    return fetchOrLocateResultsFile("defectdojo", results, fileName);
+}
+async function fetchOrLocateSonarResultsFile(resultType) {
+    let results = resultType == "issues" ? await fetchSonarCloudIssues() : await fetchSonarCloudHotspots();
+    let fileName = `sonar-${resultType}.json`;
+    return fetchOrLocateResultsFile("sonar", results, fileName);
+}
+async function fetchOrLocateResultsFile(tool, results, fileName) {
     let file = core.getInput("file");
     if (file !== "") {
         return file;
-    }
-    // This is special behavior for SonarCloud that we either don't yet have for other supported tools
-    let results;
-    let fileName;
-    switch (tool) {
-        case "sonar":
-            results = await fetchSonarCloudHotspots();
-            fileName = `sonar-hotspots.json`;
-            break;
-        case "defectdojo":
-            results = await fetchDefectDojoFindings();
-            fileName = "defectdojo.findings.json";
-            break;
-        default:
-            throw new Error("Action not implemented for tool: " + tool);
     }
     const tmp = (0, github_1.getTempDir)();
     file = core.toPlatformPath(`${tmp}/${fileName}`);
