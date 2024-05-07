@@ -17,6 +17,8 @@ interface SonarSearchHotspotPaging {
   total: number;
 }
 
+const MAX_PAGE_SIZE = 500;
+
 export async function retrieveSonarCloudIssues(
   sonarCloudInputs: SonarCloudInputs
 ) {
@@ -90,7 +92,7 @@ function buildSonarCloudIssuesUrl({
   const { prNumber } = getGitHubContext();
   const url = `${apiUrl}/issues/search?componentKeys=${encodeURIComponent(
     componentKey
-  )}&resolved=false`;
+  )}&resolved=false&ps=${MAX_PAGE_SIZE}`;
   return prNumber ? `${url}&pullRequest=${prNumber}` : url;
 }
 
@@ -102,6 +104,6 @@ function buildSonarCloudHotspotsUrl({
   const { prNumber } = getGitHubContext();
   const url = `${apiUrl}/hotspots/search?projectKey=${encodeURIComponent(
     componentKey
-  )}&resolved=false`;
+  )}&resolved=false&ps=${MAX_PAGE_SIZE}`;
   return prNumber ? `${url}&pullRequest=${prNumber}` : url;
 }

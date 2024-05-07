@@ -32926,6 +32926,7 @@ exports.getSonarCloudInputs = exports.retrieveSonarCloudHotspots = exports.retri
 const core = __importStar(__nccwpck_require__(2186));
 const axios_1 = __importDefault(__nccwpck_require__(8757));
 const github_1 = __nccwpck_require__(978);
+const MAX_PAGE_SIZE = 500;
 async function retrieveSonarCloudIssues(sonarCloudInputs) {
     const { token } = sonarCloudInputs;
     const url = buildSonarCloudIssuesUrl(sonarCloudInputs);
@@ -32979,12 +32980,12 @@ function getSonarCloudInputs() {
 exports.getSonarCloudInputs = getSonarCloudInputs;
 function buildSonarCloudIssuesUrl({ apiUrl, componentKey, }) {
     const { prNumber } = (0, github_1.getGitHubContext)();
-    const url = `${apiUrl}/issues/search?componentKeys=${encodeURIComponent(componentKey)}&resolved=false`;
+    const url = `${apiUrl}/issues/search?componentKeys=${encodeURIComponent(componentKey)}&resolved=false&ps=${MAX_PAGE_SIZE}`;
     return prNumber ? `${url}&pullRequest=${prNumber}` : url;
 }
 function buildSonarCloudHotspotsUrl({ apiUrl, componentKey, }) {
     const { prNumber } = (0, github_1.getGitHubContext)();
-    const url = `${apiUrl}/hotspots/search?projectKey=${encodeURIComponent(componentKey)}&resolved=false`;
+    const url = `${apiUrl}/hotspots/search?projectKey=${encodeURIComponent(componentKey)}&resolved=false&ps=${MAX_PAGE_SIZE}`;
     return prNumber ? `${url}&pullRequest=${prNumber}` : url;
 }
 
