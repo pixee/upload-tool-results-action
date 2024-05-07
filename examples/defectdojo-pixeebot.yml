@@ -1,0 +1,20 @@
+name: Fix DefectDojo Findings with Pixeebot
+on:
+  pull_request:
+    branches:
+      - master
+
+permissions:
+  id-token: write
+
+jobs:
+  share:
+    name: Upload DefectDojo Findings to Pixeebot
+    runs-on: ubuntu-latest
+    steps:
+      - uses: pixee/upload-tool-results-action
+        with:
+          tool: defectdojo
+          defectdojo-token: ${{ secrets.DEFECTDOJO_TOKEN }}
+          defectdojo-api-url: https://pixee-test.cloud.defectdojo.com
+          defectdojo-product-name: pygoat_demo

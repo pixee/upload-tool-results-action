@@ -106,7 +106,7 @@ describe("action", () => {
         sha: "sha",
       });
 
-      expect(run()).rejects.toThrow("missing input tool");
+      expect(run()).rejects.toThrow("Action not implemented for tool: semgrep");
     });
 
     it("should retrieve the SonarCloud results, when the tool is Sonar", async () => {
