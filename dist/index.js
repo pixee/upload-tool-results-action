@@ -32467,7 +32467,7 @@ async function run() {
             const issuesfile = await fetchOrLocateSonarResultsFile("issues");
             await (0, pixee_platform_1.uploadInputFile)(tool, issuesfile);
             core.info(`Uploaded ${issuesfile} to Pixeebot for analysis`);
-            const hotspotFile = await fetchOrLocateSonarResultsFile("hotspot");
+            const hotspotFile = await fetchOrLocateSonarResultsFile("hotspots");
             await (0, pixee_platform_1.uploadInputFile)(tool, hotspotFile);
             core.info(`Uploaded ${hotspotFile} to Pixeebot for analysis`);
             break;
@@ -32983,7 +32983,9 @@ function buildSonarCloudIssuesUrl({ apiUrl, componentKey, }) {
     return prNumber ? `${url}&pullRequest=${prNumber}` : url;
 }
 function buildSonarCloudHotspotsUrl({ apiUrl, componentKey, }) {
-    return `${apiUrl}/hotspots/search?projectKey=${encodeURIComponent(componentKey)}&resolved=false`;
+    const { prNumber } = (0, github_1.getGitHubContext)();
+    const url = `${apiUrl}/hotspots/search?projectKey=${encodeURIComponent(componentKey)}&resolved=false`;
+    return prNumber ? `${url}&pullRequest=${prNumber}` : url;
 }
 
 

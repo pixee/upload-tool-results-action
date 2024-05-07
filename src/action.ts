@@ -27,7 +27,7 @@ export async function run() {
       await uploadInputFile(tool, issuesfile);
       core.info(`Uploaded ${issuesfile} to Pixeebot for analysis`);
 
-      const hotspotFile  = await fetchOrLocateSonarResultsFile("hotspot");
+      const hotspotFile  = await fetchOrLocateSonarResultsFile("hotspots");
       await uploadInputFile(tool, hotspotFile);
       core.info(`Uploaded ${hotspotFile} to Pixeebot for analysis`);
       break;
@@ -42,7 +42,7 @@ export async function run() {
   }
 }
 
-type SONAR_RESULT = "issues" | "hotspot";
+type SONAR_RESULT = "issues" | "hotspots";
 
 async function fetchOrLocateDefectDojoResultsFile() {
 

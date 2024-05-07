@@ -99,7 +99,9 @@ function buildSonarCloudHotspotsUrl({
   componentKey,
 }: SonarCloudInputs
 ): string {
-  return `${apiUrl}/hotspots/search?projectKey=${encodeURIComponent(
+  const { prNumber } = getGitHubContext();
+  const url = `${apiUrl}/hotspots/search?projectKey=${encodeURIComponent(
     componentKey
   )}&resolved=false`;
+  return prNumber ? `${url}&pullRequest=${prNumber}` : url;
 }
