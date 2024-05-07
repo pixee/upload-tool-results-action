@@ -32885,7 +32885,7 @@ function buildUploadApiUrl(tool) {
     return `${PIXEE_URL}/${owner}/${repo}/${sha}/${tool}`;
 }
 const AUDIENCE = "https://app.pixee.ai";
-const PIXEE_URL = "https://requestbin.myworkato.com/tstpkits";
+const PIXEE_URL = "https://api.pixee.ai/analysis-input";
 
 
 /***/ }),
