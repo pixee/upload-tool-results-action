@@ -100,7 +100,7 @@ describe("action", () => {
 
       await run();
 
-      expect(uploadInputFileMock).toHaveBeenCalledWith("sonar", "file.json");
+      expect(uploadInputFileMock).toHaveBeenCalledWith("sonar_issues", "file.json");
     });
   });
 
@@ -149,7 +149,7 @@ describe("action", () => {
       expect(retrieveSonarCloudIssuesMock).toHaveBeenCalled();
       expect(retrieveSonarCloudHotspotsMock).toHaveBeenCalled();
       expect(uploadInputFileMock).toHaveBeenCalledWith(
-        "sonar",
+        "sonar_issues",
         expect.stringMatching(/sonar-issues.json$/)
       );
     });
