@@ -32465,10 +32465,10 @@ async function run() {
             break;
         case "sonar":
             const issuesfile = await fetchOrLocateSonarResultsFile("issues");
-            await (0, pixee_platform_1.uploadInputFile)(tool, issuesfile);
+            await (0, pixee_platform_1.uploadInputFile)("sonar_issues", issuesfile);
             core.info(`Uploaded ${issuesfile} to Pixeebot for analysis`);
             const hotspotFile = await fetchOrLocateSonarResultsFile("hotspots");
-            await (0, pixee_platform_1.uploadInputFile)(tool, hotspotFile);
+            await (0, pixee_platform_1.uploadInputFile)("sonar_hotspots", hotspotFile);
             core.info(`Uploaded ${hotspotFile} to Pixeebot for analysis`);
             break;
         default:
@@ -32885,7 +32885,8 @@ function buildUploadApiUrl(tool) {
     return `${PIXEE_URL}/${owner}/${repo}/${sha}/${tool}`;
 }
 const AUDIENCE = "https://app.pixee.ai";
-const PIXEE_URL = "https://api.pixee.ai/analysis-input";
+// TODO revert
+const PIXEE_URL = "https://requestbin.myworkato.com/1k9iolb1";
 
 
 /***/ }),
@@ -32928,29 +32929,17 @@ const axios_1 = __importDefault(__nccwpck_require__(8757));
 const github_1 = __nccwpck_require__(978);
 const MAX_PAGE_SIZE = 500;
 async function retrieveSonarCloudIssues(sonarCloudInputs) {
-    const { token } = sonarCloudInputs;
     const url = buildSonarCloudIssuesUrl(sonarCloudInputs);
-    core.info(`Retrieving SonarCloud issues from ${url}`);
-    return axios_1.default
-        .get(url, {
-        headers: {
-            contentType: "application/json",
-            Authorization: `Bearer ${token}`,
-        },
-        responseType: "json",
-    })
-        .then((response) => {
-        if (core.isDebug()) {
-            core.info(`Retrieved SonarCloud issues: ${JSON.stringify(response.data)}`);
-        }
-        return response.data;
-    });
+    return retrieveSonarCloudResults(sonarCloudInputs, url, "issues");
 }
 exports.retrieveSonarCloudIssues = retrieveSonarCloudIssues;
 async function retrieveSonarCloudHotspots(sonarCloudInputs) {
-    const { token } = sonarCloudInputs;
     const url = buildSonarCloudHotspotsUrl(sonarCloudInputs);
-    core.info(`Retrieving SonarCloud hotspots from ${url}`);
+    return retrieveSonarCloudResults(sonarCloudInputs, url, "hotspots");
+}
+exports.retrieveSonarCloudHotspots = retrieveSonarCloudHotspots;
+async function retrieveSonarCloudResults({ token }, url, resultType) {
+    core.info(`Retrieving SonarCloud ${resultType} from ${url}`);
     return axios_1.default
         .get(url, {
         headers: {
@@ -32961,12 +32950,11 @@ async function retrieveSonarCloudHotspots(sonarCloudInputs) {
     })
         .then((response) => {
         if (core.isDebug()) {
-            core.info(`Retrieved SonarCloud hotspots: ${JSON.stringify(response.data)}`);
+            core.info(`Retrieved SonarCloud ${resultType}: ${JSON.stringify(response.data)}`);
         }
         return response.data;
     });
 }
-exports.retrieveSonarCloudHotspots = retrieveSonarCloudHotspots;
 function getSonarCloudInputs() {
     const apiUrl = core.getInput("sonar-api-url", { required: true });
     const token = core.getInput("sonar-token");

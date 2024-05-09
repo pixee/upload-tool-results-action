@@ -5,7 +5,7 @@ import {getGitHubContext, getRepositoryInfo} from "./github";
 /**
  * Response from SonarCloud API search endpoint. Sparse implementation, because we only care about the total number of issues.
  */
-export interface SonarSearchIssuesResult {
+interface SonarSearchIssuesResult {
   total: number;
 }
 
@@ -17,38 +17,30 @@ interface SonarSearchHotspotPaging {
   total: number;
 }
 
+export type SONAR_RESULT = "issues" | "hotspots";
+
 const MAX_PAGE_SIZE = 500;
 
 export async function retrieveSonarCloudIssues(
   sonarCloudInputs: SonarCloudInputs
-) {
-  const { token } = sonarCloudInputs;
+) : Promise<SonarSearchIssuesResult> {
   const url =  buildSonarCloudIssuesUrl(sonarCloudInputs);
-  core.info(`Retrieving SonarCloud issues from ${url}`);
-  return axios
-    .get(url, {
-      headers: {
-        contentType: "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      responseType: "json",
-    })
-    .then((response) => {
-      if (core.isDebug()) {
-        core.info(
-          `Retrieved SonarCloud issues: ${JSON.stringify(response.data)}`
-        );
-      }
-      return response.data as SonarSearchIssuesResult;
-    });
+  return retrieveSonarCloudResults(sonarCloudInputs, url, "issues")
 }
 
 export async function retrieveSonarCloudHotspots(
   sonarCloudInputs: SonarCloudInputs
-) {
-  const { token } = sonarCloudInputs;
+) : Promise<SonarSearchHotspotResult> {
   const url =  buildSonarCloudHotspotsUrl(sonarCloudInputs);
-  core.info(`Retrieving SonarCloud hotspots from ${url}`);
+  return retrieveSonarCloudResults(sonarCloudInputs, url, "hotspots")
+}
+
+async function retrieveSonarCloudResults(
+  {token}: SonarCloudInputs,
+  url: string,
+  resultType: SONAR_RESULT
+) {
+  core.info(`Retrieving SonarCloud ${resultType} from ${url}`);
   return axios
     .get(url, {
       headers: {
@@ -60,10 +52,10 @@ export async function retrieveSonarCloudHotspots(
     .then((response) => {
       if (core.isDebug()) {
         core.info(
-          `Retrieved SonarCloud hotspots: ${JSON.stringify(response.data)}`
+          `Retrieved SonarCloud ${resultType}: ${JSON.stringify(response.data)}`
         );
       }
-      return response.data as SonarSearchHotspotResult;
+      return response.data;
     });
 }
 

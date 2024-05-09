@@ -2,7 +2,7 @@ import * as core from "@actions/core";
 import fs from "fs";
 import { Tool, getTool } from "./inputs";
 import { triggerPrAnalysis, uploadInputFile } from "./pixee-platform";
-import { getSonarCloudInputs, retrieveSonarCloudHotspots, retrieveSonarCloudIssues } from "./sonar";
+import { SONAR_RESULT, getSonarCloudInputs, retrieveSonarCloudHotspots, retrieveSonarCloudIssues } from "./sonar";
 import { getDefectDojoInputs, retrieveDefectDojoResults } from "./defect-dojo";
 import { getGitHubContext, getTempDir } from "./github";
 
@@ -24,11 +24,11 @@ export async function run() {
       break;
     case "sonar":
       const issuesfile  = await fetchOrLocateSonarResultsFile("issues");
-      await uploadInputFile(tool, issuesfile);
+      await uploadInputFile("sonar_issues", issuesfile);
       core.info(`Uploaded ${issuesfile} to Pixeebot for analysis`);
 
       const hotspotFile  = await fetchOrLocateSonarResultsFile("hotspots");
-      await uploadInputFile(tool, hotspotFile);
+      await uploadInputFile("sonar_hotspots", hotspotFile);
       core.info(`Uploaded ${hotspotFile} to Pixeebot for analysis`);
       break;
     default:
@@ -41,8 +41,6 @@ export async function run() {
     core.info(`Hardening PR ${prNumber}`);
   }
 }
-
-type SONAR_RESULT = "issues" | "hotspots";
 
 async function fetchOrLocateDefectDojoResultsFile() {
 

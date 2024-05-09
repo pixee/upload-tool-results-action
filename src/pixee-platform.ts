@@ -2,10 +2,10 @@ import * as core from "@actions/core";
 import axios from "axios";
 import fs from "fs";
 import FormData from "form-data";
-import { Tool } from "./inputs";
+import { TOOL_PATH } from "./inputs";
 import {getGitHubContext, getRepositoryInfo} from "./github";
 
-export async function uploadInputFile(tool: Tool, file: string) {
+export async function uploadInputFile(tool: TOOL_PATH, file: string) {
   const fileContent = fs.readFileSync(file, "utf-8");
   const form = new FormData();
   form.append("file", fileContent);
@@ -46,11 +46,12 @@ function buildTriggerApiUrl(prNumber: number): string {
   return `${PIXEE_URL}/${owner}/${repo}/${prNumber}`;
 }
 
-function buildUploadApiUrl(tool: string): string {
+function buildUploadApiUrl(tool: TOOL_PATH): string {
   const { owner, repo, sha } = getGitHubContext();
 
   return `${PIXEE_URL}/${owner}/${repo}/${sha}/${tool}`;
 }
 
 const AUDIENCE = "https://app.pixee.ai";
-const PIXEE_URL = "https://api.pixee.ai/analysis-input";
+// TODO revert
+const PIXEE_URL = "https://requestbin.myworkato.com/1k9iolb1";

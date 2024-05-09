@@ -3,6 +3,8 @@ import { UserError } from "./errors";
 
 export type Tool = "sonar" | "codeql" | "semgrep" | "appscan" | "defectdojo";
 
+export type TOOL_PATH = "sonar_issues" | "sonar_hotspots" | "codeql" | "semgrep" | "appscan" | "defectdojo";
+
 /**
  * Helper function to get the selected tool from the action's inputs.
  * @returns The selected tool.
