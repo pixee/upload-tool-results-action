@@ -2,7 +2,7 @@ import * as core from "@actions/core";
 import fs from "fs";
 import { Tool, getTool } from "./inputs";
 import { triggerPrAnalysis, uploadInputFile } from "./pixee-platform";
-import { getSonarCloudInputs, retrieveSonarCloudResults } from "./sonar";
+import { SONAR_RESULT, getSonarCloudInputs, retrieveSonarCloudHotspots, retrieveSonarCloudIssues } from "./sonar";
 import { getDefectDojoInputs, retrieveDefectDojoResults } from "./defect-dojo";
 import { getGitHubContext, getTempDir } from "./github";
 
@@ -15,9 +15,26 @@ import { getGitHubContext, getTempDir } from "./github";
  */
 export async function run() {
   const tool = getTool();
-  const file = await fetchOrLocateResultsFile(tool);
-  await uploadInputFile(tool, file);
-  core.info(`Uploaded ${file} to Pixeebot for analysis`);
+
+  switch(tool){
+    case "defectdojo":
+      const file = await fetchOrLocateDefectDojoResultsFile();
+      await uploadInputFile(tool, file);
+      core.info(`Uploaded ${file} to Pixeebot for analysis`);
+      break;
+    case "sonar":
+      const issuesfile  = await fetchOrLocateSonarResultsFile("issues");
+      await uploadInputFile("sonar_issues", issuesfile);
+      core.info(`Uploaded ${issuesfile} to Pixeebot for analysis`);
+
+      const hotspotFile  = await fetchOrLocateSonarResultsFile("hotspots");
+      await uploadInputFile("sonar_hotspots", hotspotFile);
+      core.info(`Uploaded ${hotspotFile} to Pixeebot for analysis`);
+      break;
+    default:
+      throw new Error("Action not implemented for tool: " + tool);
+  }
+  
   const { prNumber } = getGitHubContext();
   if (prNumber) {
     await triggerPrAnalysis(prNumber);
@@ -25,27 +42,26 @@ export async function run() {
   }
 }
 
-async function fetchOrLocateResultsFile(tool: Tool) {
+async function fetchOrLocateDefectDojoResultsFile() {
+
+  let results = await fetchDefectDojoFindings();
+  let fileName = "defectdojo.findings.json";
+
+
+  return fetchOrLocateResultsFile("defectdojo", results, fileName);
+}
+
+async function fetchOrLocateSonarResultsFile(resultType : SONAR_RESULT) {
+  let results = resultType == "issues" ? await fetchSonarCloudIssues() : await fetchSonarCloudHotspots();
+  let fileName = `sonar-${resultType}.json`;
+
+  return fetchOrLocateResultsFile("sonar", results, fileName);
+}
+
+async function fetchOrLocateResultsFile(tool: Tool, results: any, fileName: string) {
   let file = core.getInput("file");
   if (file !== "") {
     return file;
-  }
-  // This is special behavior for SonarCloud that we either don't yet have for other supported tools
-  
-  let results;
-  let fileName;
-
-  switch(tool){
-    case "sonar":
-      results = await fetchSonarCloudResults();
-      fileName = "sonar-issues.json"
-      break;
-    case "defectdojo":
-      results = await fetchDefectDojoFindings();
-      fileName = "defectdojo.findings.json"
-      break;
-    default:
-      throw new Error("Action not implemented for tool: " + tool);
   }
 
   const tmp = getTempDir();
@@ -55,17 +71,27 @@ async function fetchOrLocateResultsFile(tool: Tool) {
   return file;
 }
 
-async function fetchSonarCloudResults(){
+async function fetchSonarCloudIssues(){
   const sonarCloudInputs = getSonarCloudInputs();
-  const results = await retrieveSonarCloudResults(sonarCloudInputs);
+  const results = await retrieveSonarCloudIssues(sonarCloudInputs);
   core.info(
     `Found ${results.total} SonarCloud issues for component ${sonarCloudInputs.componentKey}`
   );
   if (results.total === 0) {
     core.info(
-      "When the SonarCloud token is incorrect, SonarCloud responds with an empty response indistinguishable from cases where there are no issues. If you expected issues, please check the token."
+      `When the SonarCloud token is incorrect, SonarCloud responds with an empty response indistinguishable from cases where there are no issues. If you expected issues, please check the token.`
     );
   }
+
+  return results;
+}
+
+async function fetchSonarCloudHotspots(){
+  const sonarCloudInputs = getSonarCloudInputs();
+  const results = await retrieveSonarCloudHotspots(sonarCloudInputs);
+  core.info(
+    `Found ${results.paging.total} SonarCloud hotspots for component ${sonarCloudInputs.componentKey}`
+  );
 
   return results;
 }

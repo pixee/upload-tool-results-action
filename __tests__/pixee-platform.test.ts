@@ -28,10 +28,10 @@ describe("pixee-platform", () => {
     // mock axios.put to avoid making a real HTTP request
     jest.spyOn(axios, "put").mockResolvedValue(undefined);
 
-    await uploadInputFile("sonar", file.name);
+    await uploadInputFile("sonar_issues", file.name);
 
     expect(axios.put).toHaveBeenCalledWith(
-      "https://api.pixee.ai/analysis-input/owner/repo/sha/sonar",
+      "https://api.pixee.ai/analysis-input/owner/repo/sha/sonar_issues",
       expect.anything(), // cannot assert the form content
       {
         headers: {

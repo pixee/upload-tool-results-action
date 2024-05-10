@@ -9,8 +9,11 @@ let getInputMock: jest.SpiedFunction<typeof core.getInput>;
 let getGitHubContextMock: jest.SpiedFunction<typeof github.getGitHubContext>;
 let getTempDir: jest.SpiedFunction<typeof github.getTempDir>;
 let uploadInputFileMock: jest.SpiedFunction<typeof pixee.uploadInputFile>;
-let retrieveSonarCloudResultsMock: jest.SpiedFunction<
-  typeof sonar.retrieveSonarCloudResults
+let retrieveSonarCloudIssuesMock: jest.SpiedFunction<
+  typeof sonar.retrieveSonarCloudIssues
+>;
+let retrieveSonarCloudHotspotsMock: jest.SpiedFunction<
+  typeof sonar.retrieveSonarCloudHotspots
 >;
 let triggerPrAnalysisMock: jest.SpiedFunction<typeof pixee.triggerPrAnalysis>;
 let getRepositoryInfoMock: jest.SpiedFunction<typeof github.getRepositoryInfo>;
@@ -32,13 +35,17 @@ describe("action", () => {
     triggerPrAnalysisMock = jest
       .spyOn(pixee, "triggerPrAnalysis")
       .mockImplementation();
-    retrieveSonarCloudResultsMock = jest
-      .spyOn(sonar, "retrieveSonarCloudResults")
+    retrieveSonarCloudIssuesMock = jest
+      .spyOn(sonar, "retrieveSonarCloudIssues")
+      .mockImplementation();
+    retrieveSonarCloudHotspotsMock = jest
+      .spyOn(sonar, "retrieveSonarCloudHotspots")
       .mockImplementation();
     getRepositoryInfoMock = jest
       .spyOn(github, "getRepositoryInfo")
       .mockImplementation();
-    retrieveSonarCloudResultsMock.mockResolvedValue({ total: 1 });
+    retrieveSonarCloudIssuesMock.mockResolvedValue({ total: 1 });
+    retrieveSonarCloudHotspotsMock.mockResolvedValue({ paging: {total: 1} });
   });
 
   it("triggers PR analysis when the PR number is available", async () => {
@@ -57,6 +64,10 @@ describe("action", () => {
         default:
           return "";
       }
+    });
+    getRepositoryInfoMock.mockReturnValue({
+      owner: "owner",
+      repo: "repo"
     });
     triggerPrAnalysisMock.mockResolvedValue(undefined);
 
@@ -82,10 +93,14 @@ describe("action", () => {
         repo: "repo",
         sha: "sha",
       });
+      getRepositoryInfoMock.mockReturnValue({
+        owner: "owner",
+        repo: "repo"
+      });
 
       await run();
 
-      expect(uploadInputFileMock).toHaveBeenCalledWith("sonar", "file.json");
+      expect(uploadInputFileMock).toHaveBeenCalledWith("sonar_issues", "file.json");
     });
   });
 
@@ -131,9 +146,10 @@ describe("action", () => {
 
       await run();
 
-      expect(retrieveSonarCloudResultsMock).toHaveBeenCalled();
+      expect(retrieveSonarCloudIssuesMock).toHaveBeenCalled();
+      expect(retrieveSonarCloudHotspotsMock).toHaveBeenCalled();
       expect(uploadInputFileMock).toHaveBeenCalledWith(
-        "sonar",
+        "sonar_issues",
         expect.stringMatching(/sonar-issues.json$/)
       );
     });
