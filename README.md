@@ -78,3 +78,32 @@ The code scanning results will feed both Pixeebot's _continuous improvement_ and
 - When the code quality tool finds issues on a commit that has been merged to
   the default branch, Pixeebot considers those results in its next _continuous
   improvement_ PR.
+
+## Example
+
+The following represents an example GitHub Actions workflow that uploads SonarCloud results to Pixeebot. It runs each time the SonarCloud GitHub App completes a check:
+
+```yaml
+name: "Publish Sonar JSON to Pixee"
+on:
+  check_run:
+    types: [completed]
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  share:
+    name: Upload Sonar Results to Pixeebot
+    runs-on: ubuntu-latest
+    if: ${{ github.event.check_run.name == 'SonarCloud Code Analysis' }}
+    steps:
+      - uses: pixee/upload-tool-results-action@v1.0.4
+        with:
+          tool: sonar
+          sonar-token: ${{ secrets.SONAR_TOKEN }}
+          sonar-component-key: ${{ secrets.SONAR_COMPONENT_KEY }}
+```
+
+Note the use of the repository secrets `SONAR_TOKEN` and `SONAR_COMPONENT_KEY`. The `SONAR_TOKEN` secret is required for private repositories. The `SONAR_COMPONENT_KEY` secret is optional and only necessary if deviating from SonarCloud's established convention. If used, each secret must be defined in the repository's settings.
