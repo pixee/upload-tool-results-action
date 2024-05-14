@@ -32848,7 +32848,8 @@ async function uploadInputFile(tool, file) {
     const fileContent = fs_1.default.readFileSync(file, "utf-8");
     const form = new form_data_1.default();
     form.append("file", fileContent);
-    const token = await core.getIDToken(AUDIENCE);
+    const pixeeUrl = core.getInput("pixee-api-url");
+    const token = await core.getIDToken(pixeeUrl);
     const url = buildUploadApiUrl(tool);
     return axios_1.default
         .put(url, form, {
@@ -32863,7 +32864,8 @@ async function uploadInputFile(tool, file) {
 }
 exports.uploadInputFile = uploadInputFile;
 async function triggerPrAnalysis(prNumber) {
-    const token = await core.getIDToken(AUDIENCE);
+    const pixeeUrl = core.getInput("pixee-api-url");
+    const token = await core.getIDToken(pixeeUrl);
     return axios_1.default
         .post(buildTriggerApiUrl(prNumber), null, {
         headers: {
@@ -32878,14 +32880,14 @@ async function triggerPrAnalysis(prNumber) {
 exports.triggerPrAnalysis = triggerPrAnalysis;
 function buildTriggerApiUrl(prNumber) {
     const { owner, repo } = (0, github_1.getRepositoryInfo)();
-    return `${PIXEE_URL}/${owner}/${repo}/${prNumber}`;
+    const pixeeUrl = core.getInput("pixee-api-url");
+    return `${pixeeUrl}/analysis-input/${owner}/${repo}/${prNumber}`;
 }
 function buildUploadApiUrl(tool) {
     const { owner, repo, sha } = (0, github_1.getGitHubContext)();
-    return `${PIXEE_URL}/${owner}/${repo}/${sha}/${tool}`;
+    const pixeeUrl = core.getInput("pixee-api-url");
+    return `${pixeeUrl}/analysis-input/${owner}/${repo}/${sha}/${tool}`;
 }
-const AUDIENCE = "https://app.pixee.ai";
-const PIXEE_URL = "https://api.pixee.ai/analysis-input";
 
 
 /***/ }),

@@ -4,6 +4,9 @@ description:
   automatically fix issues found.
 
 inputs:
+  pixee-api-url: 
+    description: The base URL of the Pixee API
+    default: https://api.pixee.ai
   tool:
     description: >
       The supported code scanning tool that produced the results being uploaded.
