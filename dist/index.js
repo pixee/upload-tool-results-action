@@ -32851,7 +32851,6 @@ async function uploadInputFile(tool, file) {
     const pixeeUrl = core.getInput("pixee-api-url");
     const token = await core.getIDToken(pixeeUrl);
     const url = buildUploadApiUrl(tool);
-    core.info("Uploading file to " + url);
     return axios_1.default
         .put(url, form, {
         headers: {
