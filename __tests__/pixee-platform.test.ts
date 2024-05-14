@@ -5,12 +5,14 @@ import * as github from "../src/github";
 import { uploadInputFile } from "../src/pixee-platform";
 import axios from "axios";
 
+let getInputMock: jest.SpiedFunction<typeof core.getInput>;
 let getIDTokenMock: jest.SpiedFunction<typeof core.getIDToken>;
 let getGitHubContextMock: jest.SpiedFunction<typeof github.getGitHubContext>;
 
 describe("pixee-platform", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    getInputMock = jest.spyOn(core, "getInput").mockImplementation();
     tmp.setGracefulCleanup();
     getIDTokenMock = jest.spyOn(core, "getIDToken").mockResolvedValue("token");
     getGitHubContextMock = jest
@@ -27,6 +29,14 @@ describe("pixee-platform", () => {
     fs.writeFileSync(file.name, "{}");
     // mock axios.put to avoid making a real HTTP request
     jest.spyOn(axios, "put").mockResolvedValue(undefined);
+    getInputMock.mockImplementation((name: string) => {
+      switch (name) {
+        case "pixee-api-url":
+          return "https://api.pixee.ai";
+        default:
+          return "";
+      }
+    });
 
     await uploadInputFile("sonar_issues", file.name);
 
