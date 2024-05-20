@@ -1,9 +1,9 @@
 import * as core from "@actions/core";
 import { UserError } from "./errors";
 
-export type Tool = "sonar" | "codeql" | "semgrep" | "appscan" | "defectdojo";
+export type Tool = "sonar" | "codeql" | "semgrep" | "appscan" | "defectdojo" | "contrast";
 
-export type TOOL_PATH = "sonar_issues" | "sonar_hotspots" | "codeql" | "semgrep" | "appscan" | "defectdojo";
+export type TOOL_PATH = "sonar_issues" | "sonar_hotspots" | "codeql" | "semgrep" | "appscan" | "defectdojo" | "contrast";
 
 /**
  * Helper function to get the selected tool from the action's inputs.
@@ -26,4 +26,4 @@ function validateTool(tool: Tool) {
   }
 }
 
-const VALID_TOOLS: Tool[] = ["sonar", "codeql", "semgrep", "appscan", "defectdojo"];
+const VALID_TOOLS: Tool[] = ["sonar", "codeql", "semgrep", "appscan", "defectdojo", "contrast"];

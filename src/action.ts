@@ -17,6 +17,11 @@ export async function run() {
   const tool = getTool();
 
   switch(tool){
+    case "contrast":
+      const contrastFile = await fetchOrLocateContrastResultsFile();
+      await uploadInputFile(tool, contrastFile);
+      core.info(`Uploaded ${contrastFile} to Pixeebot for analysis`);
+      break;
     case "defectdojo":
       const file = await fetchOrLocateDefectDojoResultsFile();
       await uploadInputFile(tool, file);
@@ -34,7 +39,7 @@ export async function run() {
     default:
       throw new Error("Action not implemented for tool: " + tool);
   }
-  
+
   const { prNumber } = getGitHubContext();
   if (prNumber) {
     await triggerPrAnalysis(prNumber);
@@ -49,6 +54,15 @@ async function fetchOrLocateDefectDojoResultsFile() {
 
 
   return fetchOrLocateResultsFile("defectdojo", results, fileName);
+}
+
+async function fetchOrLocateContrastResultsFile() {
+  let file = core.getInput("file");
+  if (file !== "") {
+    return file;
+  }
+
+  throw new Error("Contrast requires a file to be provided");
 }
 
 async function fetchOrLocateSonarResultsFile(resultType : SONAR_RESULT) {
