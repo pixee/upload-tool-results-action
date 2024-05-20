@@ -37,7 +37,13 @@ export async function run() {
       core.info(`Uploaded ${hotspotFile} to Pixeebot for analysis`);
       break;
     default:
-      throw new Error("Action not implemented for tool: " + tool);
+      if (!core.getInput("file")) {
+        throw new Error(`Tool "${tool}" requires a file input`);
+      }
+
+      const resultFile = await fetchOrLocateResultsFile(tool, null, "");
+      await uploadInputFile(tool, resultFile);
+      core.info(`Uploaded ${resultFile} for ${tool} to Pixeebot for analysis`);
   }
 
   const { prNumber } = getGitHubContext();

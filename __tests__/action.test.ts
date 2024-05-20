@@ -77,7 +77,7 @@ describe("action", () => {
   });
 
   describe("when the file input is not empty", () => {
-    it("should upload the given file", async () => {
+    it("should upload the given sonar file", async () => {
       getInputMock.mockImplementation((name: string) => {
         switch (name) {
           case "tool":
@@ -102,6 +102,32 @@ describe("action", () => {
 
       expect(uploadInputFileMock).toHaveBeenCalledWith("sonar_issues", "file.json");
     });
+
+    it("should upload the given semgrep file", async () => {
+      getInputMock.mockImplementation((name: string) => {
+        switch (name) {
+          case "tool":
+            return "semgrep";
+          case "file":
+            return "file.json";
+          default:
+            return "";
+        }
+      });
+      getGitHubContextMock.mockReturnValue({
+        owner: "owner",
+        repo: "repo",
+        sha: "sha",
+      });
+      getRepositoryInfoMock.mockReturnValue({
+        owner: "owner",
+        repo: "repo"
+      });
+
+      await run();
+
+      expect(uploadInputFileMock).toHaveBeenCalledWith("semgrep", "file.json");
+    });
   });
 
   describe("when the file input is empty", () => {
@@ -121,7 +147,7 @@ describe("action", () => {
         sha: "sha",
       });
 
-      expect(run()).rejects.toThrow("Action not implemented for tool: semgrep");
+      expect(run()).rejects.toThrow("Tool \"semgrep\" requires a file input");
     });
 
     it("should retrieve the SonarCloud results, when the tool is Sonar", async () => {
