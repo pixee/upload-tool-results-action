@@ -11,28 +11,38 @@ export async function retrieveContrastResults(
   core.info(`Retrieving contrast results from ${url}`);
 
   return axios
-    .get(url, {
-      responseType: 'arraybuffer',
+    .post(url, {
       headers: {
         contentType: "application/json",
         Authorization: token,
         APIKey: apiKey,
         Accept: 'application/x-zip-compressed'
-      }
+      },
+      responseType: 'arraybuffer',
     })
     .then(async (response) => {
-      const zip = await JSZip.loadAsync(response.data);
+      try {
+        const zip = await JSZip.loadAsync(response.data);
 
-      const xmlFileName = Object.keys(zip.files)[0];
-      const xmlContent = await zip.file(xmlFileName)?.async('string');
+        const xmlFileName = Object.keys(zip.files)[0];
+        const xmlContent = await zip.file(xmlFileName)?.async('string');
 
-      if (core.isDebug()) {
-        core.info(
-          `Retrieved contrast results: ${xmlContent}`
-        );
+        if (core.isDebug()) {
+          core.info(
+            `Retrieved contrast results: ${xmlContent}`
+          );
+        }
+        return xmlContent;
+      } catch (error) {
+        console.error('Error extracting ZIP file:', error);
+        throw error;
       }
-      return xmlContent;
-    });}
+    })
+    .catch(error => {
+      console.error('Error fetching the ZIP file:', error);
+      throw error;
+    });
+}
 
 interface ContrastInputs {
   apiUrl: string;
