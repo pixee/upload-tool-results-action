@@ -11,7 +11,7 @@ export async function retrieveContrastResults(
   core.info(`Retrieving contrast results from ${url}`);
 
   return axios
-    .post(url, {
+    .post(url, null,{
       headers: {
         contentType: "application/json",
         Authorization: token,

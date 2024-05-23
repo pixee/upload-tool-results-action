@@ -47459,7 +47459,7 @@ async function retrieveContrastResults(contrastInputs) {
     const url = buildContrastUrl(contrastInputs);
     core.info(`Retrieving contrast results from ${url}`);
     return axios_1.default
-        .post(url, {
+        .post(url, null, {
         headers: {
             contentType: "application/json",
             Authorization: token,
