@@ -9,7 +9,7 @@ interface DefectDojoSearchResults {
   count: number;
 }
 
-export function retrieveDefectDojoResults(
+export async function retrieveDefectDojoResults(
   defectDojoInputs: DefectDojoInputs
 ) {
   const { token } = defectDojoInputs;

@@ -5,6 +5,7 @@ import { triggerPrAnalysis, uploadInputFile } from "./pixee-platform";
 import { SONAR_RESULT, getSonarCloudInputs, retrieveSonarCloudHotspots, retrieveSonarCloudIssues } from "./sonar";
 import { getDefectDojoInputs, retrieveDefectDojoResults } from "./defect-dojo";
 import { getGitHubContext, getTempDir } from "./github";
+import {getContrastInputs, retrieveContrastResults} from "./contrast";
 
 /**
  * Runs the action.
@@ -18,7 +19,7 @@ export async function run() {
 
   switch(tool){
     case "contrast":
-      const contrastFile = await fetchOrLocateContrastResultsFile();
+      const contrastFile = await fetchOrLocateContrastResultsFile(tool);
       await uploadInputFile(tool, contrastFile);
       core.info(`Uploaded ${contrastFile} to Pixeebot for analysis`);
       break;
@@ -62,13 +63,11 @@ async function fetchOrLocateDefectDojoResultsFile() {
   return fetchOrLocateResultsFile("defectdojo", results, fileName);
 }
 
-async function fetchOrLocateContrastResultsFile() {
-  let file = core.getInput("file");
-  if (file !== "") {
-    return file;
-  }
+async function fetchOrLocateContrastResultsFile(tool: Tool) {
+  let results = await fetchContrastFindings();
+  let fileName = "contrast-findings.xml";
 
-  throw new Error("Contrast requires a file to be provided");
+  return fetchOrLocateResultsFileForContrast(tool, results, fileName);
 }
 
 async function fetchOrLocateSonarResultsFile(resultType : SONAR_RESULT) {
@@ -78,14 +77,27 @@ async function fetchOrLocateSonarResultsFile(resultType : SONAR_RESULT) {
   return fetchOrLocateResultsFile("sonar", results, fileName);
 }
 
-async function fetchOrLocateResultsFile(tool: Tool, results: any, fileName: string) {
+function getFileName(fileName: string){
   let file = core.getInput("file");
   if (file !== "") {
     return file;
   }
 
   const tmp = getTempDir();
-  file = core.toPlatformPath(`${tmp}/${fileName}`);
+  return core.toPlatformPath(`${tmp}/${fileName}`);
+}
+
+async function fetchOrLocateResultsFileForContrast(tool: Tool, results: any, fileName: string) {
+  const file = getFileName(fileName);
+
+  fs.writeFileSync(file, results);
+  core.info(`Saved ${tool} results to ${file}`);
+  return file;
+}
+
+async function fetchOrLocateResultsFile(tool: Tool, results: any, fileName: string) {
+  const file = getFileName(fileName);
+
   fs.writeFileSync(file, JSON.stringify(results));
   core.info(`Saved ${tool} results to ${file}`);
   return file;
@@ -124,4 +136,12 @@ async function fetchDefectDojoFindings(){
   );
 
   return findings;
+}
+
+async function fetchContrastFindings(): Promise<any>{
+  const inputs = getContrastInputs();
+  const results = await retrieveContrastResults(inputs);
+
+  core.info(`Found Contrast findings`);
+  return results;
 }

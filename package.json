@@ -38,7 +38,8 @@
     "@actions/github": "^6.0.0",
     "@actions/http-client": "^2.2.0",
     "axios": "^1.6.7",
-    "form-data": "^4.0.0"
+    "form-data": "^4.0.0",
+    "jszip": "^3.10.1"
   },
   "devDependencies": {
     "@types/jest": "^29.5.12",
