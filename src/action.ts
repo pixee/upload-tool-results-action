@@ -19,25 +19,22 @@ export async function run() {
   switch(tool){
     case "contrast":
       const contrastFile = await fetchOrLocateContrastResultsFile();
-      await uploadInputFile(tool, contrastFile);
+      //await uploadInputFile(tool, contrastFile);
       core.info(`Uploaded ${contrastFile} to Pixeebot for analysis`);
       break;
     case "defectdojo":
       const file = await fetchOrLocateDefectDojoResultsFile();
-      await uploadInputFile(tool, file);
+      //await uploadInputFile(tool, file);
       core.info(`Uploaded ${file} to Pixeebot for analysis`);
       break;
     case "sonar":
       const issuesfile1  = await fetchOrLocateSonarResultsFile("issues", 1);
-      await uploadInputFile("sonar_issues", issuesfile1);
-      core.info(`Uploaded ${issuesfile1} to Pixeebot for analysis`);
-
       const issuesfile2  = await fetchOrLocateSonarResultsFile("issues", 2);
-      await uploadInputFile("sonar_issues", issuesfile2);
-      core.info(`Uploaded ${issuesfile2} to Pixeebot for analysis`);
+      await uploadInputFile("sonar_issues", new Array(issuesfile1, issuesfile2));
+      core.info(`Uploaded two files at same time ${issuesfile1} to Pixeebot for analysis`);
 
       const hotspotFile  = await fetchOrLocateSonarResultsFile("hotspots");
-      await uploadInputFile("sonar_hotspots", hotspotFile);
+      //await uploadInputFile("sonar_hotspots", hotspotFile);
       core.info(`Uploaded ${hotspotFile} to Pixeebot for analysis`);
       break;
     default:
@@ -46,7 +43,7 @@ export async function run() {
       }
 
       const resultFile = await fetchOrLocateResultsFile(tool, null, "");
-      await uploadInputFile(tool, resultFile);
+      //await uploadInputFile(tool, resultFile);
       core.info(`Uploaded ${resultFile} for ${tool} to Pixeebot for analysis`);
   }
 

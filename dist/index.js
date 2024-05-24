@@ -32460,23 +32460,21 @@ async function run() {
     switch (tool) {
         case "contrast":
             const contrastFile = await fetchOrLocateContrastResultsFile();
-            await (0, pixee_platform_1.uploadInputFile)(tool, contrastFile);
+            //await uploadInputFile(tool, contrastFile);
             core.info(`Uploaded ${contrastFile} to Pixeebot for analysis`);
             break;
         case "defectdojo":
             const file = await fetchOrLocateDefectDojoResultsFile();
-            await (0, pixee_platform_1.uploadInputFile)(tool, file);
+            //await uploadInputFile(tool, file);
             core.info(`Uploaded ${file} to Pixeebot for analysis`);
             break;
         case "sonar":
             const issuesfile1 = await fetchOrLocateSonarResultsFile("issues", 1);
-            await (0, pixee_platform_1.uploadInputFile)("sonar_issues", issuesfile1);
-            core.info(`Uploaded ${issuesfile1} to Pixeebot for analysis`);
             const issuesfile2 = await fetchOrLocateSonarResultsFile("issues", 2);
-            await (0, pixee_platform_1.uploadInputFile)("sonar_issues", issuesfile2);
-            core.info(`Uploaded ${issuesfile2} to Pixeebot for analysis`);
+            await (0, pixee_platform_1.uploadInputFile)("sonar_issues", new Array(issuesfile1, issuesfile2));
+            core.info(`Uploaded two files at same time ${issuesfile1} to Pixeebot for analysis`);
             const hotspotFile = await fetchOrLocateSonarResultsFile("hotspots");
-            await (0, pixee_platform_1.uploadInputFile)("sonar_hotspots", hotspotFile);
+            //await uploadInputFile("sonar_hotspots", hotspotFile);
             core.info(`Uploaded ${hotspotFile} to Pixeebot for analysis`);
             break;
         default:
@@ -32484,7 +32482,7 @@ async function run() {
                 throw new Error(`Tool "${tool}" requires a file input`);
             }
             const resultFile = await fetchOrLocateResultsFile(tool, null, "");
-            await (0, pixee_platform_1.uploadInputFile)(tool, resultFile);
+            //await uploadInputFile(tool, resultFile);
             core.info(`Uploaded ${resultFile} for ${tool} to Pixeebot for analysis`);
     }
     const { prNumber } = (0, github_1.getGitHubContext)();
@@ -32866,10 +32864,13 @@ const axios_1 = __importDefault(__nccwpck_require__(8757));
 const fs_1 = __importDefault(__nccwpck_require__(7147));
 const form_data_1 = __importDefault(__nccwpck_require__(4334));
 const github_1 = __nccwpck_require__(978);
-async function uploadInputFile(tool, file) {
-    const fileContent = fs_1.default.readFileSync(file, "utf-8");
+async function uploadInputFile(tool, files) {
     const form = new form_data_1.default();
-    form.append("file", fileContent);
+    // Append each file to the form data
+    files.forEach(file => {
+        const fileContent = fs_1.default.readFileSync(file);
+        form.append("file", fileContent, file);
+    });
     const pixeeUrl = core.getInput("pixee-api-url");
     const token = await core.getIDToken(pixeeUrl);
     const url = buildUploadApiUrl(tool);
