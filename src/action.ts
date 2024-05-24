@@ -93,9 +93,11 @@ async function fetchOrLocateResultsFile(tool: Tool, results: any, fileName: stri
 
 async function fetchSonarCloudIssues(){
   const sonarCloudInputs = getSonarCloudInputs();
-  const results = await retrieveSonarCloudIssues(sonarCloudInputs);
+  const results1 = await retrieveSonarCloudIssues(sonarCloudInputs);
+  const results ={"total":1,"p":1,"ps":500,"paging":{"pageIndex":1,"pageSize":500,"total":1},"effortTotal":2,"debtTotal":2,"issues":[{"key":"AY8XOre8mBVmyrg5C9Ld","rule":"java:S1659","severity":"MINOR","component":"carlosu7_WebGoat_12_23:src/main/java/org/owasp/webgoat/lessons/challenges/challenge7/MD5.java","project":"carlosu7_WebGoat_12_23","line":631,"hash":"ab37db435563f882da448ae09bd3576f","textRange":{"startLine":631,"endLine":631,"startOffset":11,"endOffset":12},"flows":[],"status":"OPEN","message":"Declare \"j\" on a separate line.","effort":"2min","debt":"2min","author":"arshan.dabirsiaghi@gmail.com","tags":["cert","convention"],"creationDate":"2023-12-06T18:40:23+0100","updateDate":"2024-04-25T23:46:59+0200","type":"CODE_SMELL","organization":"carlosu7","cleanCodeAttribute":"FORMATTED","cleanCodeAttributeCategory":"CONSISTENT","impacts":[{"softwareQuality":"MAINTAINABILITY","severity":"LOW"}]}],"components":[{"organization":"carlosu7","key":"carlosu7_WebGoat_12_23","uuid":"AY8XN53R6GoxpCBUzw6a","enabled":true,"qualifier":"TRK","name":"WebGoat_12_23","longName":"WebGoat_12_23"},{"organization":"carlosu7","key":"carlosu7_WebGoat_12_23:src/main/java/org/owasp/webgoat/lessons/challenges/challenge7/MD5.java","uuid":"AY8XOrTymBVmyrg5C88L","enabled":true,"qualifier":"FIL","name":"MD5.java","longName":"src/main/java/org/owasp/webgoat/lessons/challenges/challenge7/MD5.java","path":"src/main/java/org/owasp/webgoat/lessons/challenges/challenge7/MD5.java"}],"organizations":[{"key":"carlosu7","name":"Carlos Uscanga"}],"facets":[]}
+
   core.info(
-    `Found ${results.total} SonarCloud issues for component ${sonarCloudInputs.componentKey}`
+    `HARDCODED Found ${results.total} SonarCloud issues for component ${sonarCloudInputs.componentKey}`
   );
   if (results.total === 0) {
     core.info(
