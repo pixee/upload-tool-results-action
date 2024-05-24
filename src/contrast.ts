@@ -13,9 +13,8 @@ export async function retrieveContrastResults(
   return axios
     .post(url, null,{
       headers: {
-        contentType: "application/json",
         Authorization: token,
-        APIKey: apiKey,
+        'API-Key': apiKey,
         Accept: 'application/x-zip-compressed'
       },
       responseType: 'arraybuffer',
