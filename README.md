@@ -22,7 +22,7 @@ Detailed description of the inputs exposed by the `pixee/upload-tool-results-act
 - uses: pixee/upload-tool-results-action
   with:
     # The supported code scanning tool that produced the results being uploaded to Pixeebot.
-    # Allowed values: 'sonar', 'codeql', 'semgrep'
+    # Allowed values: 'sonar', 'codeql', 'semgrep', 'defectdojo', 'contrast'
     # Required
     tool:
 

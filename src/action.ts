@@ -67,7 +67,7 @@ async function fetchOrLocateContrastResultsFile(tool: Tool) {
   let results = await fetchContrastFindings();
   let fileName = "contrast-findings.xml";
 
-  return fetchOrLocateResultsFileForContrast(tool, results, fileName);
+  return fetchOrLocateResultsFileForContrast(results, fileName);
 }
 
 async function fetchOrLocateSonarResultsFile(resultType : SONAR_RESULT) {
@@ -87,11 +87,11 @@ function getFileName(fileName: string){
   return core.toPlatformPath(`${tmp}/${fileName}`);
 }
 
-async function fetchOrLocateResultsFileForContrast(tool: Tool, results: any, fileName: string) {
+async function fetchOrLocateResultsFileForContrast(results: any, fileName: string) {
   const file = getFileName(fileName);
 
   fs.writeFileSync(file, results);
-  core.info(`Saved ${tool} results to ${file}`);
+  core.info(`Saved Contrast results to ${file}`);
   return file;
 }
 
