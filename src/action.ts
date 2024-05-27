@@ -19,7 +19,7 @@ export async function run() {
 
   switch(tool){
     case "contrast":
-      const contrastFile = await fetchOrLocateContrastResultsFile(tool);
+      const contrastFile = await fetchOrLocateContrastResultsFile();
       await uploadInputFile(tool, contrastFile);
       core.info(`Uploaded ${contrastFile} to Pixeebot for analysis`);
       break;
@@ -38,13 +38,13 @@ export async function run() {
       core.info(`Uploaded ${hotspotFile} to Pixeebot for analysis`);
       break;
     default:
-      if (!core.getInput("file")) {
+      const inputFile = core.getInput("file");
+      if (!inputFile) {
         throw new Error(`Tool "${tool}" requires a file input`);
       }
 
-      const resultFile = await fetchOrLocateResultsFile(tool, null, "");
-      await uploadInputFile(tool, resultFile);
-      core.info(`Uploaded ${resultFile} for ${tool} to Pixeebot for analysis`);
+      await uploadInputFile(tool, inputFile);
+      core.info(`Uploaded ${inputFile} for ${tool} to Pixeebot for analysis`);
   }
 
   const { prNumber } = getGitHubContext();
@@ -63,11 +63,11 @@ async function fetchOrLocateDefectDojoResultsFile() {
   return fetchOrLocateResultsFile("defectdojo", results, fileName);
 }
 
-async function fetchOrLocateContrastResultsFile(tool: Tool) {
+async function fetchOrLocateContrastResultsFile() {
   let results = await fetchContrastFindings();
   let fileName = "contrast-findings.xml";
 
-  return fetchOrLocateResultsFile(tool, results, fileName, false);
+  return fetchOrLocateResultsFile("contrast", results, fileName, false);
 }
 
 async function fetchOrLocateSonarResultsFile(resultType : SONAR_RESULT) {
