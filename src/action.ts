@@ -67,7 +67,7 @@ async function fetchOrLocateContrastResultsFile(tool: Tool) {
   let results = await fetchContrastFindings();
   let fileName = "contrast-findings.xml";
 
-  return fetchOrLocateResultsFileForContrast(results, fileName);
+  return fetchOrLocateResultsFile(tool, results, fileName, false);
 }
 
 async function fetchOrLocateSonarResultsFile(resultType : SONAR_RESULT) {
@@ -77,29 +77,21 @@ async function fetchOrLocateSonarResultsFile(resultType : SONAR_RESULT) {
   return fetchOrLocateResultsFile("sonar", results, fileName);
 }
 
-function getFileName(fileName: string){
+async function fetchOrLocateResultsFile(tool: string, results: any, fileName: string, stringifyResults: boolean = true): Promise<string> {
   let file = core.getInput("file");
   if (file !== "") {
     return file;
   }
 
   const tmp = getTempDir();
-  return core.toPlatformPath(`${tmp}/${fileName}`);
-}
+  file = core.toPlatformPath(`${tmp}/${fileName}`);
 
-async function fetchOrLocateResultsFileForContrast(results: any, fileName: string) {
-  const file = getFileName(fileName);
+  const fileContent = stringifyResults ? JSON.stringify(results) : results;
+  fs.writeFileSync(file, fileContent);
 
-  fs.writeFileSync(file, results);
-  core.info(`Saved Contrast results to ${file}`);
-  return file;
-}
+  const logMessage = `Saved ${tool} results to ${file}`;
+  core.info(logMessage);
 
-async function fetchOrLocateResultsFile(tool: Tool, results: any, fileName: string) {
-  const file = getFileName(fileName);
-
-  fs.writeFileSync(file, JSON.stringify(results));
-  core.info(`Saved ${tool} results to ${file}`);
   return file;
 }
 
