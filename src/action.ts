@@ -74,7 +74,7 @@ async function fetchOrLocateContrastResultsFile() {
 
 async function fetchOrLocateSonarResultsFile(resultType : SONAR_RESULT, index ?: number) {
   let results = resultType == "issues" ? await fetchSonarCloudIssues(index) : await fetchSonarCloudHotspots();
-  let fileName = `sonar-${resultType}.json`;
+  let fileName = !!index ? `sonar-${resultType}-${index}.json` : `sonar-${resultType}.json`;
 
   return fetchOrLocateResultsFile("sonar", results, fileName);
 }
