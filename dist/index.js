@@ -32869,7 +32869,7 @@ async function uploadInputFile(tool, files) {
     // Append each file to the form data
     files.forEach(file => {
         const fileContent = fs_1.default.readFileSync(file);
-        form.append("file", fileContent, file);
+        form.append("files", fileContent, file);
     });
     const pixeeUrl = core.getInput("pixee-api-url");
     const token = await core.getIDToken(pixeeUrl);
