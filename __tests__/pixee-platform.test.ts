@@ -38,7 +38,7 @@ describe("pixee-platform", () => {
       }
     });
 
-    await uploadInputFile("sonar_issues", file.name);
+    await uploadInputFile("sonar_issues", new Array(file.name));
 
     expect(axios.put).toHaveBeenCalledWith(
       "https://api.pixee.ai/analysis-input/owner/repo/sha/sonar_issues",

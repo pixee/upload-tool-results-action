@@ -19,22 +19,21 @@ export async function run() {
   switch(tool){
     case "contrast":
       const contrastFile = await fetchOrLocateContrastResultsFile();
-      //await uploadInputFile(tool, contrastFile);
+      await uploadInputFile(tool, new Array(contrastFile));
       core.info(`Uploaded ${contrastFile} to Pixeebot for analysis`);
       break;
     case "defectdojo":
       const file = await fetchOrLocateDefectDojoResultsFile();
-      //await uploadInputFile(tool, file);
+      await uploadInputFile(tool, new Array(file));
       core.info(`Uploaded ${file} to Pixeebot for analysis`);
       break;
     case "sonar":
-      const issuesfile1  = await fetchOrLocateSonarResultsFile("issues", 1);
-      const issuesfile2  = await fetchOrLocateSonarResultsFile("issues", 2);
-      await uploadInputFile("sonar_issues", new Array(issuesfile1, issuesfile2));
-      core.info(`Uploaded two files at same time ${issuesfile1} to Pixeebot for analysis`);
+      const issuesfile  = await fetchOrLocateSonarResultsFile("issues");
+      await uploadInputFile("sonar_issues", new Array(issuesfile));
+      core.info(`Uploaded two files at same time ${issuesfile} to Pixeebot for analysis`);
 
       const hotspotFile  = await fetchOrLocateSonarResultsFile("hotspots");
-      //await uploadInputFile("sonar_hotspots", hotspotFile);
+      await uploadInputFile("sonar_hotspots", new Array(hotspotFile));
       core.info(`Uploaded ${hotspotFile} to Pixeebot for analysis`);
       break;
     default:
@@ -43,7 +42,7 @@ export async function run() {
       }
 
       const resultFile = await fetchOrLocateResultsFile(tool, null, "");
-      //await uploadInputFile(tool, resultFile);
+      await uploadInputFile(tool, new Array(resultFile));
       core.info(`Uploaded ${resultFile} for ${tool} to Pixeebot for analysis`);
   }
 
@@ -73,7 +72,7 @@ async function fetchOrLocateContrastResultsFile() {
 }
 
 async function fetchOrLocateSonarResultsFile(resultType : SONAR_RESULT, index ?: number) {
-  let results = resultType == "issues" ? await fetchSonarCloudIssues(index) : await fetchSonarCloudHotspots();
+  let results = resultType == "issues" ? await fetchSonarCloudIssues() : await fetchSonarCloudHotspots();
   let fileName = !!index ? `sonar-${resultType}-${index}.json` : `sonar-${resultType}.json`;
 
   return fetchOrLocateResultsFile("sonar", results, fileName);
@@ -92,13 +91,9 @@ async function fetchOrLocateResultsFile(tool: Tool, results: any, fileName: stri
   return file;
 }
 
-async function fetchSonarCloudIssues(index?: number){
+async function fetchSonarCloudIssues(){
   const sonarCloudInputs = getSonarCloudInputs();
-  //const results1 = await retrieveSonarCloudIssues(sonarCloudInputs);
-
-  
-  const results = index == 1 ? {"total":1,"p":1,"ps":500,"paging":{"pageIndex":1,"pageSize":500,"total":1},"effortTotal":2,"debtTotal":2,"issues":[{"key":"AY8XOre8mBVmyrg5C9Ld","rule":"java:S1659","severity":"MINOR","component":"carlosu7_WebGoat_12_23:src/main/java/org/owasp/webgoat/lessons/challenges/challenge7/MD5.java","project":"carlosu7_WebGoat_12_23","line":631,"hash":"ab37db435563f882da448ae09bd3576f","textRange":{"startLine":631,"endLine":631,"startOffset":11,"endOffset":12},"flows":[],"status":"OPEN","message":"Declare \"j\" on a separate line.","effort":"2min","debt":"2min","author":"arshan.dabirsiaghi@gmail.com","tags":["cert","convention"],"creationDate":"2023-12-06T18:40:23+0100","updateDate":"2024-04-25T23:46:59+0200","type":"CODE_SMELL","organization":"carlosu7","cleanCodeAttribute":"FORMATTED","cleanCodeAttributeCategory":"CONSISTENT","impacts":[{"softwareQuality":"MAINTAINABILITY","severity":"LOW"}]}],"components":[{"organization":"carlosu7","key":"carlosu7_WebGoat_12_23","uuid":"AY8XN53R6GoxpCBUzw6a","enabled":true,"qualifier":"TRK","name":"WebGoat_12_23","longName":"WebGoat_12_23"},{"organization":"carlosu7","key":"carlosu7_WebGoat_12_23:src/main/java/org/owasp/webgoat/lessons/challenges/challenge7/MD5.java","uuid":"AY8XOrTymBVmyrg5C88L","enabled":true,"qualifier":"FIL","name":"MD5.java","longName":"src/main/java/org/owasp/webgoat/lessons/challenges/challenge7/MD5.java","path":"src/main/java/org/owasp/webgoat/lessons/challenges/challenge7/MD5.java"}],"organizations":[{"key":"carlosu7","name":"Carlos Uscanga"}],"facets":[]}
-  : {"total":1,"p":1,"ps":500,"paging":{"pageIndex":1,"pageSize":500,"total":1},"effortTotal":10,"debtTotal":10,"issues":[{"key":"AY8XOrgomBVmyrg5C9O0","rule":"java:S1192","severity":"CRITICAL","component":"carlosu7_WebGoat_12_23:src/main/java/org/owasp/webgoat/container/AsciiDoctorTemplateResolver.java","project":"carlosu7_WebGoat_12_23","line":114,"hash":"4a09a9baa894a1ea9ad1a29566a1509c","textRange":{"startLine":114,"endLine":114,"startOffset":21,"endOffset":34},"flows":[{"locations":[{"component":"carlosu7_WebGoat_12_23:src/main/java/org/owasp/webgoat/container/AsciiDoctorTemplateResolver.java","textRange":{"startLine":114,"endLine":114,"startOffset":21,"endOffset":34},"msg":"Duplication"}]},{"locations":[{"component":"carlosu7_WebGoat_12_23:src/main/java/org/owasp/webgoat/container/AsciiDoctorTemplateResolver.java","textRange":{"startLine":117,"endLine":117,"startOffset":40,"endOffset":53},"msg":"Duplication"}]},{"locations":[{"component":"carlosu7_WebGoat_12_23:src/main/java/org/owasp/webgoat/container/AsciiDoctorTemplateResolver.java","textRange":{"startLine":120,"endLine":120,"startOffset":40,"endOffset":53},"msg":"Duplication"}]},{"locations":[{"component":"carlosu7_WebGoat_12_23:src/main/java/org/owasp/webgoat/container/AsciiDoctorTemplateResolver.java","textRange":{"startLine":134,"endLine":134,"startOffset":35,"endOffset":48},"msg":"Duplication"}]}],"status":"OPEN","message":"Define a constant instead of duplicating this literal \"classpath:/\" 4 times.","effort":"10min","debt":"10min","author":"arshan.dabirsiaghi@gmail.com","tags":["design"],"creationDate":"2023-12-06T18:40:23+0100","updateDate":"2024-04-25T23:46:59+0200","type":"CODE_SMELL","organization":"carlosu7","cleanCodeAttribute":"DISTINCT","cleanCodeAttributeCategory":"ADAPTABLE","impacts":[{"softwareQuality":"MAINTAINABILITY","severity":"HIGH"}]}],"components":[{"organization":"carlosu7","key":"carlosu7_WebGoat_12_23","uuid":"AY8XN53R6GoxpCBUzw6a","enabled":true,"qualifier":"TRK","name":"WebGoat_12_23","longName":"WebGoat_12_23"},{"organization":"carlosu7","key":"carlosu7_WebGoat_12_23:src/main/java/org/owasp/webgoat/container/AsciiDoctorTemplateResolver.java","uuid":"AY8XOrTymBVmyrg5C8-i","enabled":true,"qualifier":"FIL","name":"AsciiDoctorTemplateResolver.java","longName":"src/main/java/org/owasp/webgoat/container/AsciiDoctorTemplateResolver.java","path":"src/main/java/org/owasp/webgoat/container/AsciiDoctorTemplateResolver.java"}],"organizations":[{"key":"carlosu7","name":"Carlos Uscanga"}],"facets":[]};
+  const results = await retrieveSonarCloudIssues(sonarCloudInputs);
 
   core.info(
     `HARDCODED Found ${results.total} SonarCloud issues for component ${sonarCloudInputs.componentKey}`

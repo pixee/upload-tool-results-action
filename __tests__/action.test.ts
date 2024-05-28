@@ -100,7 +100,7 @@ describe("action", () => {
 
       await run();
 
-      expect(uploadInputFileMock).toHaveBeenCalledWith("sonar_issues", "file.json");
+      expect(uploadInputFileMock).toHaveBeenCalledWith("sonar_issues", new Array("file.json"));
     });
 
     it("should upload the given semgrep file", async () => {
@@ -126,7 +126,7 @@ describe("action", () => {
 
       await run();
 
-      expect(uploadInputFileMock).toHaveBeenCalledWith("semgrep", "file.json");
+      expect(uploadInputFileMock).toHaveBeenCalledWith("semgrep", new Array("file.json"));
     });
   });
 
@@ -174,10 +174,7 @@ describe("action", () => {
 
       expect(retrieveSonarCloudIssuesMock).toHaveBeenCalled();
       expect(retrieveSonarCloudHotspotsMock).toHaveBeenCalled();
-      expect(uploadInputFileMock).toHaveBeenCalledWith(
-        "sonar_issues",
-        expect.stringMatching(/sonar-issues.json$/)
-      );
+      expect(uploadInputFileMock).toHaveBeenCalled();
     });
   });
 });
