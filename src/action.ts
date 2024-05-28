@@ -30,7 +30,7 @@ export async function run() {
     case "sonar":
       const issuesfile  = await fetchOrLocateSonarResultsFile("issues");
       await uploadInputFile("sonar_issues", new Array(issuesfile));
-      core.info(`Uploaded two files at same time ${issuesfile} to Pixeebot for analysis`);
+      core.info(`Uploaded ${issuesfile} to Pixeebot for analysis`);
 
       const hotspotFile  = await fetchOrLocateSonarResultsFile("hotspots");
       await uploadInputFile("sonar_hotspots", new Array(hotspotFile));
