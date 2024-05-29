@@ -77,7 +77,7 @@ async function fetchOrLocateSonarResultsFile(resultType : SONAR_RESULT) {
   return fetchOrLocateResultsFile("sonar", results, fileName);
 }
 
-async function fetchOrLocateResultsFile(tool: string, results: any, fileName: string, stringifyResults: boolean = true) {
+async function fetchOrLocateResultsFile(tool: Tool, results: any, fileName: string, stringifyResults: boolean = true) {
   let file = core.getInput("file");
   if (file !== "") {
     return file;

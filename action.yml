@@ -35,19 +35,19 @@ inputs:
     required: false
   contrast-api-url:
     description: Base URL of the Contrast API.
-    required: true
+    required: false
   contrast-org-id:
     description: Unique identifier for the organization in Contrast that needs to be analyzed.
-    required: true
+    required: false
   contrast-app-id:
     description: Unique identifier for the specific application within Contrast.
-    required: true
+    required: false
   contrast-api-key:
     description: Api key for authenticating requests to Contrast.
-    required: true
+    required: false
   contrast-token:
     description: Token for authenticating requests to Contrast.
-    required: true
+    required: false
 
 runs:
   using: "node20"
