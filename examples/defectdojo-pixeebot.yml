@@ -12,7 +12,7 @@ jobs:
     name: Upload DefectDojo Findings to Pixeebot
     runs-on: ubuntu-latest
     steps:
-      - uses: pixee/upload-tool-results-action
+      - uses: pixee/upload-tool-results-action@v1
         with:
           tool: defectdojo
           defectdojo-token: ${{ secrets.DEFECTDOJO_TOKEN }}
