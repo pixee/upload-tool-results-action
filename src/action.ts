@@ -71,9 +71,9 @@ async function fetchOrLocateContrastResultsFile() {
   throw new Error("Contrast requires a file to be provided");
 }
 
-async function fetchOrLocateSonarResultsFile(resultType : SONAR_RESULT, index ?: number) {
+async function fetchOrLocateSonarResultsFile(resultType : SONAR_RESULT) {
   let results = resultType == "issues" ? await fetchSonarCloudIssues() : await fetchSonarCloudHotspots();
-  let fileName = !!index ? `sonar-${resultType}-${index}.json` : `sonar-${resultType}.json`;
+  let fileName = `sonar-${resultType}.json`;
 
   return fetchOrLocateResultsFile("sonar", results, fileName);
 }
@@ -96,7 +96,7 @@ async function fetchSonarCloudIssues(){
   const results = await retrieveSonarCloudIssues(sonarCloudInputs);
 
   core.info(
-    `HARDCODED Found ${results.total} SonarCloud issues for component ${sonarCloudInputs.componentKey}`
+    `Found ${results.total} SonarCloud issues for component ${sonarCloudInputs.componentKey}`
   );
   if (results.total === 0) {
     core.info(
