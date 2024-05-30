@@ -22,7 +22,7 @@ Detailed description of the inputs exposed by the `pixee/upload-tool-results-act
 - uses: pixee/upload-tool-results-action
   with:
     # The supported code scanning tool that produced the results being uploaded to Pixeebot.
-    # Allowed values: 'sonar', 'codeql', 'semgrep'
+    # Allowed values: 'sonar', 'codeql', 'semgrep', 'defectdojo', 'contrast'
     # Required
     tool:
 
@@ -46,6 +46,21 @@ Detailed description of the inputs exposed by the `pixee/upload-tool-results-act
 
     # Base URL of the DefectDojo API.
     defectdojo-api-url:
+
+    # Base URL of the Contrast API.
+    contrast-api-url:
+    
+    # Unique identifier for the organization in Contrast that needs to be analyzed.
+    contrast-org-id:
+    
+    # Unique identifier for the specific application within Contrast.
+    contrast-app-id:
+    
+    # Api key for authenticating requests to Contrast.
+    contrast-api-key:
+    
+    # Token for authenticating requests to Contrast.
+    contrast-token:
 
     # Path to the tool's results file to upload to Pixeebot. This does not apply to SonarCloud integration, because the action retrieves the results directly from SonarCloud.
     # Required, when `tool` is not "sonar"
