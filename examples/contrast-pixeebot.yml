@@ -1,0 +1,22 @@
+name: Fix Contrast Findings with Pixeebot
+on:
+  pull_request:
+    branches:
+      - master
+
+permissions:
+  id-token: write
+
+jobs:
+  share:
+    name: Upload Contrast Findings to Pixeebot
+    runs-on: ubuntu-latest
+    steps:
+      - uses: pixee/upload-tool-results-action@v1
+        with:
+          tool: contrast
+          contrast-api-url: ${{ secrets.CONTRAST_API_URL }}
+          contrast-org-id: ${{ secrets.CONTRAST_ORG_ID }}
+          contrast-app-id: ${{ secrets.CONTRAST_APP_ID }}
+          contrast-api-key: ${{ secrets.CONTRAST_API_KEY }}
+          contrast-token: ${{ secrets.CONTRAST_TOKEN }}
