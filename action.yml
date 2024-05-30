@@ -33,6 +33,21 @@ inputs:
   defectdojo-product-name:
     description: Key identifying the DefectDojo product to be analyzed.
     required: false
+  contrast-api-url:
+    description: Base URL of the Contrast API.
+    required: false
+  contrast-org-id:
+    description: Unique identifier for the organization in Contrast that needs to be analyzed.
+    required: false
+  contrast-app-id:
+    description: Unique identifier for the specific application within Contrast.
+    required: false
+  contrast-api-key:
+    description: Api key for authenticating requests to Contrast.
+    required: false
+  contrast-token:
+    description: Token for authenticating requests to Contrast.
+    required: false
 
 runs:
   using: "node20"

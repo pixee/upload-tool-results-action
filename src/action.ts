@@ -5,6 +5,7 @@ import { triggerPrAnalysis, uploadInputFile } from "./pixee-platform";
 import { SONAR_RESULT, getSonarCloudInputs, retrieveSonarCloudHotspots, retrieveSonarCloudIssues } from "./sonar";
 import { getDefectDojoInputs, retrieveDefectDojoResults } from "./defect-dojo";
 import { getGitHubContext, getTempDir } from "./github";
+import {getContrastInputs, retrieveContrastResults} from "./contrast";
 
 /**
  * Runs the action.
@@ -37,13 +38,13 @@ export async function run() {
       core.info(`Uploaded ${hotspotFile} to Pixeebot for analysis`);
       break;
     default:
-      if (!core.getInput("file")) {
+      const inputFile = core.getInput("file");
+      if (!inputFile) {
         throw new Error(`Tool "${tool}" requires a file input`);
       }
 
-      const resultFile = await fetchOrLocateResultsFile(tool, null, "");
-      await uploadInputFile(tool, new Array(resultFile));
-      core.info(`Uploaded ${resultFile} for ${tool} to Pixeebot for analysis`);
+      await uploadInputFile(tool, new Array(inputFile));
+      core.info(`Uploaded ${inputFile} for ${tool} to Pixeebot for analysis`);
   }
 
   const { prNumber } = getGitHubContext();
@@ -63,12 +64,10 @@ async function fetchOrLocateDefectDojoResultsFile() {
 }
 
 async function fetchOrLocateContrastResultsFile() {
-  let file = core.getInput("file");
-  if (file !== "") {
-    return file;
-  }
+  let results = await fetchContrastFindings();
+  let fileName = "contrast-findings.xml";
 
-  throw new Error("Contrast requires a file to be provided");
+  return fetchOrLocateResultsFile("contrast", results, fileName, false);
 }
 
 async function fetchOrLocateSonarResultsFile(resultType : SONAR_RESULT) {
@@ -78,7 +77,7 @@ async function fetchOrLocateSonarResultsFile(resultType : SONAR_RESULT) {
   return fetchOrLocateResultsFile("sonar", results, fileName);
 }
 
-async function fetchOrLocateResultsFile(tool: Tool, results: any, fileName: string) {
+async function fetchOrLocateResultsFile(tool: Tool, results: any, fileName: string, stringifyResults: boolean = true) {
   let file = core.getInput("file");
   if (file !== "") {
     return file;
@@ -86,8 +85,13 @@ async function fetchOrLocateResultsFile(tool: Tool, results: any, fileName: stri
 
   const tmp = getTempDir();
   file = core.toPlatformPath(`${tmp}/${fileName}`);
-  fs.writeFileSync(file, JSON.stringify(results));
-  core.info(`Saved ${tool} results to ${file}`);
+
+  const fileContent = stringifyResults ? JSON.stringify(results) : results;
+  fs.writeFileSync(file, fileContent);
+
+  const logMessage = `Saved ${tool} results to ${file}`;
+  core.info(logMessage);
+
   return file;
 }
 
@@ -125,4 +129,12 @@ async function fetchDefectDojoFindings(){
   );
 
   return findings;
+}
+
+async function fetchContrastFindings(): Promise<any>{
+  const inputs = getContrastInputs();
+  const results = await retrieveContrastResults(inputs);
+
+  core.info(`Found Contrast findings`);
+  return results;
 }
