@@ -8,17 +8,20 @@ import {getGitHubContext, getRepositoryInfo} from "./github";
 export async function uploadInputFile(tool: TOOL_PATH, files: Array<string>) {
   const form = new FormData();
 
+  const path = require('path');
+
   // Append each file to the form data
   files.forEach(file => {
     const fileContent = fs.readFileSync(file);
-    form.append("files", fileContent, file);
+  const baseFilename = path.basename(file);
+    form.append("files", fileContent, baseFilename);
   });
 
   const pixeeUrl = core.getInput("pixee-api-url");
   const token = await core.getIDToken(pixeeUrl);
   const url = buildUploadApiUrl(tool);
 
-  core.info(`Uploading to url ${url}`);
+  core.info(`Uploading files to url ${url}`);
 
   return axios
     .put(url, form, {
