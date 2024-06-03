@@ -1,6 +1,7 @@
 # Pixeebot Code Scanning Tool Integration
 
-GitHub Action for upload code scanning results to [Pixeebot](https://pixee.ai/) so it can fix the issues they found.
+GitHub Action for upload code scanning results to [Pixeebot](https://pixee.ai/)
+so it can fix the issues they found.
 
 ## For Sonar Users
 
@@ -9,14 +10,17 @@ to execute when the Sonar GitHub App completes a check. The `sonar-pixeebot.yml`
 example workflow includes the requisite configuration and is generic enough to
 apply to most repositories without modification.
 
-1. Copy the [example sonar-pixeebot.yml](./examples/sonar-pixeebot.yml) workflow to the repository's `.github/workflows` directory.
+1. Copy the [example sonar-pixeebot.yml](./examples/sonar-pixeebot.yml) workflow
+   to the repository's `.github/workflows` directory.
 1. Set the `SONAR_TOKEN` secret. Create a SonarCloud token at
-   [https://sonarcloud.io/account/security](https://sonarcloud.io/account/security). See
+   [https://sonarcloud.io/account/security](https://sonarcloud.io/account/security).
+   See
    [Using secrets in GitHub Actions](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions).
 
 ## Inputs
 
-Detailed description of the inputs exposed by the `pixee/upload-tool-results-action`:
+Detailed description of the inputs exposed by the
+`pixee/upload-tool-results-action`:
 
 ```yaml
 - uses: pixee/upload-tool-results-action
@@ -41,7 +45,7 @@ Detailed description of the inputs exposed by the `pixee/upload-tool-results-act
     # Token for authenticating requests to DefectDojo.
     defectdojo-token:
 
-    # Key identifying the DefectDojo product (repository) to be analyzed. 
+    # Key identifying the DefectDojo product (repository) to be analyzed.
     defectdojo-product-name:
 
     # Base URL of the DefectDojo API.
@@ -49,16 +53,16 @@ Detailed description of the inputs exposed by the `pixee/upload-tool-results-act
 
     # Base URL of the Contrast API.
     contrast-api-url:
-    
+
     # Unique identifier for the organization in Contrast that needs to be analyzed.
     contrast-org-id:
-    
+
     # Unique identifier for the specific application within Contrast.
     contrast-app-id:
-    
+
     # Api key for authenticating requests to Contrast.
     contrast-api-key:
-    
+
     # Token for authenticating requests to Contrast.
     contrast-token:
 
@@ -69,7 +73,8 @@ Detailed description of the inputs exposed by the `pixee/upload-tool-results-act
 
 ## How Does It Work?
 
-The following diagram illustrates how the action orchestrates the results from Sonar, to Pixeebot, and then back to GitHub.
+The following diagram illustrates how the action orchestrates the results from
+Sonar, to Pixeebot, and then back to GitHub.
 
 ```mermaid
 sequenceDiagram
@@ -86,7 +91,8 @@ sequenceDiagram
     Pixeebot-->>GitHub: Automatically Fix Issues
 ```
 
-The code scanning results will feed both Pixeebot's _continuous improvement_ and _pull request hardening_ features.
+The code scanning results will feed both Pixeebot's _continuous improvement_ and
+_pull request hardening_ features.
 
 - When the code quality tool finds issues on an open PR, Pixeebot opens another
   PR to fix those issues.
@@ -96,7 +102,9 @@ The code scanning results will feed both Pixeebot's _continuous improvement_ and
 
 ## Example
 
-The following represents an example GitHub Actions workflow that uploads SonarCloud results to Pixeebot. It runs each time the SonarCloud GitHub App completes a check:
+The following represents an example GitHub Actions workflow that uploads
+SonarCloud results to Pixeebot. It runs each time the SonarCloud GitHub App
+completes a check:
 
 ```yaml
 name: "Publish Sonar JSON to Pixee"
@@ -121,4 +129,8 @@ jobs:
           sonar-component-key: ${{ secrets.SONAR_COMPONENT_KEY }}
 ```
 
-Note the use of the repository secrets `SONAR_TOKEN` and `SONAR_COMPONENT_KEY`. The `SONAR_TOKEN` secret is required for private repositories. The `SONAR_COMPONENT_KEY` secret is optional and only necessary if deviating from SonarCloud's established convention. If used, each secret must be defined in the repository's settings.
+Note the use of the repository secrets `SONAR_TOKEN` and `SONAR_COMPONENT_KEY`.
+The `SONAR_TOKEN` secret is required for private repositories. The
+`SONAR_COMPONENT_KEY` secret is optional and only necessary if deviating from
+SonarCloud's established convention. If used, each secret must be defined in the
+repository's settings.

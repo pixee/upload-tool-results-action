@@ -3,7 +3,7 @@ import axios from "axios";
 import fs from "fs";
 import FormData from "form-data";
 import { TOOL_PATH } from "./inputs";
-import {getGitHubContext, getRepositoryInfo} from "./github";
+import { getGitHubContext, getRepositoryInfo } from "./github";
 
 export async function uploadInputFile(tool: TOOL_PATH, file: string) {
   const fileContent = fs.readFileSync(file, "utf-8");
@@ -12,7 +12,7 @@ export async function uploadInputFile(tool: TOOL_PATH, file: string) {
   const pixeeUrl = core.getInput("pixee-api-url");
 
   const token = await core.getIDToken(pixeeUrl);
-  const url = buildUploadApiUrl(tool)
+  const url = buildUploadApiUrl(tool);
 
   return axios
     .put(url, form, {

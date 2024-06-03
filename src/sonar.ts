@@ -1,6 +1,6 @@
 import * as core from "@actions/core";
 import axios from "axios";
-import {getGitHubContext, getRepositoryInfo} from "./github";
+import { getGitHubContext, getRepositoryInfo } from "./github";
 
 /**
  * Response from SonarCloud API search endpoint. Sparse implementation, because we only care about the total number of issues.
@@ -22,23 +22,23 @@ export type SONAR_RESULT = "issues" | "hotspots";
 const MAX_PAGE_SIZE = 500;
 
 export async function retrieveSonarCloudIssues(
-  sonarCloudInputs: SonarCloudInputs
-) : Promise<SonarSearchIssuesResult> {
-  const url =  buildSonarCloudIssuesUrl(sonarCloudInputs);
-  return retrieveSonarCloudResults(sonarCloudInputs, url, "issues")
+  sonarCloudInputs: SonarCloudInputs,
+): Promise<SonarSearchIssuesResult> {
+  const url = buildSonarCloudIssuesUrl(sonarCloudInputs);
+  return retrieveSonarCloudResults(sonarCloudInputs, url, "issues");
 }
 
 export async function retrieveSonarCloudHotspots(
-  sonarCloudInputs: SonarCloudInputs
-) : Promise<SonarSearchHotspotResult> {
-  const url =  buildSonarCloudHotspotsUrl(sonarCloudInputs);
-  return retrieveSonarCloudResults(sonarCloudInputs, url, "hotspots")
+  sonarCloudInputs: SonarCloudInputs,
+): Promise<SonarSearchHotspotResult> {
+  const url = buildSonarCloudHotspotsUrl(sonarCloudInputs);
+  return retrieveSonarCloudResults(sonarCloudInputs, url, "hotspots");
 }
 
 async function retrieveSonarCloudResults(
-  {token}: SonarCloudInputs,
+  { token }: SonarCloudInputs,
   url: string,
-  resultType: SONAR_RESULT
+  resultType: SONAR_RESULT,
 ) {
   core.info(`Retrieving SonarCloud ${resultType} from ${url}`);
   return axios
@@ -52,7 +52,7 @@ async function retrieveSonarCloudResults(
     .then((response) => {
       if (core.isDebug()) {
         core.info(
-          `Retrieved SonarCloud ${resultType}: ${JSON.stringify(response.data)}`
+          `Retrieved SonarCloud ${resultType}: ${JSON.stringify(response.data)}`,
         );
       }
       return response.data;
@@ -79,11 +79,10 @@ export function getSonarCloudInputs(): SonarCloudInputs {
 function buildSonarCloudIssuesUrl({
   apiUrl,
   componentKey,
-}: SonarCloudInputs
-): string {
+}: SonarCloudInputs): string {
   const { prNumber } = getGitHubContext();
   const url = `${apiUrl}/issues/search?componentKeys=${encodeURIComponent(
-    componentKey
+    componentKey,
   )}&resolved=false&ps=${MAX_PAGE_SIZE}`;
   return prNumber ? `${url}&pullRequest=${prNumber}` : url;
 }
@@ -91,11 +90,10 @@ function buildSonarCloudIssuesUrl({
 function buildSonarCloudHotspotsUrl({
   apiUrl,
   componentKey,
-}: SonarCloudInputs
-): string {
+}: SonarCloudInputs): string {
   const { prNumber } = getGitHubContext();
   const url = `${apiUrl}/hotspots/search?projectKey=${encodeURIComponent(
-    componentKey
+    componentKey,
   )}&resolved=false&ps=${MAX_PAGE_SIZE}`;
   return prNumber ? `${url}&pullRequest=${prNumber}` : url;
 }
