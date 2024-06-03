@@ -1,6 +1,6 @@
 import * as core from "@actions/core";
 import axios from "axios";
-import {getRepositoryInfo} from "./github";
+import { getRepositoryInfo } from "./github";
 
 /**
  * Response from DefectDojo API search endpoint.
@@ -10,7 +10,7 @@ interface DefectDojoSearchResults {
 }
 
 export async function retrieveDefectDojoResults(
-  defectDojoInputs: DefectDojoInputs
+  defectDojoInputs: DefectDojoInputs,
 ) {
   const { token } = defectDojoInputs;
   const url = buildDefectDojoUrl(defectDojoInputs);
@@ -26,11 +26,10 @@ export async function retrieveDefectDojoResults(
     })
     .then((response) => {
       core.debug(
-        `Retrieved DefectDojo results: ${JSON.stringify(response.data)}`
+        `Retrieved DefectDojo results: ${JSON.stringify(response.data)}`,
       );
       return response.data as DefectDojoSearchResults;
     });
-
 }
 
 interface DefectDojoInputs {
@@ -53,10 +52,7 @@ export function getDefectDojoInputs(): DefectDojoInputs {
   return { token, productName, apiUrl };
 }
 
-function buildDefectDojoUrl({
-  apiUrl,
-  productName,
-}: DefectDojoInputs): string {
+function buildDefectDojoUrl({ apiUrl, productName }: DefectDojoInputs): string {
   // TODO define which queries need to be applied
   const url = `${apiUrl}/api/v2/findings/?product_name=${productName}&limit=100`;
   return url;

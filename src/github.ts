@@ -1,11 +1,11 @@
 import * as github from "@actions/github";
-import {Context} from "@actions/github/lib/context";
+import { Context } from "@actions/github/lib/context";
 import * as core from "@actions/core";
 
 /**
  * Normalized GitHub event context.
  */
-export type GitHubContext = RepositoryInfo & PullRequestInfo
+export type GitHubContext = RepositoryInfo & PullRequestInfo;
 
 export interface RepositoryInfo {
   owner: string;
@@ -25,13 +25,15 @@ export interface PullRequestInfo {
  * @returns The normalized GitHub context.
  */
 export function getGitHubContext(): GitHubContext {
-  const context = github.context
-  const { eventName, sha} = context;
+  const context = github.context;
+  const { eventName, sha } = context;
 
   const commitInfo =
-    eventName !== 'workflow_dispatch' ? eventHandlers[eventName](context) : {sha}
+    eventName !== "workflow_dispatch"
+      ? eventHandlers[eventName](context)
+      : { sha };
 
-  return { ...getRepositoryInfo(), ...commitInfo};
+  return { ...getRepositoryInfo(), ...commitInfo };
 }
 
 /**
@@ -54,18 +56,14 @@ export function getTempDir(): string {
   return temp;
 }
 
-function getPullRequestContext(
-  context: Context
-): PullRequestInfo {
+function getPullRequestContext(context: Context): PullRequestInfo {
   const prNumber = context.issue.number;
   const sha = context.payload.pull_request?.head.sha;
 
   return { prNumber, sha };
 }
 
-function getCheckRunContext(
-  context: Context
-): PullRequestInfo {
+function getCheckRunContext(context: Context): PullRequestInfo {
   const actionEvent = context.payload.check_run;
   const prNumber = actionEvent.pull_requests?.[0]?.number;
   const sha = actionEvent.head_sha;
@@ -74,10 +72,8 @@ function getCheckRunContext(
 }
 
 const eventHandlers: {
-  [eventName: string]: (
-    context: Context
-  ) => PullRequestInfo;
+  [eventName: string]: (context: Context) => PullRequestInfo;
 } = {
   check_run: getCheckRunContext,
-  pull_request: getPullRequestContext
+  pull_request: getPullRequestContext,
 };

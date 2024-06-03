@@ -37,7 +37,9 @@ inputs:
     description: Base URL of the Contrast API.
     required: false
   contrast-org-id:
-    description: Unique identifier for the organization in Contrast that needs to be analyzed.
+    description:
+      Unique identifier for the organization in Contrast that needs to be
+      analyzed.
     required: false
   contrast-app-id:
     description: Unique identifier for the specific application within Contrast.
