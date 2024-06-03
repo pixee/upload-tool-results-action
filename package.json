@@ -4,7 +4,8 @@
   "description": "GitHub Action for extending Pixeebot's coverage to fix issues found by supported code scanning tools",
   "main": "dist/index.js",
   "scripts": {
-    "build": "ncc build -o dist/ src/index.ts",
+    "build": "prettier --check . && ncc build -o dist/ src/index.ts",
+    "format": "prettier --write .",
     "test": "npx jest"
   },
   "keywords": [
@@ -47,6 +48,7 @@
     "@types/tmp": "^0.2.6",
     "@vercel/ncc": "^0.38.1",
     "jest": "^29.7.0",
+    "prettier": "^3.3.0",
     "tmp": "^0.2.3",
     "ts-jest": "^29.1.2",
     "typescript": "^5.3.3"

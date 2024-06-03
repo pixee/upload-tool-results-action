@@ -48,7 +48,7 @@ describe("pixee-platform", () => {
           Authorization: "Bearer token", // Assert the authorization header
           "content-type": expect.stringContaining("multipart/form-data"), // Assert the content type header
         },
-      }
+      },
     );
   });
 });

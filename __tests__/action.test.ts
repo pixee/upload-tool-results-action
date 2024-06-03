@@ -45,7 +45,7 @@ describe("action", () => {
       .spyOn(github, "getRepositoryInfo")
       .mockImplementation();
     retrieveSonarCloudIssuesMock.mockResolvedValue({ total: 1 });
-    retrieveSonarCloudHotspotsMock.mockResolvedValue({ paging: {total: 1} });
+    retrieveSonarCloudHotspotsMock.mockResolvedValue({ paging: { total: 1 } });
   });
 
   it("triggers PR analysis when the PR number is available", async () => {
@@ -67,7 +67,7 @@ describe("action", () => {
     });
     getRepositoryInfoMock.mockReturnValue({
       owner: "owner",
-      repo: "repo"
+      repo: "repo",
     });
     triggerPrAnalysisMock.mockResolvedValue(undefined);
 
@@ -95,7 +95,7 @@ describe("action", () => {
       });
       getRepositoryInfoMock.mockReturnValue({
         owner: "owner",
-        repo: "repo"
+        repo: "repo",
       });
 
       await run();
@@ -121,7 +121,7 @@ describe("action", () => {
       });
       getRepositoryInfoMock.mockReturnValue({
         owner: "owner",
-        repo: "repo"
+        repo: "repo",
       });
 
       await run();
@@ -147,7 +147,7 @@ describe("action", () => {
         sha: "sha",
       });
 
-      expect(run()).rejects.toThrow("Tool \"semgrep\" requires a file input");
+      expect(run()).rejects.toThrow('Tool "semgrep" requires a file input');
     });
 
     it("should retrieve the SonarCloud results, when the tool is Sonar", async () => {
@@ -167,7 +167,7 @@ describe("action", () => {
 
       getRepositoryInfoMock.mockReturnValue({
         owner: "owner",
-        repo: "repo"
+        repo: "repo",
       });
 
       await run();
