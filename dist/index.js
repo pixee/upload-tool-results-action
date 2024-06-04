@@ -47831,7 +47831,7 @@ async function uploadInputFile(tool, files) {
     const path = __nccwpck_require__(1017);
     // Append each file to the form data
     files.forEach(file => {
-        form.append("file", fs_1.default.readFileSync(file), path.basename(file));
+        form.append("files", fs_1.default.readFileSync(file), path.basename(file));
     });
     const pixeeUrl = core.getInput("pixee-api-url");
     const token = await core.getIDToken(pixeeUrl);

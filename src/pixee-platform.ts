@@ -12,7 +12,7 @@ export async function uploadInputFile(tool: TOOL_PATH, files: Array<string>) {
 
   // Append each file to the form data
   files.forEach(file => {
-    form.append("file", fs.readFileSync(file), path.basename(file));
+    form.append("files", fs.readFileSync(file), path.basename(file));
   });
 
   const pixeeUrl = core.getInput("pixee-api-url");
