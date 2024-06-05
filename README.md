@@ -18,6 +18,77 @@ is generic enough to apply to most repositories without modification.
    See
    [Using secrets in GitHub Actions](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions).
 
+## For SonarQube Users
+
+For SonarQube integration, the `pixee/upload-tool-results-action` must be
+configured to execute after the SonarQube has completed its analysis. In a
+typical GitHub Action workflow that includes SonarQube, the step that performs
+the SonarQube analysis will be followed by a step that applies the SonarQube
+Quality Gate; the `pixee/upload-tool-results-action` should follow the SonarQube
+Quality Gate. The workflow should be configured to run the
+`pixee/upload-tool-results-action` step, regardless of the outcome of the
+quality gate, so that Pixeebot may fix the issues preventing the quality gate
+from passing.
+
+The `pixee/upload-tool-results-action` requires a SonarQube _user token_ token
+that is permitted to read Security Hotspots. Recommend providing this token as a
+new secret `PIXEE_SONAR_TOKEN`.
+
+> [!WARNING] Typically, the `SONAR_TOKEN` secret in a GitHub Actions workflow is
+> a _project analysis token_. A _project analysis token_ does not have the
+> requisite permissions to read security hotspots. The
+> `pixee/upload-tool-results-action
+
+</aside>
+
+```yaml
+- name: SonarQube Quality Gate Check
+  uses: sonarsource/sonarqube-quality-gate-action@master
+  env:
+    SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
+    SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+- name: Upload SonarQube Results to Pixeebot
+  uses: pixee/upload-tool-results-action@v1
+  if: always() && steps.sonarqube-analysis.outcome == 'success'
+  with:
+    tool: sonar
+    sonar-api-url: ${{ vars.SONAR_HOST_URL }}/api
+    sonar-token: ${{ secrets.PIXEE_SONAR_TOKEN }}
+    sonar-component-key: "<insert-my-sonar-project-key>"
+```
+
+> [!NOTE] SonarQube Community Edition lacks the features necessary for Pixee's
+> PR experience.
+
+### Complete Examples
+
+The following are complete SonarQube examples of workflows that send SonarQube
+results from the default branch to Pixee for inclusion in Pixeebot's next
+_continuous improvement campaign_ analysis.
+
+- [Java (Maven)](./examples/sonarqube-pixeebot-maven.yml)
+- [Python](./examples/sonarqube-python.yml)
+
+> [!TIP] The continuous improvement campaign reguarly sends fixes for the
+> project's default branch. To request that Pixeebot continuous improvement
+> campaign send fixes to the default branch immediately, add a comment with the
+> contents "@pixeebot next" to any PR or issue in the repository.
+
+## Permissions
+
+All workflows using this action must include the `id-token: write` permission.
+
+```yaml
+permissions:
+  contents: read
+  id-token: write
+```
+
+The action uses this permission to create a GitHub token that the action uses to
+authenticate to the Pixee API. The Pixee API verifies that the GitHub-signed
+token originated from an authorized GitHub workflow.
+
 ## Inputs
 
 Detailed description of the inputs exposed by the
