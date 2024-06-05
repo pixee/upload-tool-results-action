@@ -31,11 +31,11 @@ quality gate, so that Pixeebot may fix the issues preventing the quality gate
 from passing.
 
 The `pixee/upload-tool-results-action` requires a SonarQube _user token_ token
-that is permitted to read Security Hotspots. Recommend providing this token as a
-new secret `PIXEE_SONAR_TOKEN`. Typically, the `SONAR_TOKEN` secret in a GitHub
-Actions workflow is a _project analysis token_. A _project analysis token_ does
-not have the requisite permissions to read security hotspots. The
-`pixee/upload-tool-results-action
+that is permitted to read Security Hotspots. Typically, the `SONAR_TOKEN` secret
+in a GitHub Actions workflow is a _project analysis token_. A _project analysis
+token_ does not have the requisite permissions to read security hotspots. You
+should use a new secret `PIXEE_SONAR_TOKEN` for the _user token_, to avoid
+confusing it for the typical _project analysis token_.
 
 ```yaml
 - name: SonarQube Quality Gate Check
