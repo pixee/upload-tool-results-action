@@ -32,14 +32,10 @@ from passing.
 
 The `pixee/upload-tool-results-action` requires a SonarQube _user token_ token
 that is permitted to read Security Hotspots. Recommend providing this token as a
-new secret `PIXEE_SONAR_TOKEN`.
-
-> [!WARNING] Typically, the `SONAR_TOKEN` secret in a GitHub Actions workflow is
-> a _project analysis token_. A _project analysis token_ does not have the
-> requisite permissions to read security hotspots. The
-> `pixee/upload-tool-results-action
-
-</aside>
+new secret `PIXEE_SONAR_TOKEN`. Typically, the `SONAR_TOKEN` secret in a GitHub
+Actions workflow is a _project analysis token_. A _project analysis token_ does
+not have the requisite permissions to read security hotspots. The
+`pixee/upload-tool-results-action
 
 ```yaml
 - name: SonarQube Quality Gate Check
@@ -58,8 +54,10 @@ new secret `PIXEE_SONAR_TOKEN`.
     sonar-component-key: "<insert-my-sonar-project-key>"
 ```
 
-> [!NOTE] SonarQube Community Edition lacks the features necessary for Pixee's
-> PR experience.
+<!-- prettier-ignore -->
+> [!NOTE]
+> SonarQube Community Edition lacks the features necessary for Pixee's PR
+> experience.
 
 ### Complete Examples
 
@@ -70,10 +68,12 @@ _continuous improvement campaign_ analysis.
 - [Java (Maven)](./examples/sonarqube-pixeebot-maven.yml)
 - [Python](./examples/sonarqube-python.yml)
 
-> [!TIP] The continuous improvement campaign reguarly sends fixes for the
-> project's default branch. To request that Pixeebot continuous improvement
-> campaign send fixes to the default branch immediately, add a comment with the
-> contents "@pixeebot next" to any PR or issue in the repository.
+<!-- prettier-ignore -->
+> [!TIP]
+> The continuous improvement campaign reguarly sends fixes for the project's
+> default branch. To request that Pixeebot continuous improvement campaign send
+> fixes to the default branch immediately, add a comment with the contents
+> "@pixeebot next" to any PR or issue in the repository.
 
 ## Permissions
 
