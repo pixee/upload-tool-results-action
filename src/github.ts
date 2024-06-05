@@ -26,12 +26,13 @@ export interface PullRequestInfo {
  */
 export function getGitHubContext(): GitHubContext {
   const context = github.context;
-  const { eventName, sha } = context;
+  const { eventName } = context;
 
-  const commitInfo =
-    eventName !== "workflow_dispatch"
-      ? eventHandlers[eventName](context)
-      : { sha };
+  const handler = eventHandlers[eventName];
+  if (!handler) {
+    throw new Error(`Unsupported event: ${eventName}`);
+  }
+  const commitInfo = handler(context);
 
   return { ...getRepositoryInfo(), ...commitInfo };
 }
@@ -71,9 +72,15 @@ function getCheckRunContext(context: Context): PullRequestInfo {
   return { prNumber, sha };
 }
 
+function getShaFromContext(context: Context): PullRequestInfo {
+  return { sha: context.sha };
+}
+
 const eventHandlers: {
   [eventName: string]: (context: Context) => PullRequestInfo;
 } = {
   check_run: getCheckRunContext,
   pull_request: getPullRequestContext,
+  push: getShaFromContext,
+  workflow_dispatch: getShaFromContext,
 };
