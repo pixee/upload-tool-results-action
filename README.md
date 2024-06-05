@@ -66,6 +66,10 @@ Detailed description of the inputs exposed by the
     # Token for authenticating requests to Contrast.
     contrast-token:
 
+    # The base URL of the Pixee API
+    # Default: https://api.pixee.ai
+    pixee-api-url:
+
     # Path to the tool's results file to upload to Pixeebot. This does not apply to SonarCloud integration, because the action retrieves the results directly from SonarCloud.
     # Required, when `tool` is not "sonar"
     file:
