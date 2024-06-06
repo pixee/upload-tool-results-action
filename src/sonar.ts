@@ -85,6 +85,10 @@ export function buildSonarCloudUrl({
     apiUrl.searchParams.append(key, value.toString());
   });
 
+  if (core.isDebug()) {
+    core.info(`SonarCloud url ${apiUrl}`);
+  }
+
   return apiUrl.href;
 }
 
