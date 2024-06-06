@@ -33,15 +33,16 @@ export function buildSonarCloudIssuesUrl({
   componentKey,
 }: SonarCloudInputs): string {
   const { prNumber } = getGitHubContext();
+  const path = "/api/issues/search";
 
   const queryParams = {
-    componentKeys: encodeURIComponent(componentKey),
+    componentKeys: componentKey,
     resolved: "false",
     ps: MAX_PAGE_SIZE,
     ...(prNumber && { pullRequest: prNumber }),
   };
 
-  return buildSonarCloudUrl({ sonarHost, path: "/issues/search", queryParams });
+  return buildSonarCloudUrl({ sonarHost, path, queryParams });
 }
 
 export async function retrieveSonarCloudHotspots(
@@ -56,18 +57,16 @@ export function buildSonarCloudHotspotsUrl({
   componentKey,
 }: SonarCloudInputs): string {
   const { prNumber } = getGitHubContext();
+  const path = "/api/hotspots/search";
+
   const queryParams = {
-    projectKey: encodeURIComponent(componentKey),
+    projectKey: componentKey,
     resolved: "false",
     ps: MAX_PAGE_SIZE,
     ...(prNumber && { pullRequest: prNumber }),
   };
 
-  return buildSonarCloudUrl({
-    sonarHost,
-    path: "/hotspots/search",
-    queryParams,
-  });
+  return buildSonarCloudUrl({ sonarHost, path, queryParams });
 }
 
 export function buildSonarCloudUrl({
@@ -79,10 +78,7 @@ export function buildSonarCloudUrl({
   path: string;
   queryParams: { [key: string]: string | number };
 }): string {
-  const baseApiUrl = new URL(
-    sonarHost.endsWith("/") ? sonarHost.slice(0, -1) : sonarHost,
-  );
-
+  const baseApiUrl = new URL(sonarHost);
   const apiUrl = new URL(path, baseApiUrl);
 
   Object.entries(queryParams).forEach(([key, value]) => {
