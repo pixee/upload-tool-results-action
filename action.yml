@@ -23,7 +23,7 @@ inputs:
     required: false
   sonar-host:
     description: Base host of the SonarCloud or SonarQube API.
-    default: https://sonarcloud.io/api
+    default: https://sonarcloud.io
   defectdojo-token:
     description: Token for authenticating requests to DefectDojo.
     required: false

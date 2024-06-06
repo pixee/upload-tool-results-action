@@ -49,7 +49,7 @@ confusing it for the typical _project analysis token_.
   if: always() && steps.sonarqube-analysis.outcome == 'success'
   with:
     tool: sonar
-    sonar-host: ${{ vars.SONAR_HOST_URL }}/api
+    sonar-host: ${{ vars.SONAR_HOST_URL }}
     sonar-token: ${{ secrets.PIXEE_SONAR_TOKEN }}
     sonar-component-key: "<insert-my-sonar-project-key>"
 ```
@@ -111,7 +111,7 @@ Detailed description of the inputs exposed by the
     sonar-component-key:
 
     # Base host of the SonarCloud or SonarQube API. Use this to switch from SonarCloud to SonarQube.
-    # Default: https://sonarcloud.io/api
+    # Default: https://sonarcloud.io
     sonar-host:
 
     # Token for authenticating requests to DefectDojo.
