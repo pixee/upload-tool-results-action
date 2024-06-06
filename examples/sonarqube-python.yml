@@ -36,6 +36,6 @@ jobs:
         if: always() && steps.sonarqube-analysis.outcome == 'success'
         with:
           tool: sonar
-          sonar-api-url: ${{ vars.SONAR_HOST_URL }}/api
+          sonar-host: ${{ vars.SONAR_HOST_URL }}/api
           sonar-token: ${{ secrets.PIXEE_SONAR_TOKEN }}
           sonar-component-key: "<insert-my-sonar-project-key>"

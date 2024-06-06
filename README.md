@@ -26,9 +26,9 @@ GitHub Action workflow that includes SonarQube, the step that performs the
 SonarQube analysis will be followed by a step that applies the SonarQube Quality
 Gate. The `pixee/upload-tool-results-action` should follow the SonarQube Quality
 Gate. The workflow should be configured to run the
-`pixee/upload-tool-results-action` step regardless of the outcome of the
-quality gate, so that Pixeebot may fix the issues preventing the quality gate
-from passing.
+`pixee/upload-tool-results-action` step regardless of the outcome of the quality
+gate, so that Pixeebot may fix the issues preventing the quality gate from
+passing.
 
 The `pixee/upload-tool-results-action` requires a SonarQube _user token_ token
 that is permitted to read Security Hotspots. Typically, the `SONAR_TOKEN` secret
@@ -49,7 +49,7 @@ confusing it for the typical _project analysis token_.
   if: always() && steps.sonarqube-analysis.outcome == 'success'
   with:
     tool: sonar
-    sonar-api-url: ${{ vars.SONAR_HOST_URL }}/api
+    sonar-host: ${{ vars.SONAR_HOST_URL }}/api
     sonar-token: ${{ secrets.PIXEE_SONAR_TOKEN }}
     sonar-component-key: "<insert-my-sonar-project-key>"
 ```
