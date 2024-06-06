@@ -110,9 +110,9 @@ Detailed description of the inputs exposed by the
     # Default: `owner_repo`
     sonar-component-key:
 
-    # Base URL of the Sonar API. Use this to switch from SonarCloud to SonarQube.
+    # Base host of the SonarCloud or SonarQube API. Use this to switch from SonarCloud to SonarQube.
     # Default: https://sonarcloud.io/api
-    sonar-api-url:
+    sonar-host:
 
     # Token for authenticating requests to DefectDojo.
     defectdojo-token:
