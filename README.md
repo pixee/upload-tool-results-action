@@ -26,7 +26,7 @@ GitHub Action workflow that includes SonarQube, the step that performs the
 SonarQube analysis will be followed by a step that applies the SonarQube Quality
 Gate. The `pixee/upload-tool-results-action` should follow the SonarQube Quality
 Gate. The workflow should be configured to run the
-`pixee/upload-tool-results-action` step, regardless of the outcome of the
+`pixee/upload-tool-results-action` step regardless of the outcome of the
 quality gate, so that Pixeebot may fix the issues preventing the quality gate
 from passing.
 
