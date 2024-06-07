@@ -85,7 +85,6 @@ export function buildSonarUrl({
     apiUrl.searchParams.append(key, value.toString());
   });
 
-  core.debug(`Sonar url ${apiUrl}`);
   return apiUrl.href;
 }
 
@@ -104,11 +103,9 @@ async function retrieveSonarResults(
       responseType: "json",
     })
     .then((response) => {
-      if (core.isDebug()) {
-        core.info(
-          `Retrieved Sonar ${resultType}: ${JSON.stringify(response.data)}`,
-        );
-      }
+      core.debug(
+        `Retrieved Sonar ${resultType}: ${JSON.stringify(response.data)}`,
+      );
       return response.data;
     });
 }
