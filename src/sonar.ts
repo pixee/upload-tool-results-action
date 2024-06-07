@@ -78,8 +78,7 @@ export function buildSonarUrl({
   path: string;
   queryParams: { [key: string]: string | number };
 }): string {
-  const baseApiUrl = new URL(sonarHost);
-  const apiUrl = new URL(path, baseApiUrl);
+  const apiUrl = new URL(path, sonarHost);
 
   Object.entries(queryParams).forEach(([key, value]) => {
     apiUrl.searchParams.append(key, value.toString());
