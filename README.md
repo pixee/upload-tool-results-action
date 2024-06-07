@@ -102,15 +102,15 @@ Detailed description of the inputs exposed by the
     # Required
     tool:
 
-    # Token for authenticating requests to SonarCloud.
+    # Token for authenticating requests to Sonar.
     # Required, when tool is "sonar" and "file" has not been set. Only required for private repository.
     sonar-token:
 
-    # Key identifying the SonarCloud component to be analyzed. Only necessary if deviating from SonarCloud's established convention.
+    # Key identifying the Sonar component to be analyzed. Only necessary if deviating from Sonar's established convention.
     # Default: `owner_repo`
     sonar-component-key:
 
-    # Base host of the SonarCloud or SonarQube API. Use this to switch from SonarCloud to SonarQube.
+    # Base host of the Sonar or SonarQube API. Use this to switch from Sonar to SonarQube.
     # Default: https://sonarcloud.io
     sonar-host:
 
@@ -142,7 +142,7 @@ Detailed description of the inputs exposed by the
     # Default: https://api.pixee.ai
     pixee-api-url:
 
-    # Path to the tool's results file to upload to Pixeebot. This does not apply to SonarCloud integration, because the action retrieves the results directly from SonarCloud.
+    # Path to the tool's results file to upload to Pixeebot. This does not apply to Sonar integration, because the action retrieves the results directly from Sonar.
     # Required, when `tool` is not "sonar"
     file:
 ```

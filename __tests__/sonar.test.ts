@@ -1,10 +1,10 @@
-import { buildSonarCloudIssuesUrl } from "../src/sonar";
+import { buildSonarIssuesUrl } from "../src/sonar";
 import * as github from "../src/github";
 
 let getGitHubContextMock: jest.SpiedFunction<typeof github.getGitHubContext>;
 
 describe("sonar", () => {
-  const sonarHost = "https://sonarcloud.io/api/";
+  const sonarHost = "https://sonar.io/api";
   const componentKey = "myComponent";
 
   beforeEach(() => {
@@ -22,14 +22,14 @@ describe("sonar", () => {
       prNumber: 123,
     });
 
-    const result = buildSonarCloudIssuesUrl({
+    const result = buildSonarIssuesUrl({
       token: "",
       sonarHost,
       componentKey,
     });
 
     expect(result).toBe(
-      "https://sonarcloud.io/api/issues/search?componentKeys=myComponent&resolved=false&ps=500&pullRequest=123",
+      "https://sonar.io/api/issues/search?componentKeys=myComponent&resolved=false&ps=500&pullRequest=123",
     );
   });
 
@@ -41,14 +41,14 @@ describe("sonar", () => {
       prNumber: undefined,
     });
 
-    const result = buildSonarCloudIssuesUrl({
+    const result = buildSonarIssuesUrl({
       token: "",
       sonarHost,
       componentKey,
     });
 
     expect(result).toBe(
-      "https://sonarcloud.io/api/issues/search?componentKeys=myComponent&resolved=false&ps=500",
+      "https://sonar.io/api/issues/search?componentKeys=myComponent&resolved=false&ps=500",
     );
   });
 
@@ -61,19 +61,19 @@ describe("sonar", () => {
       prNumber: 123,
     });
 
-    const result = buildSonarCloudIssuesUrl({
+    const result = buildSonarIssuesUrl({
       token: "",
       sonarHost,
       componentKey: specialComponentKey,
     });
 
     expect(result).toBe(
-      "https://sonarcloud.io/api/issues/search?componentKeys=myComponent+with+spaces&resolved=false&ps=500&pullRequest=123",
+      "https://sonar.io/api/issues/search?componentKeys=myComponent+with+spaces&resolved=false&ps=500&pullRequest=123",
     );
   });
 
   it("should handle sonarHost with trailing slash correctly", async () => {
-    const sonarHostWithSlash = "https://sonarcloud.io/";
+    const sonarHostWithSlash = "https://sonar.io/";
     getGitHubContextMock.mockReturnValue({
       owner: "owner",
       repo: "repo",
@@ -81,14 +81,14 @@ describe("sonar", () => {
       prNumber: 123,
     });
 
-    const result = buildSonarCloudIssuesUrl({
+    const result = buildSonarIssuesUrl({
       token: "",
       sonarHost: sonarHostWithSlash,
       componentKey,
     });
 
     expect(result).toBe(
-      "https://sonarcloud.io/api/issues/search?componentKeys=myComponent&resolved=false&ps=500&pullRequest=123",
+      "https://sonar.io/api/issues/search?componentKeys=myComponent&resolved=false&ps=500&pullRequest=123",
     );
   });
 });
