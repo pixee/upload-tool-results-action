@@ -4,7 +4,7 @@ import * as github from "../src/github";
 let getGitHubContextMock: jest.SpiedFunction<typeof github.getGitHubContext>;
 
 describe("sonar", () => {
-  const sonarHost = "https://sonar.io/api";
+  const sonarHostUrl = "https://sonar.io/api";
   const componentKey = "myComponent";
 
   beforeEach(() => {
@@ -24,7 +24,7 @@ describe("sonar", () => {
 
     const result = buildSonarIssuesUrl({
       token: "",
-      sonarHost,
+      sonarHostUrl,
       componentKey,
     });
 
@@ -43,7 +43,7 @@ describe("sonar", () => {
 
     const result = buildSonarIssuesUrl({
       token: "",
-      sonarHost,
+      sonarHostUrl,
       componentKey,
     });
 
@@ -63,7 +63,7 @@ describe("sonar", () => {
 
     const result = buildSonarIssuesUrl({
       token: "",
-      sonarHost,
+      sonarHostUrl,
       componentKey: specialComponentKey,
     });
 
@@ -83,7 +83,7 @@ describe("sonar", () => {
 
     const result = buildSonarIssuesUrl({
       token: "",
-      sonarHost: sonarHostWithSlash,
+      sonarHostUrl: sonarHostWithSlash,
       componentKey,
     });
 

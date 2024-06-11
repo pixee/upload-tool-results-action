@@ -29,7 +29,7 @@ export async function retrieveSonarIssues(
 }
 
 export function buildSonarIssuesUrl({
-  sonarHost,
+  sonarHostUrl,
   componentKey,
 }: SonarInputs): string {
   const { prNumber } = getGitHubContext();
@@ -42,7 +42,7 @@ export function buildSonarIssuesUrl({
     ...(prNumber && { pullRequest: prNumber }),
   };
 
-  return buildSonarUrl({ sonarHost, path, queryParams });
+  return buildSonarUrl({ sonarHostUrl, path, queryParams });
 }
 
 export async function retrieveSonarHotspots(
@@ -53,7 +53,7 @@ export async function retrieveSonarHotspots(
 }
 
 export function buildSonarHotspotsUrl({
-  sonarHost,
+  sonarHostUrl,
   componentKey,
 }: SonarInputs): string {
   const { prNumber } = getGitHubContext();
@@ -66,19 +66,19 @@ export function buildSonarHotspotsUrl({
     ...(prNumber && { pullRequest: prNumber }),
   };
 
-  return buildSonarUrl({ sonarHost, path, queryParams });
+  return buildSonarUrl({ sonarHostUrl, path, queryParams });
 }
 
 export function buildSonarUrl({
-  sonarHost,
+  sonarHostUrl,
   path,
   queryParams,
 }: {
-  sonarHost: string;
+  sonarHostUrl: string;
   path: string;
   queryParams: { [key: string]: string | number };
 }): string {
-  const apiUrl = new URL(path, sonarHost);
+  const apiUrl = new URL(path, sonarHostUrl);
 
   Object.entries(queryParams).forEach(([key, value]) => {
     apiUrl.searchParams.append(key, value.toString());
@@ -112,16 +112,16 @@ async function retrieveSonarResults(
 interface SonarInputs {
   token: string;
   componentKey: string;
-  sonarHost: string;
+  sonarHostUrl: string;
 }
 
 export function getSonarInputs(): SonarInputs {
-  const sonarHost = core.getInput("sonar-host", { required: true });
+  const sonarHostUrl = core.getInput("sonar-host-url", { required: true });
   const token = core.getInput("sonar-token");
   let componentKey = core.getInput("sonar-component-key");
   if (!componentKey) {
     const { owner, repo } = getRepositoryInfo();
     componentKey = `${owner}_${repo}`;
   }
-  return { token, componentKey, sonarHost };
+  return { token, componentKey, sonarHostUrl };
 }

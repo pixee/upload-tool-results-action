@@ -21,7 +21,7 @@ inputs:
   sonar-component-key:
     description: Key identifying the Sonar component to be analyzed.
     required: false
-  sonar-host:
+  sonar-host-url:
     description: Base host of the Sonar or SonarQube API.
     default: https://sonarcloud.io
   defectdojo-token:
