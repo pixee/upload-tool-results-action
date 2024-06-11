@@ -110,7 +110,7 @@ Detailed description of the inputs exposed by the
     # Default: `owner_repo`
     sonar-component-key:
 
-    # Base host of the Sonar or SonarQube API. Use this to switch from Sonar to SonarQube.
+    # SonarCloud or SonarQube host URL. Use this to switch from SonarCloud to SonarQube.
     # Default: https://sonarcloud.io
     sonar-host-url:
 
