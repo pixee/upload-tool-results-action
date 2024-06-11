@@ -1,11 +1,17 @@
-import { buildSonarIssuesUrl } from "../src/sonar";
 import * as github from "../src/github";
+import { buildSonarUrl, SonarInputs } from "../src/sonar";
 
 let getGitHubContextMock: jest.SpiedFunction<typeof github.getGitHubContext>;
 
 describe("sonar", () => {
   const sonarHostUrl = "https://sonar.io/api";
+  const path = "/api/issues/search";
   const componentKey = "myComponent";
+  const sonarInputs = {
+    token: "",
+    sonarHostUrl,
+    componentKey,
+  };
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -22,10 +28,10 @@ describe("sonar", () => {
       prNumber: 123,
     });
 
-    const result = buildSonarIssuesUrl({
-      token: "",
-      sonarHostUrl,
-      componentKey,
+    const result = buildSonarUrl({
+      sonarInputs,
+      path,
+      queryParamKey: "componentKeys",
     });
 
     expect(result).toBe(
@@ -41,14 +47,33 @@ describe("sonar", () => {
       prNumber: undefined,
     });
 
-    const result = buildSonarIssuesUrl({
-      token: "",
-      sonarHostUrl,
-      componentKey,
+    const result = buildSonarUrl({
+      sonarInputs,
+      path,
+      queryParamKey: "componentKeys",
     });
 
     expect(result).toBe(
       "https://sonar.io/api/issues/search?componentKeys=myComponent&resolved=false&ps=500",
+    );
+  });
+
+  it("should build the URL correctly with queryParamKey projectKey", async () => {
+    getGitHubContextMock.mockReturnValue({
+      owner: "owner",
+      repo: "repo",
+      sha: "sha",
+      prNumber: 123,
+    });
+
+    const result = buildSonarUrl({
+      sonarInputs,
+      path,
+      queryParamKey: "projectKey",
+    });
+
+    expect(result).toBe(
+      "https://sonar.io/api/issues/search?projectKey=myComponent&resolved=false&ps=500&pullRequest=123",
     );
   });
 
@@ -61,10 +86,16 @@ describe("sonar", () => {
       prNumber: 123,
     });
 
-    const result = buildSonarIssuesUrl({
+    const sonarInputs = {
       token: "",
       sonarHostUrl,
       componentKey: specialComponentKey,
+    } as SonarInputs;
+
+    const result = buildSonarUrl({
+      sonarInputs,
+      path,
+      queryParamKey: "componentKeys",
     });
 
     expect(result).toBe(
@@ -81,10 +112,16 @@ describe("sonar", () => {
       prNumber: 123,
     });
 
-    const result = buildSonarIssuesUrl({
+    const sonarInputs = {
       token: "",
       sonarHostUrl: sonarHostWithSlash,
       componentKey,
+    } as SonarInputs;
+
+    const result = buildSonarUrl({
+      sonarInputs,
+      path,
+      queryParamKey: "componentKeys",
     });
 
     expect(result).toBe(

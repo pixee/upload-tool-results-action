@@ -95,7 +95,7 @@ async function retrieveSonarResults(
     });
 }
 
-interface SonarInputs {
+export interface SonarInputs {
   token: string;
   componentKey: string;
   sonarHostUrl: string;
