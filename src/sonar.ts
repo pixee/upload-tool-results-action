@@ -18,67 +18,53 @@ interface SonarSearchHotspotPaging {
 }
 
 export type SONAR_RESULT = "issues" | "hotspots";
+type QUERY_PARAM_KEY = "componentKeys" | "projectKey";
 
 const MAX_PAGE_SIZE = 500;
 
 export async function retrieveSonarIssues(
   sonarInputs: SonarInputs,
 ): Promise<SonarSearchIssuesResult> {
-  const url = buildSonarIssuesUrl(sonarInputs);
-  return retrieveSonarResults(sonarInputs, url, "issues");
-}
-
-export function buildSonarIssuesUrl({
-  sonarHostUrl,
-  componentKey,
-}: SonarInputs): string {
-  const { prNumber } = getGitHubContext();
   const path = "/api/issues/search";
-
-  const queryParams = {
-    componentKeys: componentKey,
-    resolved: "false",
-    ps: MAX_PAGE_SIZE,
-    ...(prNumber && { pullRequest: prNumber }),
-  };
-
-  return buildSonarUrl({ sonarHostUrl, path, queryParams });
+  const url = buildSonarUrl({
+    sonarInputs,
+    path,
+    queryParamKey: "componentKeys",
+  });
+  return retrieveSonarResults(sonarInputs, url, "issues");
 }
 
 export async function retrieveSonarHotspots(
   sonarInputs: SonarInputs,
 ): Promise<SonarSearchHotspotResult> {
-  const url = buildSonarHotspotsUrl(sonarInputs);
+  const path = "/api/hotspots/search";
+  const url = buildSonarUrl({
+    sonarInputs,
+    path,
+    queryParamKey: "projectKey",
+  });
   return retrieveSonarResults(sonarInputs, url, "hotspots");
 }
 
-export function buildSonarHotspotsUrl({
-  sonarHostUrl,
-  componentKey,
-}: SonarInputs): string {
+export function buildSonarUrl({
+  sonarInputs: { sonarHostUrl, componentKey },
+  path,
+  queryParamKey,
+}: {
+  sonarInputs: SonarInputs;
+  path: string;
+  queryParamKey: QUERY_PARAM_KEY;
+}): string {
+  const apiUrl = new URL(path, sonarHostUrl);
+
   const { prNumber } = getGitHubContext();
-  const path = "/api/hotspots/search";
 
   const queryParams = {
-    projectKey: componentKey,
+    [queryParamKey]: componentKey,
     resolved: "false",
     ps: MAX_PAGE_SIZE,
     ...(prNumber && { pullRequest: prNumber }),
   };
-
-  return buildSonarUrl({ sonarHostUrl, path, queryParams });
-}
-
-export function buildSonarUrl({
-  sonarHostUrl,
-  path,
-  queryParams,
-}: {
-  sonarHostUrl: string;
-  path: string;
-  queryParams: { [key: string]: string | number };
-}): string {
-  const apiUrl = new URL(path, sonarHostUrl);
 
   Object.entries(queryParams).forEach(([key, value]) => {
     apiUrl.searchParams.append(key, value.toString());
