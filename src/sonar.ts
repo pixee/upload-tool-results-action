@@ -25,7 +25,7 @@ const MAX_PAGE_SIZE = 500;
 export async function retrieveSonarIssues(
   sonarInputs: SonarInputs,
 ): Promise<SonarSearchIssuesResult> {
-  const path = "/api/issues/search";
+  const path = "api/issues/search";
   const url = buildSonarUrl({
     sonarInputs,
     path,
@@ -37,7 +37,7 @@ export async function retrieveSonarIssues(
 export async function retrieveSonarHotspots(
   sonarInputs: SonarInputs,
 ): Promise<SonarSearchHotspotResult> {
-  const path = "/api/hotspots/search";
+  const path = "api/hotspots/search";
   const url = buildSonarUrl({
     sonarInputs,
     path,

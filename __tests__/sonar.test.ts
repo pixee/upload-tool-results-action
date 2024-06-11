@@ -5,7 +5,7 @@ let getGitHubContextMock: jest.SpiedFunction<typeof github.getGitHubContext>;
 
 describe("sonar", () => {
   const sonarHostUrl = "https://sonar.io/api";
-  const path = "/api/issues/search";
+  const path = "api/issues/search";
   const componentKey = "myComponent";
   const sonarInputs = {
     token: "",
