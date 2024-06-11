@@ -1,5 +1,6 @@
 import * as github from "../src/github";
 import { buildSonarUrl, SonarInputs } from "../src/sonar";
+import { GitHubContext } from "../src/github";
 
 let getGitHubContextMock: jest.SpiedFunction<typeof github.getGitHubContext>;
 
@@ -7,11 +8,19 @@ describe("sonar", () => {
   const sonarHostUrl = "https://sonar.io/api";
   const path = "api/issues/search";
   const componentKey = "myComponent";
+
   const sonarInputs = {
     token: "",
     sonarHostUrl,
     componentKey,
-  };
+  } as SonarInputs;
+
+  const githubContext = {
+    owner: "owner",
+    repo: "repo",
+    sha: "sha",
+    prNumber: 123,
+  } as GitHubContext;
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -21,12 +30,7 @@ describe("sonar", () => {
   });
 
   it("should build the URL with pullRequest parameter if prNumber exists", async () => {
-    getGitHubContextMock.mockReturnValue({
-      owner: "owner",
-      repo: "repo",
-      sha: "sha",
-      prNumber: 123,
-    });
+    getGitHubContextMock.mockReturnValue(githubContext);
 
     const result = buildSonarUrl({
       sonarInputs,
@@ -59,12 +63,7 @@ describe("sonar", () => {
   });
 
   it("should build the URL correctly with queryParamKey projectKey", async () => {
-    getGitHubContextMock.mockReturnValue({
-      owner: "owner",
-      repo: "repo",
-      sha: "sha",
-      prNumber: 123,
-    });
+    getGitHubContextMock.mockReturnValue(githubContext);
 
     const result = buildSonarUrl({
       sonarInputs,
@@ -79,12 +78,7 @@ describe("sonar", () => {
 
   it("should encode the componentKey properly", async () => {
     const specialComponentKey = "myComponent with spaces";
-    getGitHubContextMock.mockReturnValue({
-      owner: "owner",
-      repo: "repo",
-      sha: "sha",
-      prNumber: 123,
-    });
+    getGitHubContextMock.mockReturnValue(githubContext);
 
     const sonarInputs = {
       token: "",
@@ -105,12 +99,7 @@ describe("sonar", () => {
 
   it("should handle sonarHost with trailing slash correctly", async () => {
     const sonarHostWithSlash = "https://sonar.io/";
-    getGitHubContextMock.mockReturnValue({
-      owner: "owner",
-      repo: "repo",
-      sha: "sha",
-      prNumber: 123,
-    });
+    getGitHubContextMock.mockReturnValue(githubContext);
 
     const sonarInputs = {
       token: "",
@@ -126,6 +115,28 @@ describe("sonar", () => {
 
     expect(result).toBe(
       "https://sonar.io/api/issues/search?componentKeys=myComponent&resolved=false&ps=500&pullRequest=123",
+    );
+  });
+
+  it("should build the URL correctly with append the path correctly beyond /context/", async () => {
+    const sonarHostWithContext = "https://sonar.io/context/";
+
+    getGitHubContextMock.mockReturnValue(githubContext);
+
+    const sonarInputs = {
+      token: "",
+      sonarHostUrl: sonarHostWithContext,
+      componentKey,
+    } as SonarInputs;
+
+    const result = buildSonarUrl({
+      sonarInputs,
+      path,
+      queryParamKey: "projectKey",
+    });
+
+    expect(result).toBe(
+      "https://sonar.io/context/api/issues/search?projectKey=myComponent&resolved=false&ps=500&pullRequest=123",
     );
   });
 });
