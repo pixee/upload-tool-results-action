@@ -3,7 +3,7 @@ import axios from "axios";
 import { getGitHubContext, getRepositoryInfo } from "./github";
 
 /**
- * Response from SonarCloud API search endpoint. Sparse implementation, because we only care about the total number of issues.
+ * Response from Sonar API search endpoint. Sparse implementation, because we only care about the total number of issues.
  */
 interface SonarSearchIssuesResult {
   total: number;
@@ -18,29 +18,67 @@ interface SonarSearchHotspotPaging {
 }
 
 export type SONAR_RESULT = "issues" | "hotspots";
+type QUERY_PARAM_KEY = "componentKeys" | "projectKey";
 
 const MAX_PAGE_SIZE = 500;
 
-export async function retrieveSonarCloudIssues(
-  sonarCloudInputs: SonarCloudInputs,
+export async function retrieveSonarIssues(
+  sonarInputs: SonarInputs,
 ): Promise<SonarSearchIssuesResult> {
-  const url = buildSonarCloudIssuesUrl(sonarCloudInputs);
-  return retrieveSonarCloudResults(sonarCloudInputs, url, "issues");
+  const path = "api/issues/search";
+  const url = buildSonarUrl({
+    sonarInputs,
+    path,
+    queryParamKey: "componentKeys",
+  });
+  return retrieveSonarResults(sonarInputs, url, "issues");
 }
 
-export async function retrieveSonarCloudHotspots(
-  sonarCloudInputs: SonarCloudInputs,
+export async function retrieveSonarHotspots(
+  sonarInputs: SonarInputs,
 ): Promise<SonarSearchHotspotResult> {
-  const url = buildSonarCloudHotspotsUrl(sonarCloudInputs);
-  return retrieveSonarCloudResults(sonarCloudInputs, url, "hotspots");
+  const path = "api/hotspots/search";
+  const url = buildSonarUrl({
+    sonarInputs,
+    path,
+    queryParamKey: "projectKey",
+  });
+  return retrieveSonarResults(sonarInputs, url, "hotspots");
 }
 
-async function retrieveSonarCloudResults(
-  { token }: SonarCloudInputs,
+export function buildSonarUrl({
+  sonarInputs: { sonarHostUrl, componentKey },
+  path,
+  queryParamKey,
+}: {
+  sonarInputs: SonarInputs;
+  path: string;
+  queryParamKey: QUERY_PARAM_KEY;
+}): string {
+  const apiUrl = new URL(path, sonarHostUrl);
+
+  const { prNumber } = getGitHubContext();
+
+  const queryParams = {
+    [queryParamKey]: componentKey,
+    resolved: "false",
+    ps: MAX_PAGE_SIZE,
+    ...(prNumber && { pullRequest: prNumber }),
+  };
+
+  Object.entries(queryParams).forEach(([key, value]) => {
+    apiUrl.searchParams.append(key, value.toString());
+  });
+
+  return apiUrl.href;
+}
+
+async function retrieveSonarResults(
+  { token }: SonarInputs,
   url: string,
   resultType: SONAR_RESULT,
 ) {
-  core.info(`Retrieving SonarCloud ${resultType} from ${url}`);
+  core.info(`Retrieving Sonar ${resultType} from ${url}`);
   return axios
     .get(url, {
       headers: {
@@ -50,50 +88,26 @@ async function retrieveSonarCloudResults(
       responseType: "json",
     })
     .then((response) => {
-      if (core.isDebug()) {
-        core.info(
-          `Retrieved SonarCloud ${resultType}: ${JSON.stringify(response.data)}`,
-        );
-      }
+      core.debug(
+        `Retrieved Sonar ${resultType}: ${JSON.stringify(response.data)}`,
+      );
       return response.data;
     });
 }
 
-interface SonarCloudInputs {
+export interface SonarInputs {
   token: string;
   componentKey: string;
-  apiUrl: string;
+  sonarHostUrl: string;
 }
 
-export function getSonarCloudInputs(): SonarCloudInputs {
-  const apiUrl = core.getInput("sonar-api-url", { required: true });
+export function getSonarInputs(): SonarInputs {
+  const sonarHostUrl = core.getInput("sonar-host-url", { required: true });
   const token = core.getInput("sonar-token");
   let componentKey = core.getInput("sonar-component-key");
   if (!componentKey) {
     const { owner, repo } = getRepositoryInfo();
     componentKey = `${owner}_${repo}`;
   }
-  return { token, componentKey, apiUrl };
-}
-
-function buildSonarCloudIssuesUrl({
-  apiUrl,
-  componentKey,
-}: SonarCloudInputs): string {
-  const { prNumber } = getGitHubContext();
-  const url = `${apiUrl}/issues/search?componentKeys=${encodeURIComponent(
-    componentKey,
-  )}&resolved=false&ps=${MAX_PAGE_SIZE}`;
-  return prNumber ? `${url}&pullRequest=${prNumber}` : url;
-}
-
-function buildSonarCloudHotspotsUrl({
-  apiUrl,
-  componentKey,
-}: SonarCloudInputs): string {
-  const { prNumber } = getGitHubContext();
-  const url = `${apiUrl}/hotspots/search?projectKey=${encodeURIComponent(
-    componentKey,
-  )}&resolved=false&ps=${MAX_PAGE_SIZE}`;
-  return prNumber ? `${url}&pullRequest=${prNumber}` : url;
+  return { token, componentKey, sonarHostUrl };
 }

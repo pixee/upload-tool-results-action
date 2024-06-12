@@ -16,14 +16,14 @@ inputs:
     description: Path to the tool's results file to share with Pixeebot.
     required: false
   sonar-token:
-    description: Token for authenticating requests to SonarCloud.
+    description: Token for authenticating requests to Sonar.
     required: false
   sonar-component-key:
-    description: Key identifying the SonarCloud component to be analyzed.
+    description: Key identifying the Sonar component to be analyzed.
     required: false
-  sonar-api-url:
-    description: Base URL of the SonarCloud API.
-    default: https://sonarcloud.io/api
+  sonar-host-url:
+    description: SonarCloud or SonarQube host URL.
+    default: https://sonarcloud.io
   defectdojo-token:
     description: Token for authenticating requests to DefectDojo.
     required: false

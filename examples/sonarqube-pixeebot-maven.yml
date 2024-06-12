@@ -58,6 +58,6 @@ jobs:
         if: always() && steps.sonarqube-analysis.outcome == 'success' # run this when the analysis is successful, regardless of the quality gate status
         with:
           tool: sonar
-          sonar-api-url: ${{ vars.SONAR_HOST_URL }}/api
+          sonar-host-url: ${{ vars.SONAR_HOST_URL }}
           sonar-token: ${{ secrets.PIXEE_SONAR_TOKEN }}
           sonar-component-key: "<insert-my-sonar-project-key>"

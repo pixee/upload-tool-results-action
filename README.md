@@ -26,9 +26,9 @@ GitHub Action workflow that includes SonarQube, the step that performs the
 SonarQube analysis will be followed by a step that applies the SonarQube Quality
 Gate. The `pixee/upload-tool-results-action` should follow the SonarQube Quality
 Gate. The workflow should be configured to run the
-`pixee/upload-tool-results-action` step regardless of the outcome of the
-quality gate, so that Pixeebot may fix the issues preventing the quality gate
-from passing.
+`pixee/upload-tool-results-action` step regardless of the outcome of the quality
+gate, so that Pixeebot may fix the issues preventing the quality gate from
+passing.
 
 The `pixee/upload-tool-results-action` requires a SonarQube _user token_ token
 that is permitted to read Security Hotspots. Typically, the `SONAR_TOKEN` secret
@@ -49,7 +49,7 @@ confusing it for the typical _project analysis token_.
   if: always() && steps.sonarqube-analysis.outcome == 'success'
   with:
     tool: sonar
-    sonar-api-url: ${{ vars.SONAR_HOST_URL }}/api
+    sonar-host-url: ${{ vars.SONAR_HOST_URL }}
     sonar-token: ${{ secrets.PIXEE_SONAR_TOKEN }}
     sonar-component-key: "<insert-my-sonar-project-key>"
 ```
@@ -102,17 +102,17 @@ Detailed description of the inputs exposed by the
     # Required
     tool:
 
-    # Token for authenticating requests to SonarCloud.
+    # Token for authenticating requests to Sonar.
     # Required, when tool is "sonar" and "file" has not been set. Only required for private repository.
     sonar-token:
 
-    # Key identifying the SonarCloud component to be analyzed. Only necessary if deviating from SonarCloud's established convention.
+    # Key identifying the Sonar component to be analyzed. Only necessary if deviating from Sonar's established convention.
     # Default: `owner_repo`
     sonar-component-key:
 
-    # Base URL of the Sonar API. Use this to switch from SonarCloud to SonarQube.
-    # Default: https://sonarcloud.io/api
-    sonar-api-url:
+    # SonarCloud or SonarQube host URL. Use this to switch from SonarCloud to SonarQube.
+    # Default: https://sonarcloud.io
+    sonar-host-url:
 
     # Token for authenticating requests to DefectDojo.
     defectdojo-token:
@@ -142,7 +142,7 @@ Detailed description of the inputs exposed by the
     # Default: https://api.pixee.ai
     pixee-api-url:
 
-    # Path to the tool's results file to upload to Pixeebot. This does not apply to SonarCloud integration, because the action retrieves the results directly from SonarCloud.
+    # Path to the tool's results file to upload to Pixeebot. This does not apply to Sonar integration, because the action retrieves the results directly from Sonar.
     # Required, when `tool` is not "sonar"
     file:
 ```

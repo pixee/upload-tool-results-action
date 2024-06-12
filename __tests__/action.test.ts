@@ -9,11 +9,11 @@ let getInputMock: jest.SpiedFunction<typeof core.getInput>;
 let getGitHubContextMock: jest.SpiedFunction<typeof github.getGitHubContext>;
 let getTempDir: jest.SpiedFunction<typeof github.getTempDir>;
 let uploadInputFileMock: jest.SpiedFunction<typeof pixee.uploadInputFile>;
-let retrieveSonarCloudIssuesMock: jest.SpiedFunction<
-  typeof sonar.retrieveSonarCloudIssues
+let retrieveSonarIssuesMock: jest.SpiedFunction<
+  typeof sonar.retrieveSonarIssues
 >;
-let retrieveSonarCloudHotspotsMock: jest.SpiedFunction<
-  typeof sonar.retrieveSonarCloudHotspots
+let retrieveSonarHotspotsMock: jest.SpiedFunction<
+  typeof sonar.retrieveSonarHotspots
 >;
 let triggerPrAnalysisMock: jest.SpiedFunction<typeof pixee.triggerPrAnalysis>;
 let getRepositoryInfoMock: jest.SpiedFunction<typeof github.getRepositoryInfo>;
@@ -35,17 +35,17 @@ describe("action", () => {
     triggerPrAnalysisMock = jest
       .spyOn(pixee, "triggerPrAnalysis")
       .mockImplementation();
-    retrieveSonarCloudIssuesMock = jest
-      .spyOn(sonar, "retrieveSonarCloudIssues")
+    retrieveSonarIssuesMock = jest
+      .spyOn(sonar, "retrieveSonarIssues")
       .mockImplementation();
-    retrieveSonarCloudHotspotsMock = jest
-      .spyOn(sonar, "retrieveSonarCloudHotspots")
+    retrieveSonarHotspotsMock = jest
+      .spyOn(sonar, "retrieveSonarHotspots")
       .mockImplementation();
     getRepositoryInfoMock = jest
       .spyOn(github, "getRepositoryInfo")
       .mockImplementation();
-    retrieveSonarCloudIssuesMock.mockResolvedValue({ total: 1 });
-    retrieveSonarCloudHotspotsMock.mockResolvedValue({ paging: { total: 1 } });
+    retrieveSonarIssuesMock.mockResolvedValue({ total: 1 });
+    retrieveSonarHotspotsMock.mockResolvedValue({ paging: { total: 1 } });
   });
 
   it("triggers PR analysis when the PR number is available", async () => {
@@ -153,7 +153,7 @@ describe("action", () => {
       expect(run()).rejects.toThrow('Tool "semgrep" requires a file input');
     });
 
-    it("should retrieve the SonarCloud results, when the tool is Sonar", async () => {
+    it("should retrieve the Sonar results, when the tool is Sonar", async () => {
       getInputMock.mockImplementation((name: string) => {
         switch (name) {
           case "tool":
@@ -175,8 +175,8 @@ describe("action", () => {
 
       await run();
 
-      expect(retrieveSonarCloudIssuesMock).toHaveBeenCalled();
-      expect(retrieveSonarCloudHotspotsMock).toHaveBeenCalled();
+      expect(retrieveSonarIssuesMock).toHaveBeenCalled();
+      expect(retrieveSonarHotspotsMock).toHaveBeenCalled();
       expect(uploadInputFileMock).toHaveBeenCalledWith(
         "sonar_issues",
         expect.stringMatching(/sonar-issues.json$/),
