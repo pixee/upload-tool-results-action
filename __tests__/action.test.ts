@@ -131,15 +131,41 @@ describe("action", () => {
 
       expect(uploadInputFileMock).toHaveBeenCalledWith("semgrep", "file.json");
     });
+
+    it("should upload the given snyk sarif file", async () => {
+      getInputMock.mockImplementation((name: string) => {
+        switch (name) {
+          case "tool":
+            return "snyk";
+          case "file":
+            return "file.json";
+          default:
+            return "";
+        }
+      });
+      getGitHubContextMock.mockReturnValue({
+        owner: "owner",
+        repo: "repo",
+        sha: "sha",
+      });
+      getRepositoryInfoMock.mockReturnValue({
+        owner: "owner",
+        repo: "repo",
+      });
+
+      await run();
+
+      expect(uploadInputFileMock).toHaveBeenCalledWith("snyk", "file.json");
+    });
   });
 
   describe("when the file input is empty", () => {
-    it("should throw an error, when the tool is not Sonar", async () => {
+    it.each(["semgrep", "snyk"])("should throw an error, when the tool is not Sonar", async (tool) => {
       // TODO
       getInputMock.mockImplementation((name: string) => {
         switch (name) {
           case "tool":
-            return "semgrep";
+            return tool;
           default:
             return "";
         }
@@ -150,7 +176,7 @@ describe("action", () => {
         sha: "sha",
       });
 
-      expect(run()).rejects.toThrow('Tool "semgrep" requires a file input');
+      expect(run()).rejects.toThrow(`Tool "${tool}" requires a file input`);
     });
 
     it("should retrieve the Sonar results, when the tool is Sonar", async () => {
