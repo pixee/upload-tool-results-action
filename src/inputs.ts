@@ -7,7 +7,8 @@ export type Tool =
   | "semgrep"
   | "appscan"
   | "defectdojo"
-  | "contrast";
+  | "contrast"
+  | "snyk";
 
 export type TOOL_PATH =
   | "sonar_issues"
@@ -16,7 +17,8 @@ export type TOOL_PATH =
   | "semgrep"
   | "appscan"
   | "defectdojo"
-  | "contrast";
+  | "contrast"
+  | "snyk";
 
 /**
  * Helper function to get the selected tool from the action's inputs.
@@ -46,4 +48,5 @@ const VALID_TOOLS: Tool[] = [
   "appscan",
   "defectdojo",
   "contrast",
+  "snyk",
 ];
