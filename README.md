@@ -3,19 +3,91 @@
 GitHub Action for upload code scanning results to [Pixeebot](https://pixee.ai/)
 so it can fix the issues they found.
 
-## For Sonar Users
+## For SonarCloud Users
 
-For Sonar integration, the `pixee/upload-tool-results-action` must be configured
-to execute when the Sonar GitHub App completes a check. The `sonar-pixeebot.yml`
-example workflow includes the requisite configuration and is generic enough to
-apply to most repositories without modification.
+For SonarCloud integration, the `pixee/upload-tool-results-action` must be
+configured to execute only after the SonarCloud GitHub App completes a check.
+The `sonar-pixeebot.yml` example workflow includes the requisite configuration
+and is generic enough to apply to most repositories without modification.
 
-1. Copy the [example sonar-pixeebot.yml](./examples/sonar-pixeebot.yml) workflow
-   to the repository's `.github/workflows` directory.
+1. Copy the
+   [example sonarcloud-pixeebot.yml](./examples/sonarcloud-pixeebot.yml)
+   workflow to the repository's `.github/workflows` directory.
 1. Set the `SONAR_TOKEN` secret. Create a SonarCloud token at
    [https://sonarcloud.io/account/security](https://sonarcloud.io/account/security).
    See
    [Using secrets in GitHub Actions](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions).
+
+## For SonarQube Users
+
+For SonarQube integration, the `pixee/upload-tool-results-action` must be
+configured to execute after SonarQube has completed its analysis. In a typical
+GitHub Action workflow that includes SonarQube, the step that performs the
+SonarQube analysis will be followed by a step that applies the SonarQube Quality
+Gate. The `pixee/upload-tool-results-action` should follow the SonarQube Quality
+Gate. The workflow should be configured to run the
+`pixee/upload-tool-results-action` step regardless of the outcome of the quality
+gate, so that Pixeebot may fix the issues preventing the quality gate from
+passing.
+
+The `pixee/upload-tool-results-action` requires a SonarQube _user token_ token
+that is permitted to read Security Hotspots. Typically, the `SONAR_TOKEN` secret
+in a GitHub Actions workflow is a _project analysis token_. A _project analysis
+token_ does not have the requisite permissions to read security hotspots. You
+should use a new secret `PIXEE_SONAR_TOKEN` for the _user token_, to avoid
+confusing it for the typical _project analysis token_.
+
+```yaml
+- name: SonarQube Quality Gate Check
+  uses: sonarsource/sonarqube-quality-gate-action@master
+  env:
+    SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
+    SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+- name: Upload SonarQube Results to Pixeebot
+  uses: pixee/upload-tool-results-action@v1
+  if: always() && steps.sonarqube-analysis.outcome == 'success'
+  with:
+    tool: sonar
+    sonar-host-url: ${{ vars.SONAR_HOST_URL }}
+    sonar-token: ${{ secrets.PIXEE_SONAR_TOKEN }}
+    sonar-component-key: "<insert-my-sonar-project-key>"
+```
+
+<!-- prettier-ignore -->
+> [!NOTE]
+> SonarQube Community Edition lacks the features necessary for Pixee's PR
+> experience.
+
+### Complete Examples
+
+The following are examples of complete workflows that send SonarQube results
+from the default branch to Pixee for inclusion in Pixeebot's next _continuous
+improvement campaign_ analysis.
+
+- [Java (Maven)](./examples/sonarqube-pixeebot-maven.yml)
+- [Python](./examples/sonarqube-python.yml)
+
+<!-- prettier-ignore -->
+> [!TIP]
+> The continuous improvement campaign reguarly sends fixes for the project's
+> default branch. To request that Pixeebot continuous improvement campaign send
+> fixes to the default branch immediately, add a comment with the contents
+> "@pixeebot next" to any PR or issue in the repository.
+
+## Permissions
+
+All workflows using this action must include the `id-token: write` permission.
+
+```yaml
+permissions:
+  contents: read
+  id-token: write
+```
+
+The action uses this permission to create a GitHub token to authenticate to the
+Pixee API. The Pixee API verifies that the GitHub-signed token originated from
+an authorized GitHub workflow.
 
 ## Inputs
 
@@ -30,17 +102,17 @@ Detailed description of the inputs exposed by the
     # Required
     tool:
 
-    # Token for authenticating requests to SonarCloud.
+    # Token for authenticating requests to Sonar.
     # Required, when tool is "sonar" and "file" has not been set. Only required for private repository.
     sonar-token:
 
-    # Key identifying the SonarCloud component to be analyzed. Only necessary if deviating from SonarCloud's established convention.
+    # Key identifying the Sonar component to be analyzed. Only necessary if deviating from Sonar's established convention.
     # Default: `owner_repo`
     sonar-component-key:
 
-    # Base URL of the Sonar API. Use this to switch from SonarCloud to SonarQube.
-    # Default: https://sonarcloud.io/api
-    sonar-api-url:
+    # SonarCloud or SonarQube host URL. Use this to switch from SonarCloud to SonarQube.
+    # Default: https://sonarcloud.io
+    sonar-host-url:
 
     # Token for authenticating requests to DefectDojo.
     defectdojo-token:
@@ -66,7 +138,11 @@ Detailed description of the inputs exposed by the
     # Token for authenticating requests to Contrast.
     contrast-token:
 
-    # Path to the tool's results file to upload to Pixeebot. This does not apply to SonarCloud integration, because the action retrieves the results directly from SonarCloud.
+    # The base URL of the Pixee API
+    # Default: https://api.pixee.ai
+    pixee-api-url:
+
+    # Path to the tool's results file to upload to Pixeebot. This does not apply to Sonar integration, because the action retrieves the results directly from Sonar.
     # Required, when `tool` is not "sonar"
     file:
 ```
@@ -99,38 +175,3 @@ _pull request hardening_ features.
 - When the code quality tool finds issues on a commit that has been merged to
   the default branch, Pixeebot considers those results in its next _continuous
   improvement_ PR.
-
-## Example
-
-The following represents an example GitHub Actions workflow that uploads
-SonarCloud results to Pixeebot. It runs each time the SonarCloud GitHub App
-completes a check:
-
-```yaml
-name: "Publish Sonar JSON to Pixee"
-on:
-  check_run:
-    types: [completed]
-
-permissions:
-  contents: read
-  id-token: write
-
-jobs:
-  share:
-    name: Upload Sonar Results to Pixeebot
-    runs-on: ubuntu-latest
-    if: ${{ github.event.check_run.name == 'SonarCloud Code Analysis' }}
-    steps:
-      - uses: pixee/upload-tool-results-action@v1
-        with:
-          tool: sonar
-          sonar-token: ${{ secrets.SONAR_TOKEN }}
-          sonar-component-key: ${{ secrets.SONAR_COMPONENT_KEY }}
-```
-
-Note the use of the repository secrets `SONAR_TOKEN` and `SONAR_COMPONENT_KEY`.
-The `SONAR_TOKEN` secret is required for private repositories. The
-`SONAR_COMPONENT_KEY` secret is optional and only necessary if deviating from
-SonarCloud's established convention. If used, each secret must be defined in the
-repository's settings.

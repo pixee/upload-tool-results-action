@@ -1,4 +1,4 @@
-name: Fix Sonar Issues with Pixeebot
+name: Fix SonarCloud Issues with Pixeebot
 on:
   check_run:
     types: [completed]
