@@ -47330,12 +47330,12 @@ async function run() {
             core.info(`Uploaded ${file} to Pixeebot for analysis`);
             break;
         case "sonar":
-            const issuesfile = await fetchOrLocateSonarResultsFile("issues");
-            await (0, pixee_platform_1.uploadInputFile)("sonar_issues", new Array(issuesfile));
-            core.info(`Uploaded ${issuesfile} to Pixeebot for analysis`);
-            const hotspotFile = await fetchOrLocateSonarResultsFile("hotspots");
-            await (0, pixee_platform_1.uploadInputFile)("sonar_hotspots", new Array(hotspotFile));
-            core.info(`Uploaded ${hotspotFile} to Pixeebot for analysis`);
+            const issuesfiles = await fetchOrLocateSonarResultsFile("issues");
+            await (0, pixee_platform_1.uploadInputFile)("sonar_issues", issuesfiles);
+            core.info(`Uploaded ${issuesfiles} to Pixeebot for analysis`);
+            const hotspotFiles = await fetchOrLocateSonarResultsFile("hotspots");
+            await (0, pixee_platform_1.uploadInputFile)("sonar_hotspots", hotspotFiles);
+            core.info(`Uploaded ${hotspotFiles} to Pixeebot for analysis`);
             break;
         default:
             const inputFile = core.getInput("file");
@@ -47363,11 +47363,23 @@ async function fetchOrLocateContrastResultsFile() {
     return fetchOrLocateResultsFile("contrast", results, fileName, false);
 }
 async function fetchOrLocateSonarResultsFile(resultType) {
-    let results = resultType == "issues"
-        ? await fetchSonarIssues()
-        : await fetchSonarHotspots();
-    let fileName = `sonar-${resultType}.json`;
-    return fetchOrLocateResultsFile("sonar", results, fileName);
+    // TODO update
+    const pageSize = 1;
+    let page = 1;
+    const files = new Array();
+    let isAllResults = false;
+    while (!isAllResults) {
+        let sonarResults = resultType == "issues"
+            ? await fetchSonarIssues(pageSize, page)
+            : await fetchSonarHotspots(pageSize, page);
+        let fileName = `sonar-${resultType}-${page}.json`;
+        let file = await fetchOrLocateResultsFile("sonar", sonarResults.results, fileName);
+        let total = sonarResults.totalResults;
+        files.push(file);
+        isAllResults = total <= pageSize;
+        page++;
+    }
+    return files;
 }
 async function fetchOrLocateResultsFile(tool, results, fileName, stringifyResults = true) {
     let file = core.getInput("file");
@@ -47382,20 +47394,20 @@ async function fetchOrLocateResultsFile(tool, results, fileName, stringifyResult
     core.info(logMessage);
     return file;
 }
-async function fetchSonarIssues() {
+async function fetchSonarIssues(pageSize, page) {
     const sonarInputs = (0, sonar_1.getSonarInputs)();
-    const results = await (0, sonar_1.retrieveSonarIssues)(sonarInputs);
+    const results = await (0, sonar_1.retrieveSonarIssues)(sonarInputs, pageSize, page);
     core.info(`Found ${results.total} Sonar issues for component ${sonarInputs.componentKey}`);
     if (results.total === 0) {
         core.info(`When the Sonar token is incorrect, Sonar responds with an empty response indistinguishable from cases where there are no issues. If you expected issues, please check the token.`);
     }
-    return results;
+    return { results, totalResults: results.total };
 }
-async function fetchSonarHotspots() {
+async function fetchSonarHotspots(pageSize, page) {
     const sonarInputs = (0, sonar_1.getSonarInputs)();
-    const results = await (0, sonar_1.retrieveSonarHotspots)(sonarInputs);
+    const results = await (0, sonar_1.retrieveSonarHotspots)(sonarInputs, pageSize, page);
     core.info(`Found ${results.paging.total} Sonar hotspots for component ${sonarInputs.componentKey}`);
-    return results;
+    return { results, totalResults: results.paging.total };
 }
 async function fetchDefectDojoFindings() {
     const inputs = (0, defect_dojo_1.getDefectDojoInputs)();
@@ -47922,33 +47934,38 @@ const core = __importStar(__nccwpck_require__(8248));
 const axios_1 = __importDefault(__nccwpck_require__(5658));
 const github_1 = __nccwpck_require__(76);
 const MAX_PAGE_SIZE = 500;
-async function retrieveSonarIssues(sonarInputs) {
+async function retrieveSonarIssues(sonarInputs, pageSize, page) {
     const path = "api/issues/search";
     const url = buildSonarUrl({
         sonarInputs,
         path,
         queryParamKey: "componentKeys",
+        pageSize,
+        page
     });
     return retrieveSonarResults(sonarInputs, url, "issues");
 }
 exports.retrieveSonarIssues = retrieveSonarIssues;
-async function retrieveSonarHotspots(sonarInputs) {
+async function retrieveSonarHotspots(sonarInputs, pageSize, page) {
     const path = "api/hotspots/search";
     const url = buildSonarUrl({
         sonarInputs,
         path,
         queryParamKey: "projectKey",
+        pageSize,
+        page
     });
     return retrieveSonarResults(sonarInputs, url, "hotspots");
 }
 exports.retrieveSonarHotspots = retrieveSonarHotspots;
-function buildSonarUrl({ sonarInputs: { sonarHostUrl, componentKey }, path, queryParamKey, }) {
+function buildSonarUrl({ sonarInputs: { sonarHostUrl, componentKey }, path, queryParamKey, pageSize, page }) {
     const apiUrl = new URL(path, sonarHostUrl);
     const { prNumber } = (0, github_1.getGitHubContext)();
     const queryParams = {
         [queryParamKey]: componentKey,
         resolved: "false",
-        ps: MAX_PAGE_SIZE,
+        ps: pageSize,
+        p: page,
         ...(prNumber && { pullRequest: prNumber }),
     };
     Object.entries(queryParams).forEach(([key, value]) => {
