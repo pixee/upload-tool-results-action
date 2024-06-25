@@ -20,8 +20,6 @@ interface SonarSearchHotspotPaging {
 export type SONAR_RESULT = "issues" | "hotspots";
 type QUERY_PARAM_KEY = "componentKeys" | "projectKey";
 
-const MAX_PAGE_SIZE = 500;
-
 export async function retrieveSonarIssues(
   sonarInputs: SonarInputs,
   pageSize: number,

@@ -17,6 +17,8 @@ interface SonarResults {
   results: any
 }
 
+const MAX_PAGE_SIZE = 500;
+
 /**
  * Runs the action.
  *
@@ -81,8 +83,7 @@ async function fetchOrLocateContrastResultsFile() {
 async function fetchOrLocateSonarResultsFile(
   resultType: SONAR_RESULT
 ): Promise<Array<string>> {
-  // TODO update
-  const pageSize = 1;
+
   let page = 1;
   const files = new Array();
   let isAllResults = false;
@@ -90,8 +91,8 @@ async function fetchOrLocateSonarResultsFile(
   while (!isAllResults) {
     let sonarResults =
       resultType == "issues"
-        ? await fetchSonarIssues(pageSize, page)
-        : await fetchSonarHotspots(pageSize, page);
+        ? await fetchSonarIssues(MAX_PAGE_SIZE, page)
+        : await fetchSonarHotspots(MAX_PAGE_SIZE, page);
     let fileName = `sonar-${resultType}-${page}.json`;
 
     let file = await fetchOrLocateResultsFile("sonar", sonarResults.results, fileName);
@@ -100,8 +101,7 @@ async function fetchOrLocateSonarResultsFile(
 
     files.push(file);
 
-    // Update isAllResults correctly
-    isAllResults = page * pageSize >= total;
+    isAllResults = page * MAX_PAGE_SIZE >= total;
     page++;
   }
 
