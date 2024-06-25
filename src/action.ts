@@ -82,15 +82,20 @@ async function fetchOrLocateSonarResultsFile(
   resultType: SONAR_RESULT) : Promise<Array<string>>{
     let pageSize = 1;
     let page = 1 ;
-  let results =
+    let files = new Array();
+  let sonarResults =
     resultType == "issues"
       ? await fetchSonarIssues(pageSize, page)
       : await fetchSonarHotspots(pageSize, page);
-  let fileName = `sonar-${resultType}.json`;
+  let fileName = `sonar-${resultType}-${page}.json`;
 
-  let file = await fetchOrLocateResultsFile("sonar", results, fileName);
+  let file = await fetchOrLocateResultsFile("sonar", sonarResults.results, fileName);
 
-  return new Array(file);
+  let total = sonarResults.total;
+
+  files.push(file);
+
+  return files;
 }
 
 async function fetchOrLocateResultsFile(
