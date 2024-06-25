@@ -47376,7 +47376,8 @@ async function fetchOrLocateSonarResultsFile(resultType) {
         let file = await fetchOrLocateResultsFile("sonar", sonarResults.results, fileName);
         let total = sonarResults.totalResults;
         files.push(file);
-        isAllResults = total <= pageSize;
+        // Update isAllResults correctly
+        isAllResults = page * pageSize >= total;
         page++;
     }
     return files;

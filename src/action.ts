@@ -79,29 +79,31 @@ async function fetchOrLocateContrastResultsFile() {
 }
 
 async function fetchOrLocateSonarResultsFile(
-  resultType: SONAR_RESULT) : Promise<Array<string>>{
-    // TODO update
-    const pageSize = 1;
-    let page = 1 ;
-    const files = new Array();
-    let isAllResults = false;
+  resultType: SONAR_RESULT
+): Promise<Array<string>> {
+  // TODO update
+  const pageSize = 1;
+  let page = 1;
+  const files = new Array();
+  let isAllResults = false;
 
-    while(!isAllResults){
-      let sonarResults =
+  while (!isAllResults) {
+    let sonarResults =
       resultType == "issues"
         ? await fetchSonarIssues(pageSize, page)
         : await fetchSonarHotspots(pageSize, page);
-      let fileName = `sonar-${resultType}-${page}.json`;
-    
-      let file = await fetchOrLocateResultsFile("sonar", sonarResults.results, fileName);
-    
-      let total = sonarResults.totalResults;
-    
-      files.push(file);
+    let fileName = `sonar-${resultType}-${page}.json`;
 
-      isAllResults = total <= pageSize;
-      page ++;
-    }
+    let file = await fetchOrLocateResultsFile("sonar", sonarResults.results, fileName);
+
+    let total = sonarResults.totalResults;
+
+    files.push(file);
+
+    // Update isAllResults correctly
+    isAllResults = page * pageSize >= total;
+    page++;
+  }
 
   return files;
 }
