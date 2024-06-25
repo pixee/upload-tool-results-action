@@ -12,6 +12,11 @@ import { getDefectDojoInputs, retrieveDefectDojoResults } from "./defect-dojo";
 import { getGitHubContext, getTempDir } from "./github";
 import { getContrastInputs, retrieveContrastResults } from "./contrast";
 
+interface SonarResults {
+  total: number;
+  results: any
+}
+
 /**
  * Runs the action.
  *
@@ -35,11 +40,11 @@ export async function run() {
       break;
     case "sonar":
       const issuesfile = await fetchOrLocateSonarResultsFile("issues");
-      await uploadInputFile("sonar_issues", new Array(issuesfile));
+      await uploadInputFile("sonar_issues", issuesfile);
       core.info(`Uploaded ${issuesfile} to Pixeebot for analysis`);
 
       const hotspotFile = await fetchOrLocateSonarResultsFile("hotspots");
-      await uploadInputFile("sonar_hotspots", new Array(hotspotFile));
+      await uploadInputFile("sonar_hotspots", hotspotFile);
       core.info(`Uploaded ${hotspotFile} to Pixeebot for analysis`);
       break;
     default:
@@ -73,14 +78,19 @@ async function fetchOrLocateContrastResultsFile() {
   return fetchOrLocateResultsFile("contrast", results, fileName, false);
 }
 
-async function fetchOrLocateSonarResultsFile(resultType: SONAR_RESULT) {
+async function fetchOrLocateSonarResultsFile(
+  resultType: SONAR_RESULT) : Promise<Array<string>>{
+    let pageSize = 1;
+    let page = 1 ;
   let results =
     resultType == "issues"
-      ? await fetchSonarIssues()
-      : await fetchSonarHotspots();
+      ? await fetchSonarIssues(pageSize, page)
+      : await fetchSonarHotspots(pageSize, page);
   let fileName = `sonar-${resultType}.json`;
 
-  return fetchOrLocateResultsFile("sonar", results, fileName);
+  let file = await fetchOrLocateResultsFile("sonar", results, fileName);
+
+  return new Array(file);
 }
 
 async function fetchOrLocateResultsFile(
@@ -106,9 +116,12 @@ async function fetchOrLocateResultsFile(
   return file;
 }
 
-async function fetchSonarIssues() {
+async function fetchSonarIssues(
+  pageSize: number,
+  page: number
+) : Promise<SonarResults>{
   const sonarInputs = getSonarInputs();
-  const results = await retrieveSonarIssues(sonarInputs);
+  const results = await retrieveSonarIssues(sonarInputs, pageSize, page);
 
   core.info(
     `Found ${results.total} Sonar issues for component ${sonarInputs.componentKey}`,
@@ -119,17 +132,20 @@ async function fetchSonarIssues() {
     );
   }
 
-  return results;
+  return {results, total: results.total};
 }
 
-async function fetchSonarHotspots() {
+async function fetchSonarHotspots(
+  pageSize: number,
+  page: number
+) : Promise<SonarResults>{
   const sonarInputs = getSonarInputs();
-  const results = await retrieveSonarHotspots(sonarInputs);
+  const results = await retrieveSonarHotspots(sonarInputs, pageSize, page);
   core.info(
     `Found ${results.paging.total} Sonar hotspots for component ${sonarInputs.componentKey}`,
   );
 
-  return results;
+  return {results, total: results.paging.total};
 }
 
 async function fetchDefectDojoFindings() {
