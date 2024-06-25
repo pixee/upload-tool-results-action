@@ -13,7 +13,7 @@ import { getGitHubContext, getTempDir } from "./github";
 import { getContrastInputs, retrieveContrastResults } from "./contrast";
 
 interface SonarResults {
-  total: number;
+  totalResults: number;
   results: any
 }
 
@@ -39,13 +39,13 @@ export async function run() {
       core.info(`Uploaded ${file} to Pixeebot for analysis`);
       break;
     case "sonar":
-      const issuesfile = await fetchOrLocateSonarResultsFile("issues");
-      await uploadInputFile("sonar_issues", issuesfile);
-      core.info(`Uploaded ${issuesfile} to Pixeebot for analysis`);
+      const issuesfiles = await fetchOrLocateSonarResultsFile("issues");
+      await uploadInputFile("sonar_issues", issuesfiles);
+      core.info(`Uploaded ${issuesfiles} to Pixeebot for analysis`);
 
-      const hotspotFile = await fetchOrLocateSonarResultsFile("hotspots");
-      await uploadInputFile("sonar_hotspots", hotspotFile);
-      core.info(`Uploaded ${hotspotFile} to Pixeebot for analysis`);
+      const hotspotFiles = await fetchOrLocateSonarResultsFile("hotspots");
+      await uploadInputFile("sonar_hotspots", hotspotFiles);
+      core.info(`Uploaded ${hotspotFiles} to Pixeebot for analysis`);
       break;
     default:
       const inputFile = core.getInput("file");
@@ -80,20 +80,28 @@ async function fetchOrLocateContrastResultsFile() {
 
 async function fetchOrLocateSonarResultsFile(
   resultType: SONAR_RESULT) : Promise<Array<string>>{
-    let pageSize = 1;
+    // TODO update
+    const pageSize = 1;
     let page = 1 ;
-    let files = new Array();
-  let sonarResults =
-    resultType == "issues"
-      ? await fetchSonarIssues(pageSize, page)
-      : await fetchSonarHotspots(pageSize, page);
-  let fileName = `sonar-${resultType}-${page}.json`;
+    const files = new Array();
+    let isAllResults = false;
 
-  let file = await fetchOrLocateResultsFile("sonar", sonarResults.results, fileName);
+    while(!isAllResults){
+      let sonarResults =
+      resultType == "issues"
+        ? await fetchSonarIssues(pageSize, page)
+        : await fetchSonarHotspots(pageSize, page);
+      let fileName = `sonar-${resultType}-${page}.json`;
+    
+      let file = await fetchOrLocateResultsFile("sonar", sonarResults.results, fileName);
+    
+      let total = sonarResults.totalResults;
+    
+      files.push(file);
 
-  let total = sonarResults.total;
-
-  files.push(file);
+      isAllResults = total <= pageSize;
+      page ++;
+    }
 
   return files;
 }
@@ -137,7 +145,7 @@ async function fetchSonarIssues(
     );
   }
 
-  return {results, total: results.total};
+  return {results, totalResults: results.total};
 }
 
 async function fetchSonarHotspots(
@@ -150,7 +158,7 @@ async function fetchSonarHotspots(
     `Found ${results.paging.total} Sonar hotspots for component ${sonarInputs.componentKey}`,
   );
 
-  return {results, total: results.paging.total};
+  return {results, totalResults: results.paging.total};
 }
 
 async function fetchDefectDojoFindings() {
