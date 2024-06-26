@@ -54,7 +54,7 @@ jobs:
           scanMetadataReportFile: target/sonar/report-task.txt
 
       - name: Upload SonarQube Results to Pixeebot
-        uses: pixee/upload-tool-results-action@v1
+        uses: pixee/upload-tool-results-action@v2
         if: always() && steps.sonarqube-analysis.outcome == 'success' # run this when the analysis is successful, regardless of the quality gate status
         with:
           tool: sonar
