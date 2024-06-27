@@ -8,7 +8,7 @@ import * as github from "../src/github";
 let getInputMock: jest.SpiedFunction<typeof core.getInput>;
 let getGitHubContextMock: jest.SpiedFunction<typeof github.getGitHubContext>;
 let getTempDir: jest.SpiedFunction<typeof github.getTempDir>;
-let uploadInputFileMock: jest.SpiedFunction<typeof pixee.uploadInputFile>;
+let uploadInputFileMock: jest.SpiedFunction<typeof pixee.uploadInputFiles>;
 let retrieveSonarIssuesMock: jest.SpiedFunction<
   typeof sonar.retrieveSonarIssues
 >;
@@ -30,7 +30,7 @@ describe("action", () => {
       .mockImplementation()
       .mockReturnValue(os.tmpdir());
     uploadInputFileMock = jest
-      .spyOn(pixee, "uploadInputFile")
+      .spyOn(pixee, "uploadInputFiles")
       .mockImplementation();
     triggerPrAnalysisMock = jest
       .spyOn(pixee, "triggerPrAnalysis")

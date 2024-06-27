@@ -1,7 +1,7 @@
 import * as core from "@actions/core";
 import fs from "fs";
 import { Tool, getTool } from "./inputs";
-import { triggerPrAnalysis, uploadInputFile } from "./pixee-platform";
+import { triggerPrAnalysis, uploadInputFiles } from "./pixee-platform";
 import {
   SONAR_RESULT,
   getSonarInputs,
@@ -32,21 +32,21 @@ export async function run() {
   switch (tool) {
     case "contrast":
       const contrastFile = await fetchOrLocateContrastResultsFile();
-      await uploadInputFile(tool, new Array(contrastFile));
+      await uploadInputFiles(tool, new Array(contrastFile));
       core.info(`Uploaded ${contrastFile} to Pixeebot for analysis`);
       break;
     case "defectdojo":
       const file = await fetchOrLocateDefectDojoResultsFile();
-      await uploadInputFile(tool, new Array(file));
+      await uploadInputFiles(tool, new Array(file));
       core.info(`Uploaded ${file} to Pixeebot for analysis`);
       break;
     case "sonar":
       const issuesfiles = await fetchOrLocateSonarResultsFile("issues");
-      await uploadInputFile("sonar_issues", issuesfiles);
+      await uploadInputFiles("sonar_issues", issuesfiles);
       core.info(`Uploaded ${issuesfiles} to Pixeebot for analysis`);
 
       const hotspotFiles = await fetchOrLocateSonarResultsFile("hotspots");
-      await uploadInputFile("sonar_hotspots", hotspotFiles);
+      await uploadInputFiles("sonar_hotspots", hotspotFiles);
       core.info(`Uploaded ${hotspotFiles} to Pixeebot for analysis`);
       break;
     default:
@@ -55,7 +55,7 @@ export async function run() {
         throw new Error(`Tool "${tool}" requires a file input`);
       }
 
-      await uploadInputFile(tool, new Array(inputFile));
+      await uploadInputFiles(tool, new Array(inputFile));
       core.info(`Uploaded ${inputFile} for ${tool} to Pixeebot for analysis`);
   }
 

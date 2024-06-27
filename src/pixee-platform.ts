@@ -5,7 +5,7 @@ import FormData from "form-data";
 import { TOOL_PATH } from "./inputs";
 import { getGitHubContext, getRepositoryInfo } from "./github";
 
-export async function uploadInputFile(tool: TOOL_PATH, files: Array<string>) {
+export async function uploadInputFiles(tool: TOOL_PATH, files: Array<string>) {
   const form = new FormData();
 
   const path = require('path');
