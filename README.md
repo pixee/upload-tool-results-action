@@ -45,7 +45,7 @@ confusing it for the typical _project analysis token_.
     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
 - name: Upload SonarQube Results to Pixeebot
-  uses: pixee/upload-tool-results-action@v1
+  uses: pixee/upload-tool-results-action@v2
   if: always() && steps.sonarqube-analysis.outcome == 'success'
   with:
     tool: sonar
