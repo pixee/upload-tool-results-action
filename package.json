@@ -4,7 +4,9 @@
   "description": "GitHub Action for extending Pixeebot's coverage to fix issues found by supported code scanning tools",
   "main": "dist/index.js",
   "scripts": {
-    "build": "prettier --check . && ncc build -o dist/ src/index.ts",
+    "build": "npm run check-format && ncc build -o dist/ src/index.ts",
+    "check": "npm run check-format && npm run test",
+    "check-format": "prettier --check .",
     "format": "prettier --write .",
     "test": "npx jest"
   },
