@@ -160,24 +160,27 @@ describe("action", () => {
   });
 
   describe("when the file input is empty", () => {
-    it.each(["semgrep", "snyk"])("should throw an error, when the tool is not Sonar", async (tool) => {
-      // TODO
-      getInputMock.mockImplementation((name: string) => {
-        switch (name) {
-          case "tool":
-            return tool;
-          default:
-            return "";
-        }
-      });
-      getGitHubContextMock.mockReturnValue({
-        owner: "owner",
-        repo: "repo",
-        sha: "sha",
-      });
+    it.each(["semgrep", "snyk"])(
+      "should throw an error, when the tool is not Sonar",
+      async (tool) => {
+        // TODO
+        getInputMock.mockImplementation((name: string) => {
+          switch (name) {
+            case "tool":
+              return tool;
+            default:
+              return "";
+          }
+        });
+        getGitHubContextMock.mockReturnValue({
+          owner: "owner",
+          repo: "repo",
+          sha: "sha",
+        });
 
-      expect(run()).rejects.toThrow(`Tool "${tool}" requires a file input`);
-    });
+        expect(run()).rejects.toThrow(`Tool "${tool}" requires a file input`);
+      },
+    );
 
     it("should retrieve the Sonar results, when the tool is Sonar", async () => {
       getInputMock.mockImplementation((name: string) => {
