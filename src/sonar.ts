@@ -5,11 +5,11 @@ import { getGitHubContext, getRepositoryInfo } from "./github";
 /**
  * Response from Sonar API search endpoint. Sparse implementation, because we only care about the total number of issues.
  */
-interface SonarSearchIssuesResult {
+export interface SonarSearchIssuesResult {
   total: number;
 }
 
-interface SonarSearchHotspotResult {
+export interface SonarSearchHotspotResult {
   paging: SonarSearchHotspotPaging;
 }
 
@@ -20,28 +20,34 @@ interface SonarSearchHotspotPaging {
 export type SONAR_RESULT = "issues" | "hotspots";
 type QUERY_PARAM_KEY = "componentKeys" | "projectKey";
 
-const MAX_PAGE_SIZE = 500;
-
 export async function retrieveSonarIssues(
   sonarInputs: SonarInputs,
+  pageSize: number,
+  page: number
 ): Promise<SonarSearchIssuesResult> {
   const path = "api/issues/search";
   const url = buildSonarUrl({
     sonarInputs,
     path,
     queryParamKey: "componentKeys",
+    pageSize,
+    page
   });
   return retrieveSonarResults(sonarInputs, url, "issues");
 }
 
 export async function retrieveSonarHotspots(
   sonarInputs: SonarInputs,
+  pageSize: number,
+  page: number
 ): Promise<SonarSearchHotspotResult> {
   const path = "api/hotspots/search";
   const url = buildSonarUrl({
     sonarInputs,
     path,
     queryParamKey: "projectKey",
+    pageSize,
+    page
   });
   return retrieveSonarResults(sonarInputs, url, "hotspots");
 }
@@ -50,10 +56,14 @@ export function buildSonarUrl({
   sonarInputs: { sonarHostUrl, componentKey },
   path,
   queryParamKey,
+  pageSize,
+  page
 }: {
   sonarInputs: SonarInputs;
   path: string;
   queryParamKey: QUERY_PARAM_KEY;
+  pageSize: number;
+  page: number;
 }): string {
   const apiUrl = new URL(path, sonarHostUrl);
 
@@ -62,7 +72,8 @@ export function buildSonarUrl({
   const queryParams = {
     [queryParamKey]: componentKey,
     resolved: "false",
-    ps: MAX_PAGE_SIZE,
+    ps: pageSize,
+    p: page,
     ...(prNumber && { pullRequest: prNumber }),
   };
 

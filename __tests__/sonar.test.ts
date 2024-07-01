@@ -36,10 +36,12 @@ describe("sonar", () => {
       sonarInputs,
       path,
       queryParamKey: "componentKeys",
+      pageSize: 500,
+      page: 1
     });
 
     expect(result).toBe(
-      "https://sonar.io/api/issues/search?componentKeys=myComponent&resolved=false&ps=500&pullRequest=123",
+      "https://sonar.io/api/issues/search?componentKeys=myComponent&resolved=false&ps=500&p=1&pullRequest=123",
     );
   });
 
@@ -55,10 +57,12 @@ describe("sonar", () => {
       sonarInputs,
       path,
       queryParamKey: "componentKeys",
+      pageSize: 500,
+      page: 1
     });
 
     expect(result).toBe(
-      "https://sonar.io/api/issues/search?componentKeys=myComponent&resolved=false&ps=500",
+      "https://sonar.io/api/issues/search?componentKeys=myComponent&resolved=false&ps=500&p=1",
     );
   });
 
@@ -69,10 +73,12 @@ describe("sonar", () => {
       sonarInputs,
       path,
       queryParamKey: "projectKey",
+      pageSize: 500,
+      page: 1
     });
 
     expect(result).toBe(
-      "https://sonar.io/api/issues/search?projectKey=myComponent&resolved=false&ps=500&pullRequest=123",
+      "https://sonar.io/api/issues/search?projectKey=myComponent&resolved=false&ps=500&p=1&pullRequest=123",
     );
   });
 
@@ -90,10 +96,12 @@ describe("sonar", () => {
       sonarInputs,
       path,
       queryParamKey: "componentKeys",
+      pageSize: 500,
+      page: 1
     });
 
     expect(result).toBe(
-      "https://sonar.io/api/issues/search?componentKeys=myComponent+with+spaces&resolved=false&ps=500&pullRequest=123",
+      "https://sonar.io/api/issues/search?componentKeys=myComponent+with+spaces&resolved=false&ps=500&p=1&pullRequest=123",
     );
   });
 
@@ -111,10 +119,12 @@ describe("sonar", () => {
       sonarInputs,
       path,
       queryParamKey: "componentKeys",
+      pageSize: 500,
+      page: 1
     });
 
     expect(result).toBe(
-      "https://sonar.io/api/issues/search?componentKeys=myComponent&resolved=false&ps=500&pullRequest=123",
+      "https://sonar.io/api/issues/search?componentKeys=myComponent&resolved=false&ps=500&p=1&pullRequest=123",
     );
   });
 
@@ -133,10 +143,12 @@ describe("sonar", () => {
       sonarInputs,
       path,
       queryParamKey: "projectKey",
+      pageSize: 500,
+      page: 1
     });
 
     expect(result).toBe(
-      "https://sonar.io/context/api/issues/search?projectKey=myComponent&resolved=false&ps=500&pullRequest=123",
+      "https://sonar.io/context/api/issues/search?projectKey=myComponent&resolved=false&ps=500&p=1&pullRequest=123",
     );
   });
 });

@@ -5,12 +5,17 @@ import FormData from "form-data";
 import { TOOL_PATH } from "./inputs";
 import { getGitHubContext, getRepositoryInfo } from "./github";
 
-export async function uploadInputFile(tool: TOOL_PATH, file: string) {
-  const fileContent = fs.readFileSync(file, "utf-8");
+export async function uploadInputFiles(tool: TOOL_PATH, files: Array<string>) {
   const form = new FormData();
-  form.append("file", fileContent);
-  const pixeeUrl = core.getInput("pixee-api-url");
 
+  const path = require('path');
+
+  // Append each file to the form data
+  files.forEach(file => {
+    form.append("files", fs.readFileSync(file), path.basename(file));
+  });
+
+  const pixeeUrl = core.getInput("pixee-api-url");
   const token = await core.getIDToken(pixeeUrl);
   const url = buildUploadApiUrl(tool);
 

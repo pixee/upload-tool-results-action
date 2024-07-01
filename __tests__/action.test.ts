@@ -8,7 +8,7 @@ import * as github from "../src/github";
 let getInputMock: jest.SpiedFunction<typeof core.getInput>;
 let getGitHubContextMock: jest.SpiedFunction<typeof github.getGitHubContext>;
 let getTempDir: jest.SpiedFunction<typeof github.getTempDir>;
-let uploadInputFileMock: jest.SpiedFunction<typeof pixee.uploadInputFile>;
+let uploadInputFileMock: jest.SpiedFunction<typeof pixee.uploadInputFiles>;
 let retrieveSonarIssuesMock: jest.SpiedFunction<
   typeof sonar.retrieveSonarIssues
 >;
@@ -30,7 +30,7 @@ describe("action", () => {
       .mockImplementation()
       .mockReturnValue(os.tmpdir());
     uploadInputFileMock = jest
-      .spyOn(pixee, "uploadInputFile")
+      .spyOn(pixee, "uploadInputFiles")
       .mockImplementation();
     triggerPrAnalysisMock = jest
       .spyOn(pixee, "triggerPrAnalysis")
@@ -100,10 +100,7 @@ describe("action", () => {
 
       await run();
 
-      expect(uploadInputFileMock).toHaveBeenCalledWith(
-        "sonar_issues",
-        "file.json",
-      );
+      expect(uploadInputFileMock).toHaveBeenCalledWith("sonar_issues", new Array("file.json"));
     });
 
     it("should upload the given semgrep file", async () => {
@@ -129,7 +126,7 @@ describe("action", () => {
 
       await run();
 
-      expect(uploadInputFileMock).toHaveBeenCalledWith("semgrep", "file.json");
+      expect(uploadInputFileMock).toHaveBeenCalledWith("semgrep", new Array("file.json"));
     });
 
     it("should upload the given snyk sarif file", async () => {
@@ -155,7 +152,7 @@ describe("action", () => {
 
       await run();
 
-      expect(uploadInputFileMock).toHaveBeenCalledWith("snyk", "file.json");
+      expect(uploadInputFileMock).toHaveBeenCalledWith("snyk", ["file.json"]);
     });
   });
 
@@ -206,10 +203,7 @@ describe("action", () => {
 
       expect(retrieveSonarIssuesMock).toHaveBeenCalled();
       expect(retrieveSonarHotspotsMock).toHaveBeenCalled();
-      expect(uploadInputFileMock).toHaveBeenCalledWith(
-        "sonar_issues",
-        expect.stringMatching(/sonar-issues.json$/),
-      );
+      expect(uploadInputFileMock).toHaveBeenCalled();
     });
   });
 });

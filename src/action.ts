@@ -1,7 +1,7 @@
 import * as core from "@actions/core";
 import fs from "fs";
 import { Tool, getTool } from "./inputs";
-import { triggerPrAnalysis, uploadInputFile } from "./pixee-platform";
+import { triggerPrAnalysis, uploadInputFiles } from "./pixee-platform";
 import {
   SONAR_RESULT,
   getSonarInputs,
@@ -11,6 +11,13 @@ import {
 import { getDefectDojoInputs, retrieveDefectDojoResults } from "./defect-dojo";
 import { getGitHubContext, getTempDir } from "./github";
 import { getContrastInputs, retrieveContrastResults } from "./contrast";
+
+interface SonarResults {
+  totalResults: number;
+  results: any
+}
+
+const MAX_PAGE_SIZE = 500;
 
 /**
  * Runs the action.
@@ -25,22 +32,22 @@ export async function run() {
   switch (tool) {
     case "contrast":
       const contrastFile = await fetchOrLocateContrastResultsFile();
-      await uploadInputFile(tool, contrastFile);
+      await uploadInputFiles(tool, new Array(contrastFile));
       core.info(`Uploaded ${contrastFile} to Pixeebot for analysis`);
       break;
     case "defectdojo":
       const file = await fetchOrLocateDefectDojoResultsFile();
-      await uploadInputFile(tool, file);
+      await uploadInputFiles(tool, new Array(file));
       core.info(`Uploaded ${file} to Pixeebot for analysis`);
       break;
     case "sonar":
-      const issuesfile = await fetchOrLocateSonarResultsFile("issues");
-      await uploadInputFile("sonar_issues", issuesfile);
-      core.info(`Uploaded ${issuesfile} to Pixeebot for analysis`);
+      const issuesfiles = await fetchOrLocateSonarResultsFile("issues");
+      await uploadInputFiles("sonar_issues", issuesfiles);
+      core.info(`Uploaded ${issuesfiles} to Pixeebot for analysis`);
 
-      const hotspotFile = await fetchOrLocateSonarResultsFile("hotspots");
-      await uploadInputFile("sonar_hotspots", hotspotFile);
-      core.info(`Uploaded ${hotspotFile} to Pixeebot for analysis`);
+      const hotspotFiles = await fetchOrLocateSonarResultsFile("hotspots");
+      await uploadInputFiles("sonar_hotspots", hotspotFiles);
+      core.info(`Uploaded ${hotspotFiles} to Pixeebot for analysis`);
       break;
     default:
       const inputFile = core.getInput("file");
@@ -48,7 +55,7 @@ export async function run() {
         throw new Error(`Tool "${tool}" requires a file input`);
       }
 
-      await uploadInputFile(tool, inputFile);
+      await uploadInputFiles(tool, new Array(inputFile));
       core.info(`Uploaded ${inputFile} for ${tool} to Pixeebot for analysis`);
   }
 
@@ -73,14 +80,32 @@ async function fetchOrLocateContrastResultsFile() {
   return fetchOrLocateResultsFile("contrast", results, fileName, false);
 }
 
-async function fetchOrLocateSonarResultsFile(resultType: SONAR_RESULT) {
-  let results =
-    resultType == "issues"
-      ? await fetchSonarIssues()
-      : await fetchSonarHotspots();
-  let fileName = `sonar-${resultType}.json`;
+async function fetchOrLocateSonarResultsFile(
+  resultType: SONAR_RESULT
+): Promise<Array<string>> {
 
-  return fetchOrLocateResultsFile("sonar", results, fileName);
+  let page = 1;
+  const files = new Array();
+  let isAllResults = false;
+
+  while (!isAllResults) {
+    let sonarResults =
+      resultType == "issues"
+        ? await fetchSonarIssues(MAX_PAGE_SIZE, page)
+        : await fetchSonarHotspots(MAX_PAGE_SIZE, page);
+    let fileName = `sonar-${resultType}-${page}.json`;
+
+    let file = await fetchOrLocateResultsFile("sonar", sonarResults.results, fileName);
+
+    let total = sonarResults.totalResults;
+
+    files.push(file);
+
+    isAllResults = page * MAX_PAGE_SIZE >= total;
+    page++;
+  }
+
+  return files;
 }
 
 async function fetchOrLocateResultsFile(
@@ -106,9 +131,13 @@ async function fetchOrLocateResultsFile(
   return file;
 }
 
-async function fetchSonarIssues() {
+async function fetchSonarIssues(
+  pageSize: number,
+  page: number
+) : Promise<SonarResults>{
   const sonarInputs = getSonarInputs();
-  const results = await retrieveSonarIssues(sonarInputs);
+  const results = await retrieveSonarIssues(sonarInputs, pageSize, page);
+
   core.info(
     `Found ${results.total} Sonar issues for component ${sonarInputs.componentKey}`,
   );
@@ -118,17 +147,20 @@ async function fetchSonarIssues() {
     );
   }
 
-  return results;
+  return {results, totalResults: results.total};
 }
 
-async function fetchSonarHotspots() {
+async function fetchSonarHotspots(
+  pageSize: number,
+  page: number
+) : Promise<SonarResults>{
   const sonarInputs = getSonarInputs();
-  const results = await retrieveSonarHotspots(sonarInputs);
+  const results = await retrieveSonarHotspots(sonarInputs, pageSize, page);
   core.info(
     `Found ${results.paging.total} Sonar hotspots for component ${sonarInputs.componentKey}`,
   );
 
-  return results;
+  return {results, totalResults: results.paging.total};
 }
 
 async function fetchDefectDojoFindings() {
