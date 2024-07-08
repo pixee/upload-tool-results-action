@@ -8,10 +8,10 @@ import { getGitHubContext, getRepositoryInfo } from "./github";
 export async function uploadInputFiles(tool: TOOL_PATH, files: Array<string>) {
   const form = new FormData();
 
-  const path = require('path');
+  const path = require("path");
 
   // Append each file to the form data
-  files.forEach(file => {
+  files.forEach((file) => {
     form.append("files", fs.readFileSync(file), path.basename(file));
   });
 

@@ -103,7 +103,7 @@ Detailed description of the inputs exposed by the
     tool:
 
     # Token for authenticating requests to Sonar.
-    # Required, when tool is "sonar" and "file" has not been set. Only required for private repository.
+    # Required, when tool is "sonar". Only required for private repository.
     sonar-token:
 
     # Key identifying the Sonar component to be analyzed. Only necessary if deviating from Sonar's established convention.
@@ -142,8 +142,9 @@ Detailed description of the inputs exposed by the
     # Default: https://api.pixee.ai
     pixee-api-url:
 
-    # Path to the tool's results file to upload to Pixeebot. This does not apply to Sonar integration, because the action retrieves the results directly from Sonar.
-    # Required, when `tool` is not "sonar"
+    # Path to the tool's results file to upload to Pixeebot.
+    # This is required when using a `tool` that does not support automatically fetching results. Contrast, Sonar, and DefectDojo integrations support automatically fetching results. When this input is used with those tools, the given file will be uploaded _instead of_ automatically fetching results.
+    # Note: for Sonar results, the tool must be `sonar_hotspots` or `sonar_issues` instead of `sonar` when using this input.
     file:
 ```
 

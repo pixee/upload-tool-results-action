@@ -23,7 +23,7 @@ type QUERY_PARAM_KEY = "componentKeys" | "projectKey";
 export async function retrieveSonarIssues(
   sonarInputs: SonarInputs,
   pageSize: number,
-  page: number
+  page: number,
 ): Promise<SonarSearchIssuesResult> {
   const path = "api/issues/search";
   const url = buildSonarUrl({
@@ -31,7 +31,7 @@ export async function retrieveSonarIssues(
     path,
     queryParamKey: "componentKeys",
     pageSize,
-    page
+    page,
   });
   return retrieveSonarResults(sonarInputs, url, "issues");
 }
@@ -39,7 +39,7 @@ export async function retrieveSonarIssues(
 export async function retrieveSonarHotspots(
   sonarInputs: SonarInputs,
   pageSize: number,
-  page: number
+  page: number,
 ): Promise<SonarSearchHotspotResult> {
   const path = "api/hotspots/search";
   const url = buildSonarUrl({
@@ -47,7 +47,7 @@ export async function retrieveSonarHotspots(
     path,
     queryParamKey: "projectKey",
     pageSize,
-    page
+    page,
   });
   return retrieveSonarResults(sonarInputs, url, "hotspots");
 }
@@ -57,7 +57,7 @@ export function buildSonarUrl({
   path,
   queryParamKey,
   pageSize,
-  page
+  page,
 }: {
   sonarInputs: SonarInputs;
   path: string;
