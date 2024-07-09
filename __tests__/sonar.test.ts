@@ -37,7 +37,7 @@ describe("sonar", () => {
       path,
       queryParamKey: "componentKeys",
       pageSize: 500,
-      page: 1
+      page: 1,
     });
 
     expect(result).toBe(
@@ -58,7 +58,7 @@ describe("sonar", () => {
       path,
       queryParamKey: "componentKeys",
       pageSize: 500,
-      page: 1
+      page: 1,
     });
 
     expect(result).toBe(
@@ -74,7 +74,7 @@ describe("sonar", () => {
       path,
       queryParamKey: "projectKey",
       pageSize: 500,
-      page: 1
+      page: 1,
     });
 
     expect(result).toBe(
@@ -97,7 +97,7 @@ describe("sonar", () => {
       path,
       queryParamKey: "componentKeys",
       pageSize: 500,
-      page: 1
+      page: 1,
     });
 
     expect(result).toBe(
@@ -120,7 +120,7 @@ describe("sonar", () => {
       path,
       queryParamKey: "componentKeys",
       pageSize: 500,
-      page: 1
+      page: 1,
     });
 
     expect(result).toBe(
@@ -144,7 +144,7 @@ describe("sonar", () => {
       path,
       queryParamKey: "projectKey",
       pageSize: 500,
-      page: 1
+      page: 1,
     });
 
     expect(result).toBe(

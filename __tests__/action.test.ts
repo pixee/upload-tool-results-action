@@ -4,11 +4,19 @@ import { run } from "../src/action";
 import * as pixee from "../src/pixee-platform";
 import * as sonar from "../src/sonar";
 import * as github from "../src/github";
+import * as contrast from "../src/contrast";
+import * as defectdojo from "../src/defect-dojo";
 
 let getInputMock: jest.SpiedFunction<typeof core.getInput>;
 let getGitHubContextMock: jest.SpiedFunction<typeof github.getGitHubContext>;
 let getTempDir: jest.SpiedFunction<typeof github.getTempDir>;
 let uploadInputFileMock: jest.SpiedFunction<typeof pixee.uploadInputFiles>;
+let retrieveContrastResultsMock: jest.SpiedFunction<
+  typeof contrast.retrieveContrastResults
+>;
+let retrieveDefectDojoResultsMock: jest.SpiedFunction<
+  typeof defectdojo.retrieveDefectDojoResults
+>;
 let retrieveSonarIssuesMock: jest.SpiedFunction<
   typeof sonar.retrieveSonarIssues
 >;
@@ -35,6 +43,12 @@ describe("action", () => {
     triggerPrAnalysisMock = jest
       .spyOn(pixee, "triggerPrAnalysis")
       .mockImplementation();
+    retrieveContrastResultsMock = jest
+      .spyOn(contrast, "retrieveContrastResults")
+      .mockImplementation();
+    retrieveDefectDojoResultsMock = jest
+      .spyOn(defectdojo, "retrieveDefectDojoResults")
+      .mockImplementation();
     retrieveSonarIssuesMock = jest
       .spyOn(sonar, "retrieveSonarIssues")
       .mockImplementation();
@@ -58,7 +72,7 @@ describe("action", () => {
     getInputMock.mockImplementation((name: string) => {
       switch (name) {
         case "tool":
-          return "sonar";
+          return "sonar_issues";
         case "file":
           return "file.json";
         default:
@@ -77,17 +91,7 @@ describe("action", () => {
   });
 
   describe("when the file input is not empty", () => {
-    it("should upload the given sonar file", async () => {
-      getInputMock.mockImplementation((name: string) => {
-        switch (name) {
-          case "tool":
-            return "sonar";
-          case "file":
-            return "file.json";
-          default:
-            return "";
-        }
-      });
+    beforeEach(() => {
       getGitHubContextMock.mockReturnValue({
         owner: "owner",
         repo: "repo",
@@ -97,10 +101,70 @@ describe("action", () => {
         owner: "owner",
         repo: "repo",
       });
+    });
+
+    it("should upload the given file instead of automatically fetching Sonar results", async () => {
+      getInputMock.mockImplementation((name: string) => {
+        switch (name) {
+          case "tool":
+            return "sonar_issues";
+          case "file":
+            return "file.json";
+          default:
+            return "";
+        }
+      });
 
       await run();
 
-      expect(uploadInputFileMock).toHaveBeenCalledWith("sonar_issues", new Array("file.json"));
+      expect(uploadInputFileMock).toHaveBeenCalledWith(
+        "sonar_issues",
+        new Array("file.json"),
+      );
+      expect(retrieveSonarIssuesMock).not.toHaveBeenCalled();
+      expect(retrieveSonarHotspotsMock).not.toHaveBeenCalled();
+    });
+
+    it("should upload the given file instead of automatically fetching Contrast results", async () => {
+      getInputMock.mockImplementation((name: string) => {
+        switch (name) {
+          case "tool":
+            return "contrast";
+          case "file":
+            return "file.json";
+          default:
+            return "";
+        }
+      });
+
+      await run();
+
+      expect(uploadInputFileMock).toHaveBeenCalledWith(
+        "contrast",
+        new Array("file.json"),
+      );
+      expect(retrieveContrastResultsMock).not.toHaveBeenCalled();
+    });
+
+    it("should upload the given file instead of automatically fetching DefectDojo results", async () => {
+      getInputMock.mockImplementation((name: string) => {
+        switch (name) {
+          case "tool":
+            return "defectdojo";
+          case "file":
+            return "file.json";
+          default:
+            return "";
+        }
+      });
+
+      await run();
+
+      expect(uploadInputFileMock).toHaveBeenCalledWith(
+        "defectdojo",
+        new Array("file.json"),
+      );
+      expect(retrieveDefectDojoResultsMock).not.toHaveBeenCalled();
     });
 
     it("should upload the given semgrep file", async () => {
@@ -114,19 +178,13 @@ describe("action", () => {
             return "";
         }
       });
-      getGitHubContextMock.mockReturnValue({
-        owner: "owner",
-        repo: "repo",
-        sha: "sha",
-      });
-      getRepositoryInfoMock.mockReturnValue({
-        owner: "owner",
-        repo: "repo",
-      });
 
       await run();
 
-      expect(uploadInputFileMock).toHaveBeenCalledWith("semgrep", new Array("file.json"));
+      expect(uploadInputFileMock).toHaveBeenCalledWith(
+        "semgrep",
+        new Array("file.json"),
+      );
     });
 
     it("should upload the given snyk sarif file", async () => {
@@ -139,15 +197,6 @@ describe("action", () => {
           default:
             return "";
         }
-      });
-      getGitHubContextMock.mockReturnValue({
-        owner: "owner",
-        repo: "repo",
-        sha: "sha",
-      });
-      getRepositoryInfoMock.mockReturnValue({
-        owner: "owner",
-        repo: "repo",
       });
 
       await run();

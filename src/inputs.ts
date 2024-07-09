@@ -3,6 +3,8 @@ import { UserError } from "./errors";
 
 export type Tool =
   | "sonar"
+  | "sonar_issues"
+  | "sonar_hotspots"
   | "codeql"
   | "semgrep"
   | "appscan"
@@ -43,6 +45,8 @@ function validateTool(tool: Tool) {
 
 const VALID_TOOLS: Tool[] = [
   "sonar",
+  "sonar_issues",
+  "sonar_hotspots",
   "codeql",
   "semgrep",
   "appscan",

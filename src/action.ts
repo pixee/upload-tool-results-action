@@ -14,7 +14,7 @@ import { getContrastInputs, retrieveContrastResults } from "./contrast";
 
 interface SonarResults {
   totalResults: number;
-  results: any
+  results: any;
 }
 
 const MAX_PAGE_SIZE = 500;
@@ -29,34 +29,41 @@ const MAX_PAGE_SIZE = 500;
 export async function run() {
   const tool = getTool();
 
-  switch (tool) {
-    case "contrast":
-      const contrastFile = await fetchOrLocateContrastResultsFile();
-      await uploadInputFiles(tool, new Array(contrastFile));
-      core.info(`Uploaded ${contrastFile} to Pixeebot for analysis`);
-      break;
-    case "defectdojo":
-      const file = await fetchOrLocateDefectDojoResultsFile();
-      await uploadInputFiles(tool, new Array(file));
-      core.info(`Uploaded ${file} to Pixeebot for analysis`);
-      break;
-    case "sonar":
-      const issuesfiles = await fetchOrLocateSonarResultsFile("issues");
-      await uploadInputFiles("sonar_issues", issuesfiles);
-      core.info(`Uploaded ${issuesfiles} to Pixeebot for analysis`);
+  // if the file input is provided, upload the file
+  const inputFile = core.getInput("file");
+  if (inputFile) {
+    if (tool === "sonar") {
+      throw new Error(
+        `Tool "sonar" is too imprecise to use with a file input. Please use "sonar_issues" or "sonar_hotspots" instead.`,
+      );
+    }
+    await uploadInputFiles(tool, new Array(inputFile));
+    core.info(`Uploaded ${inputFile} for ${tool} to Pixeebot for analysis`);
+  } else {
+    // if the file input is not provided, automatically fetch the results and upload them, if supported
+    switch (tool) {
+      case "contrast":
+        const contrastFile = await fetchOrLocateContrastResultsFile();
+        await uploadInputFiles(tool, new Array(contrastFile));
+        core.info(`Uploaded ${contrastFile} to Pixeebot for analysis`);
+        break;
+      case "defectdojo":
+        const file = await fetchOrLocateDefectDojoResultsFile();
+        await uploadInputFiles(tool, new Array(file));
+        core.info(`Uploaded ${file} to Pixeebot for analysis`);
+        break;
+      case "sonar":
+        const issuesfiles = await fetchOrLocateSonarResultsFile("issues");
+        await uploadInputFiles("sonar_issues", issuesfiles);
+        core.info(`Uploaded ${issuesfiles} to Pixeebot for analysis`);
 
-      const hotspotFiles = await fetchOrLocateSonarResultsFile("hotspots");
-      await uploadInputFiles("sonar_hotspots", hotspotFiles);
-      core.info(`Uploaded ${hotspotFiles} to Pixeebot for analysis`);
-      break;
-    default:
-      const inputFile = core.getInput("file");
-      if (!inputFile) {
+        const hotspotFiles = await fetchOrLocateSonarResultsFile("hotspots");
+        await uploadInputFiles("sonar_hotspots", hotspotFiles);
+        core.info(`Uploaded ${hotspotFiles} to Pixeebot for analysis`);
+        break;
+      default:
         throw new Error(`Tool "${tool}" requires a file input`);
-      }
-
-      await uploadInputFiles(tool, new Array(inputFile));
-      core.info(`Uploaded ${inputFile} for ${tool} to Pixeebot for analysis`);
+    }
   }
 
   const { prNumber } = getGitHubContext();
@@ -81,9 +88,8 @@ async function fetchOrLocateContrastResultsFile() {
 }
 
 async function fetchOrLocateSonarResultsFile(
-  resultType: SONAR_RESULT
+  resultType: SONAR_RESULT,
 ): Promise<Array<string>> {
-
   let page = 1;
   const files = new Array();
   let isAllResults = false;
@@ -95,7 +101,11 @@ async function fetchOrLocateSonarResultsFile(
         : await fetchSonarHotspots(MAX_PAGE_SIZE, page);
     let fileName = `sonar-${resultType}-${page}.json`;
 
-    let file = await fetchOrLocateResultsFile("sonar", sonarResults.results, fileName);
+    let file = await fetchOrLocateResultsFile(
+      "sonar",
+      sonarResults.results,
+      fileName,
+    );
 
     let total = sonarResults.totalResults;
 
@@ -133,8 +143,8 @@ async function fetchOrLocateResultsFile(
 
 async function fetchSonarIssues(
   pageSize: number,
-  page: number
-) : Promise<SonarResults>{
+  page: number,
+): Promise<SonarResults> {
   const sonarInputs = getSonarInputs();
   const results = await retrieveSonarIssues(sonarInputs, pageSize, page);
 
@@ -147,20 +157,20 @@ async function fetchSonarIssues(
     );
   }
 
-  return {results, totalResults: results.total};
+  return { results, totalResults: results.total };
 }
 
 async function fetchSonarHotspots(
   pageSize: number,
-  page: number
-) : Promise<SonarResults>{
+  page: number,
+): Promise<SonarResults> {
   const sonarInputs = getSonarInputs();
   const results = await retrieveSonarHotspots(sonarInputs, pageSize, page);
   core.info(
     `Found ${results.paging.total} Sonar hotspots for component ${sonarInputs.componentKey}`,
   );
 
-  return {results, totalResults: results.paging.total};
+  return { results, totalResults: results.paging.total };
 }
 
 async function fetchDefectDojoFindings() {
