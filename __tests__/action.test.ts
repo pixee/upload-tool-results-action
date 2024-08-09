@@ -26,6 +26,8 @@ let retrieveSonarHotspotsMock: jest.SpiedFunction<
 let triggerPrAnalysisMock: jest.SpiedFunction<typeof pixee.triggerPrAnalysis>;
 let getRepositoryInfoMock: jest.SpiedFunction<typeof github.getRepositoryInfo>;
 
+const FILE_ONLY_TOOLS = ["semgrep", "snyk", "appscan", "checkmarx"];
+
 describe("action", () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -167,47 +169,33 @@ describe("action", () => {
       expect(retrieveDefectDojoResultsMock).not.toHaveBeenCalled();
     });
 
-    it("should upload the given semgrep file", async () => {
-      getInputMock.mockImplementation((name: string) => {
-        switch (name) {
-          case "tool":
-            return "semgrep";
-          case "file":
-            return "file.json";
-          default:
-            return "";
-        }
-      });
+    it.each(FILE_ONLY_TOOLS)(
+      "should upload the given file for the tool",
+      async (tool) => {
+        getInputMock.mockImplementation((name: string) => {
+          switch (name) {
+            case "tool":
+              return tool;
+            case "file":
+              return "file.json";
+            default:
+              return "";
+          }
+        });
 
-      await run();
+        await run();
 
-      expect(uploadInputFileMock).toHaveBeenCalledWith(
-        "semgrep",
-        new Array("file.json"),
-      );
-    });
-
-    it("should upload the given snyk sarif file", async () => {
-      getInputMock.mockImplementation((name: string) => {
-        switch (name) {
-          case "tool":
-            return "snyk";
-          case "file":
-            return "file.json";
-          default:
-            return "";
-        }
-      });
-
-      await run();
-
-      expect(uploadInputFileMock).toHaveBeenCalledWith("snyk", ["file.json"]);
-    });
+        expect(uploadInputFileMock).toHaveBeenCalledWith(
+          tool,
+          new Array("file.json"),
+        );
+      },
+    );
   });
 
   describe("when the file input is empty", () => {
-    it.each(["semgrep", "snyk"])(
-      "should throw an error, when the tool is not Sonar",
+    it.each(FILE_ONLY_TOOLS)(
+      "should throw an error, when the tool does not support automatic fetching of results",
       async (tool) => {
         // TODO
         getInputMock.mockImplementation((name: string) => {

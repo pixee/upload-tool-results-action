@@ -10,6 +10,7 @@ export type Tool =
   | "appscan"
   | "defectdojo"
   | "contrast"
+  | "checkmarx"
   | "snyk";
 
 export type TOOL_PATH =
@@ -20,6 +21,7 @@ export type TOOL_PATH =
   | "appscan"
   | "defectdojo"
   | "contrast"
+  | "checkmarx"
   | "snyk";
 
 /**
@@ -52,5 +54,6 @@ const VALID_TOOLS: Tool[] = [
   "appscan",
   "defectdojo",
   "contrast",
+  "checkmarx",
   "snyk",
 ];
