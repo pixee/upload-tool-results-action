@@ -4,16 +4,23 @@ import fs from "fs";
 import FormData from "form-data";
 import { TOOL_PATH } from "./inputs";
 import { getGitHubContext, getRepositoryInfo } from "./github";
+import { createWriteStream } from 'fs';
 
 export async function uploadInputFiles(tool: TOOL_PATH, files: Array<string>) {
-  const form = new FormData();
+  const path = require('path');
+  const archiver = require('archiver');
+  const zip = archiver('zip', { zlib: { level: 9 } }); // Compression level
+  const zipPath = path.join(__dirname, 'analysis-inputs.zip');
+  const output = createWriteStream(zipPath);
 
-  const path = require("path");
-
-  // Append each file to the form data
+  zip.pipe(output);
   files.forEach((file) => {
-    form.append("files", fs.readFileSync(file), path.basename(file));
+    zip.append(fs.createReadStream(file), { name: path.basename(file) });
   });
+  await zip.finalize();
+
+  const form = new FormData();
+  form.append('file', fs.createReadStream(zipPath), { filename: 'analysis-inputs.zip', contentType: 'application/zip' });
 
   const pixeeUrl = core.getInput("pixee-api-url");
   const token = await core.getIDToken(pixeeUrl);
@@ -28,6 +35,7 @@ export async function uploadInputFiles(tool: TOOL_PATH, files: Array<string>) {
     })
     .then(() => {
       // don't return the axios response
+      fs.unlinkSync(zipPath);
     });
 }
 
