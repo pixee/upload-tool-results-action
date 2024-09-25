@@ -6,29 +6,34 @@ import { TOOL_PATH } from "./inputs";
 import { getGitHubContext, getRepositoryInfo } from "./github";
 
 export async function uploadInputFiles(tool: TOOL_PATH, files: Array<string>) {
-  const form = new FormData();
-
   const path = require("path");
-
-  // Append each file to the form data
-  files.forEach((file) => {
-    form.append("files", fs.readFileSync(file), path.basename(file));
-  });
-
   const pixeeUrl = core.getInput("pixee-api-url");
   const token = await core.getIDToken(pixeeUrl);
   const url = buildUploadApiUrl(tool);
 
-  return axios
-    .put(url, form, {
-      headers: {
-        ...form.getHeaders(),
-        Authorization: `Bearer ${token}`,
-      },
-    })
-    .then(() => {
-      // don't return the axios response
-    });
+  // Send each file in a separate request
+  const uploads = files.map(async (file) => {
+    const form = new FormData();
+    form.append("files", fs.readFileSync(file), path.basename(file));
+
+    return axios
+      .put(url, form, {
+        headers: {
+          ...form.getHeaders(),
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then(() => {
+        // don't return the axios response
+        console.log(`Uploaded ${file} to ${url}`);
+      })
+      .catch((error) => {
+        console.error(`Failed to upload ${file} to ${url}`, error);
+        throw new Error(`Failed to upload ${file} to ${url}`);
+      });
+  });
+
+  return Promise.all(uploads);
 }
 
 export async function triggerPrAnalysis(prNumber: number) {
