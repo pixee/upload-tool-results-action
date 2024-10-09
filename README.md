@@ -83,7 +83,7 @@ For other supported tools that do not automatically fetch results, the `file` in
 - uses: pixee/upload-tool-results-action@v2
   with:
     # Use any supported SARIF tool here
-    tool: <[semgrep|checkmarx]>
+    tool: <[semgrep|checkmarx|...]>
     # Path to the checked-in SARIF file relative to the repository root
     file: <path/to/results.sarif>
 ```
