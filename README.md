@@ -75,6 +75,21 @@ improvement campaign_ analysis.
 > fixes to the default branch immediately, add a comment with the contents
 > "@pixeebot next" to any PR or issue in the repository.
 
+## For Other Tools
+
+For other supported tools that do not automatically fetch results, the `file` input can be used. In this case, it is assumed that the results file is checked into the repository and the provided path is relative to the repository root.
+
+```yaml
+- uses: pixee/upload-tool-results-action@v2
+  with:
+    # Use any supported SARIF tool here
+    tool: <[semgrep|checkmarx]>
+    # Path to the checked-in SARIF file relative to the repository root
+    file: <path/to/results.sarif>
+```
+
+For a complete example, see [sarif-pixeebot.yml](./examples/sarif-pixeebot.yml).
+
 ## Permissions
 
 All workflows using this action must include the `id-token: write` permission.
