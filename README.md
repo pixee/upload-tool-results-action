@@ -77,7 +77,9 @@ improvement campaign_ analysis.
 
 ## For Other Tools
 
-For other supported tools that do not automatically fetch results, the `file` input can be used. In this case, it is assumed that the results file is checked into the repository and the provided path is relative to the repository root.
+For other supported tools that do not automatically fetch results, the `file`
+input can be used. In this case, it is assumed that the results file is checked
+into the repository and the provided path is relative to the repository root.
 
 ```yaml
 - uses: pixee/upload-tool-results-action@v2
