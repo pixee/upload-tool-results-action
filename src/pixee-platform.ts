@@ -2,10 +2,10 @@ import * as core from "@actions/core";
 import axios from "axios";
 import fs from "fs";
 import FormData from "form-data";
-import { TOOL_PATH } from "./inputs";
+import { Tool } from "./inputs";
 import { getGitHubContext, getRepositoryInfo } from "./github";
 
-export async function uploadInputFiles(tool: TOOL_PATH, files: Array<string>) {
+export async function uploadInputFiles(tool: Tool, files: Array<string>) {
   const path = require("path");
   const pixeeUrl = core.getInput("pixee-api-url");
   const token = await core.getIDToken(pixeeUrl);
@@ -59,7 +59,7 @@ function buildTriggerApiUrl(prNumber: number): string {
   return `${pixeeUrl}/analysis-input/${owner}/${repo}/${prNumber}`;
 }
 
-function buildUploadApiUrl(tool: TOOL_PATH): string {
+function buildUploadApiUrl(tool: Tool): string {
   const { owner, repo, sha } = getGitHubContext();
   const pixeeUrl = core.getInput("pixee-api-url");
 

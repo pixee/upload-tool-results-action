@@ -74,7 +74,7 @@ describe("action", () => {
     getInputMock.mockImplementation((name: string) => {
       switch (name) {
         case "tool":
-          return "sonar_issues";
+          return "sonar";
         case "file":
           return "file.json";
         default:
@@ -109,7 +109,7 @@ describe("action", () => {
       getInputMock.mockImplementation((name: string) => {
         switch (name) {
           case "tool":
-            return "sonar_issues";
+            return "sonar";
           case "file":
             return "file.json";
           default:
@@ -120,7 +120,7 @@ describe("action", () => {
       await run();
 
       expect(uploadInputFileMock).toHaveBeenCalledWith(
-        "sonar_issues",
+        "sonar",
         new Array("file.json"),
       );
       expect(retrieveSonarIssuesMock).not.toHaveBeenCalled();
