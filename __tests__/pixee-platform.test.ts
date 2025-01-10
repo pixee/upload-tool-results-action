@@ -38,10 +38,10 @@ describe("pixee-platform", () => {
       }
     });
 
-    await uploadInputFiles("sonar_issues", new Array(file.name));
+    await uploadInputFiles("sonar", new Array(file.name));
 
     expect(axios.put).toHaveBeenCalledWith(
-      "https://api.pixee.ai/analysis-input/owner/repo/sha/sonar_issues",
+      "https://api.pixee.ai/analysis-input/owner/repo/sha/sonar",
       expect.anything(), // cannot assert the form content
       {
         headers: {
@@ -68,10 +68,10 @@ describe("pixee-platform", () => {
       }
     });
 
-    await uploadInputFiles("sonar_issues", new Array(file1.name, file2.name));
+    await uploadInputFiles("sonar", new Array(file1.name, file2.name));
 
     expect(axios.put).toHaveBeenCalledWith(
-      "https://api.pixee.ai/analysis-input/owner/repo/sha/sonar_issues",
+      "https://api.pixee.ai/analysis-input/owner/repo/sha/sonar",
       expect.anything(), // cannot assert the form content
       {
         headers: {

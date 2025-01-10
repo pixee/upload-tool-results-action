@@ -32,11 +32,6 @@ export async function run() {
   // if the file input is provided, upload the file
   const inputFile = core.getInput("file");
   if (inputFile) {
-    if (tool === "sonar") {
-      throw new Error(
-        `Tool "sonar" is too imprecise to use with a file input. Please use "sonar_issues" or "sonar_hotspots" instead.`,
-      );
-    }
     await uploadInputFiles(tool, new Array(inputFile));
     core.info(`Uploaded ${inputFile} for ${tool} to Pixeebot for analysis`);
   } else {
@@ -54,11 +49,11 @@ export async function run() {
         break;
       case "sonar":
         const issuesfiles = await fetchOrLocateSonarResultsFile("issues");
-        await uploadInputFiles("sonar_issues", issuesfiles);
+        await uploadInputFiles("sonar", issuesfiles);
         core.info(`Uploaded ${issuesfiles} to Pixeebot for analysis`);
 
         const hotspotFiles = await fetchOrLocateSonarResultsFile("hotspots");
-        await uploadInputFiles("sonar_hotspots", hotspotFiles);
+        await uploadInputFiles("sonar", hotspotFiles);
         core.info(`Uploaded ${hotspotFiles} to Pixeebot for analysis`);
         break;
       default:
