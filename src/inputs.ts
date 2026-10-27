@@ -6,7 +6,6 @@ export type Tool =
   | "codeql"
   | "semgrep"
   | "appscan"
-  | "defectdojo"
   | "contrast"
   | "checkmarx"
   | "polaris"
@@ -38,7 +37,6 @@ const VALID_TOOLS: Tool[] = [
   "codeql",
   "semgrep",
   "appscan",
-  "defectdojo",
   "contrast",
   "checkmarx",
   "polaris",

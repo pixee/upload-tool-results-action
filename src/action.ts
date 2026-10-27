@@ -8,7 +8,6 @@ import {
   retrieveSonarHotspots,
   retrieveSonarIssues,
 } from "./sonar";
-import { getDefectDojoInputs, retrieveDefectDojoResults } from "./defect-dojo";
 import { getGitHubContext, getTempDir } from "./github";
 import { getContrastInputs, retrieveContrastResults } from "./contrast";
 
@@ -42,11 +41,6 @@ export async function run() {
         await uploadInputFiles(tool, new Array(contrastFile));
         core.info(`Uploaded ${contrastFile} to Pixeebot for analysis`);
         break;
-      case "defectdojo":
-        const file = await fetchOrLocateDefectDojoResultsFile();
-        await uploadInputFiles(tool, new Array(file));
-        core.info(`Uploaded ${file} to Pixeebot for analysis`);
-        break;
       case "sonar":
         const issuesfiles = await fetchOrLocateSonarResultsFile("issues");
         await uploadInputFiles("sonar", issuesfiles);
@@ -66,13 +60,6 @@ export async function run() {
     await triggerPrAnalysis(prNumber);
     core.info(`Hardening PR ${prNumber}`);
   }
-}
-
-async function fetchOrLocateDefectDojoResultsFile() {
-  let results = await fetchDefectDojoFindings();
-  let fileName = "defectdojo.findings.json";
-
-  return fetchOrLocateResultsFile("defectdojo", results, fileName);
 }
 
 async function fetchOrLocateContrastResultsFile() {
@@ -166,16 +153,6 @@ async function fetchSonarHotspots(
   );
 
   return { results, totalResults: results.paging.total };
-}
-
-async function fetchDefectDojoFindings() {
-  const inputs = getDefectDojoInputs();
-  const findings = await retrieveDefectDojoResults(inputs);
-  core.info(
-    `Found ${findings.count} DefectDojo findings for component ${inputs.productName}`,
-  );
-
-  return findings;
 }
 
 async function fetchContrastFindings(): Promise<any> {

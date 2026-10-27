@@ -10,8 +10,8 @@ inputs:
   tool:
     description: >
       The supported code scanning tool that produced the results being uploaded.
-      Allowed values: 'sonar', 'codeql', 'semgrep', 'defectdojo', 'contrast',
-      'snyk', 'checkmarx', 'polaris'
+      Allowed values: 'sonar', 'codeql', 'semgrep', 'contrast', 'snyk',
+      'checkmarx', 'polaris'
     required: true
   file:
     description: Path to the tool's results file to share with Pixeebot.
@@ -25,15 +25,6 @@ inputs:
   sonar-host-url:
     description: SonarCloud or SonarQube host URL.
     default: https://sonarcloud.io
-  defectdojo-token:
-    description: Token for authenticating requests to DefectDojo.
-    required: false
-  defectdojo-api-url:
-    description: Base URL of the DefectDojo API.
-    required: false
-  defectdojo-product-name:
-    description: Key identifying the DefectDojo product to be analyzed.
-    required: false
   contrast-api-url:
     description: Base URL of the Contrast API.
     required: false

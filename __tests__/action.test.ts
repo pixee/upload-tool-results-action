@@ -5,7 +5,6 @@ import * as pixee from "../src/pixee-platform";
 import * as sonar from "../src/sonar";
 import * as github from "../src/github";
 import * as contrast from "../src/contrast";
-import * as defectdojo from "../src/defect-dojo";
 
 let getInputMock: jest.SpiedFunction<typeof core.getInput>;
 let getGitHubContextMock: jest.SpiedFunction<typeof github.getGitHubContext>;
@@ -13,9 +12,6 @@ let getTempDir: jest.SpiedFunction<typeof github.getTempDir>;
 let uploadInputFileMock: jest.SpiedFunction<typeof pixee.uploadInputFiles>;
 let retrieveContrastResultsMock: jest.SpiedFunction<
   typeof contrast.retrieveContrastResults
->;
-let retrieveDefectDojoResultsMock: jest.SpiedFunction<
-  typeof defectdojo.retrieveDefectDojoResults
 >;
 let retrieveSonarIssuesMock: jest.SpiedFunction<
   typeof sonar.retrieveSonarIssues
@@ -47,9 +43,6 @@ describe("action", () => {
       .mockImplementation();
     retrieveContrastResultsMock = jest
       .spyOn(contrast, "retrieveContrastResults")
-      .mockImplementation();
-    retrieveDefectDojoResultsMock = jest
-      .spyOn(defectdojo, "retrieveDefectDojoResults")
       .mockImplementation();
     retrieveSonarIssuesMock = jest
       .spyOn(sonar, "retrieveSonarIssues")
@@ -146,27 +139,6 @@ describe("action", () => {
         new Array("file.json"),
       );
       expect(retrieveContrastResultsMock).not.toHaveBeenCalled();
-    });
-
-    it("should upload the given file instead of automatically fetching DefectDojo results", async () => {
-      getInputMock.mockImplementation((name: string) => {
-        switch (name) {
-          case "tool":
-            return "defectdojo";
-          case "file":
-            return "file.json";
-          default:
-            return "";
-        }
-      });
-
-      await run();
-
-      expect(uploadInputFileMock).toHaveBeenCalledWith(
-        "defectdojo",
-        new Array("file.json"),
-      );
-      expect(retrieveDefectDojoResultsMock).not.toHaveBeenCalled();
     });
 
     it.each(FILE_ONLY_TOOLS)(

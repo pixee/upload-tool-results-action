@@ -115,7 +115,7 @@ Detailed description of the inputs exposed by the
 - uses: pixee/upload-tool-results-action
   with:
     # The supported code scanning tool that produced the results being uploaded to Pixeebot.
-    # Allowed values: 'sonar', 'codeql', 'semgrep', 'defectdojo', 'contrast', 'checkmarx', 'snyk', 'polaris'
+    # Allowed values: 'sonar', 'codeql', 'semgrep', 'contrast', 'checkmarx', 'snyk', 'polaris'
     # Required
     tool:
 
@@ -130,15 +130,6 @@ Detailed description of the inputs exposed by the
     # SonarCloud or SonarQube host URL. Use this to switch from SonarCloud to SonarQube.
     # Default: https://sonarcloud.io
     sonar-host-url:
-
-    # Token for authenticating requests to DefectDojo.
-    defectdojo-token:
-
-    # Key identifying the DefectDojo product (repository) to be analyzed.
-    defectdojo-product-name:
-
-    # Base URL of the DefectDojo API.
-    defectdojo-api-url:
 
     # Base URL of the Contrast API.
     contrast-api-url:
@@ -160,7 +151,7 @@ Detailed description of the inputs exposed by the
     pixee-api-url:
 
     # Path to the tool's results file to upload to Pixeebot.
-    # This is required when using a `tool` that does not support automatically fetching results. Contrast, Sonar, and DefectDojo integrations support automatically fetching results. When this input is used with those tools, the given file will be uploaded _instead of_ automatically fetching results.
+    # This is required when using a `tool` that does not support automatically fetching results. Contrast and Sonar integrations support automatically fetching results. When this input is used with those tools, the given file will be uploaded _instead of_ automatically fetching results.
     # Note: for Sonar results, the tool must be `sonar_hotspots` or `sonar_issues` instead of `sonar` when using this input.
     file:
 ```
